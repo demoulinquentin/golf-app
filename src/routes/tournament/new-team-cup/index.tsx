@@ -299,7 +299,7 @@ function NewTeamCupPage() {
                 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Tournament Name *
+                    Tournament Name
                   </label>
                   <input
                     type="text"
