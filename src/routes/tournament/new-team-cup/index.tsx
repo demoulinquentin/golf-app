@@ -172,78 +172,42 @@ function NewTeamCupPage() {
     const party2 = watch("day2.party2");
     const allPlayers = getAllPlayers();
 
-    // Identify Europe (team 0) and USA (team 1) players
-    const europeInP1 = party1.filter((i) => allPlayers[i]?.teamIndex === 0);
-    const usaInP1 = party1.filter((i) => allPlayers[i]?.teamIndex === 1);
-    const europeInP2 = party2.filter((i) => allPlayers[i]?.teamIndex === 0);
-    const usaInP2 = party2.filter((i) => allPlayers[i]?.teamIndex === 1);
+    const europe = allPlayers.filter((p) => p.teamIndex === 0).map((p) => p.playerIndex);
+    const usa = allPlayers.filter((p) => p.teamIndex === 1).map((p) => p.playerIndex);
+
+    if (europe.length !== 3 || usa.length !== 3) return [];
 
     const isInParty1 = (idx: number) => party1.includes(idx);
-    const bothSameParty = (a: number, b: number) =>
+    const sameParty = (a: number, b: number) =>
       (isInParty1(a) && isInParty1(b)) || (!isInParty1(a) && !isInParty1(b));
 
-    // Build all 9 cross-team matches (every Europe vs every USA)
-    const allEurope = [...europeInP1, ...europeInP2];
-    const allUsa = [...usaInP1, ...usaInP2];
-    const allMatches = allEurope.flatMap((e) =>
-      allUsa.map((u) => ({ europe: e, usa: u, sameParty: bothSameParty(e, u) }))
+    // Build 3 perfect matchings (Latin square): each Europe vs each USA exactly once,
+    // each player in exactly 1 match per segment
+    const matchings = [
+      [{ e: europe[0], u: usa[0] }, { e: europe[1], u: usa[1] }, { e: europe[2], u: usa[2] }],
+      [{ e: europe[0], u: usa[1] }, { e: europe[1], u: usa[2] }, { e: europe[2], u: usa[0] }],
+      [{ e: europe[0], u: usa[2] }, { e: europe[1], u: usa[0] }, { e: europe[2], u: usa[1] }],
+    ];
+
+    // Count within-party (live) matches per matching
+    const liveCounts = matchings.map((m) =>
+      m.filter((pair) => sameParty(pair.e, pair.u)).length
     );
 
-    // Segment 1 & 2: within-party matches first, then fill with blind
-    const withinParty = allMatches.filter((m) => m.sameParty);
-    const blind = allMatches.filter((m) => !m.sameParty);
+    // Sort: matchings with most live matches go to seg 1 and 2
+    const order = [0, 1, 2].sort((a, b) => liveCounts[b] - liveCounts[a]);
 
-    const seg1: typeof allMatches = [];
-    const seg2: typeof allMatches = [];
-    const seg3: typeof allMatches = [];
-    const used = new Set<string>();
-
-    const key = (e: number, u: number) => `${e}-${u}`;
-    const playerUsedInSeg = (seg: typeof allMatches, idx: number) =>
-      seg.some((m) => m.europe === idx || m.usa === idx);
-
-    // Place within-party matches in seg 1 and 2
-    for (const m of withinParty) {
-      if (seg1.length < 2 && !playerUsedInSeg(seg1, m.europe) && !playerUsedInSeg(seg1, m.usa)) {
-        seg1.push(m);
-        used.add(key(m.europe, m.usa));
-      } else if (seg2.length < 2 && !playerUsedInSeg(seg2, m.europe) && !playerUsedInSeg(seg2, m.usa)) {
-        seg2.push(m);
-        used.add(key(m.europe, m.usa));
-      }
-    }
-
-    // Fill seg 1 and 2 with blind matches
-    for (const m of blind) {
-      if (used.has(key(m.europe, m.usa))) continue;
-      if (seg1.length < 3 && !playerUsedInSeg(seg1, m.europe) && !playerUsedInSeg(seg1, m.usa)) {
-        seg1.push(m);
-        used.add(key(m.europe, m.usa));
-      } else if (seg2.length < 3 && !playerUsedInSeg(seg2, m.europe) && !playerUsedInSeg(seg2, m.usa)) {
-        seg2.push(m);
-        used.add(key(m.europe, m.usa));
-      }
-    }
-
-    // Remaining go to seg 3
-    for (const m of [...withinParty, ...blind]) {
-      if (!used.has(key(m.europe, m.usa))) {
-        seg3.push(m);
-        used.add(key(m.europe, m.usa));
-      }
-    }
-
-    const toFormMatch = (m: typeof allMatches[0], seg: number) => ({
+    const toFormMatch = (pair: { e: number; u: number }, seg: number) => ({
       segmentNumber: seg,
-      player1Index: m.europe,
-      player2Index: m.usa,
-      type: m.sameParty ? ("within-party" as const) : ("blind" as const),
+      player1Index: pair.e,
+      player2Index: pair.u,
+      type: sameParty(pair.e, pair.u) ? ("within-party" as const) : ("blind" as const),
     });
 
     return [
-      ...seg1.map((m) => toFormMatch(m, 1)),
-      ...seg2.map((m) => toFormMatch(m, 2)),
-      ...seg3.map((m) => toFormMatch(m, 3)),
+      ...matchings[order[0]].map((p) => toFormMatch(p, 1)),
+      ...matchings[order[1]].map((p) => toFormMatch(p, 2)),
+      ...matchings[order[2]].map((p) => toFormMatch(p, 3)),
     ];
   };
 
