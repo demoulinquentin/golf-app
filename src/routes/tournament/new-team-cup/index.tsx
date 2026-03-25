@@ -471,7 +471,7 @@ function NewTeamCupPage() {
 
                 {/* Day 1 */}
                 <div className="rounded-lg border-2 border-gray-200 p-6">
-                  <h3 className="mb-4 text-lg font-semibold text-gray-900">Day 1 - Practice Round</h3>
+                  <h3 className="mb-4 text-lg font-semibold text-gray-900">Day 1 - Leaderboard</h3>
                   <CourseSelector
                     onCourseSelected={(json, courseName) => {
                       setValue("day1.courseJson", json);
@@ -483,7 +483,7 @@ function NewTeamCupPage() {
 
                 {/* Day 2 */}
                 <div className="rounded-lg border-2 border-gray-200 p-6">
-                  <h3 className="mb-4 text-lg font-semibold text-gray-900">Day 2 - Match Play</h3>
+                  <h3 className="mb-4 text-lg font-semibold text-gray-900">Day 2 - 6 Holes Matchplay</h3>
                   <CourseSelector
                     onCourseSelected={(json, courseName) => {
                       setValue("day2.courseJson", json);
@@ -495,7 +495,7 @@ function NewTeamCupPage() {
 
                 {/* Day 3 */}
                 <div className="rounded-lg border-2 border-gray-200 p-6">
-                  <h3 className="mb-4 text-lg font-semibold text-gray-900">Day 3 - Singles</h3>
+                  <h3 className="mb-4 text-lg font-semibold text-gray-900">Day 3 - Best Ball</h3>
                   <CourseSelector
                     onCourseSelected={(json, courseName) => {
                       setValue("day3.courseJson", json);
