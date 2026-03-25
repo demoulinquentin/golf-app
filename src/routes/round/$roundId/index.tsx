@@ -369,26 +369,37 @@ function LeaderboardTab({
   }, [round, getPlayerScore, getStrokesReceivedForHole]);
 
   // Calculate position-based points (6-5-4-3-2-1)
+  // Ties: split the sum of tied positions' points equally
   const standingsWithPoints = useMemo(() => {
     const pointsMap = [6, 5, 4, 3, 2, 1];
-    let rank = 0;
-    let prevNet = -1;
-    let skipCount = 0;
+    const withScores = individualStandings.filter((s: any) => s.holesPlayed > 0);
+    const withoutScores = individualStandings.filter((s: any) => s.holesPlayed === 0);
 
-    return individualStandings.map((s: any, idx: number) => {
-      if (s.holesPlayed === 0) {
-        return { ...s, rank: "-", pts: 0 };
+    const result: any[] = [];
+    let pos = 0;
+    while (pos < withScores.length) {
+      const currentNet = withScores[pos].net;
+      let tieCount = 0;
+      while (pos + tieCount < withScores.length && withScores[pos + tieCount].net === currentNet) {
+        tieCount++;
       }
-      if (s.net !== prevNet) {
-        rank = idx + 1;
-        skipCount = 0;
-        prevNet = s.net;
-      } else {
-        skipCount++;
+      let totalPts = 0;
+      for (let i = 0; i < tieCount; i++) {
+        const idx = pos + i;
+        totalPts += idx < pointsMap.length ? pointsMap[idx] : 0;
       }
-      const pts = rank <= pointsMap.length ? pointsMap[rank - 1] : 0;
-      return { ...s, rank, pts };
-    });
+      const sharedPts = totalPts / tieCount;
+      for (let i = 0; i < tieCount; i++) {
+        result.push({ ...withScores[pos + i], rank: pos + 1, pts: sharedPts });
+      }
+      pos += tieCount;
+    }
+
+    for (const s of withoutScores) {
+      result.push({ ...s, rank: "-", pts: 0 });
+    }
+
+    return result;
   }, [individualStandings]);
 
   // Build team standings

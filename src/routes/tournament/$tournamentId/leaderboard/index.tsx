@@ -17,6 +17,12 @@ export const Route = createFileRoute("/tournament/$tournamentId/leaderboard/")({
   validateSearch: zodValidator(searchSchema),
 });
 
+function formatScore(score: number | null | undefined): string {
+  if (score === null || score === undefined) return "–";
+  if (score === 0) return "E";
+  return score > 0 ? `+${score}` : `${score}`;
+}
+
 function TournamentLeaderboardPage() {
   const { tournamentId } = Route.useParams();
   const { preview } = Route.useSearch();
@@ -302,14 +308,14 @@ function TournamentLeaderboardPage() {
                           const rs = entry.roundScores?.find((s: any) => s.roundId === r.roundId);
                           return (
                             <React.Fragment key={r.roundId}>
-                              <td className="px-1 py-3 text-center text-gray-700">{rs?.grossScore ?? "–"}</td>
-                              <td className="px-1 py-3 text-center text-gray-700">{rs?.netScore ?? "–"}</td>
+                              <td className="px-1 py-3 text-center text-gray-700">{formatScore(rs?.grossScore)}</td>
+                              <td className="px-1 py-3 text-center text-gray-700">{formatScore(rs?.netScore)}</td>
                               <td className="px-1 py-3 text-center font-medium text-purple-600">{rs?.points || "–"}</td>
                             </React.Fragment>
                           );
                         })}
-                        <td className="px-1 py-3 text-center font-semibold text-gray-900">{entry.totalGrossScore || "–"}</td>
-                        <td className="px-1 py-3 text-center font-semibold text-gray-900">{entry.totalNetScore || "–"}</td>
+                        <td className="px-1 py-3 text-center font-semibold text-gray-900">{formatScore(entry.totalGrossScore)}</td>
+                        <td className="px-1 py-3 text-center font-semibold text-gray-900">{formatScore(entry.totalNetScore)}</td>
                         <td className="px-1 py-3 text-center font-bold text-purple-600">{entry.totalPoints || "–"}</td>
                       </tr>
                     ))}

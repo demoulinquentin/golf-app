@@ -102,23 +102,28 @@ export const getTournamentLeaderboard = baseProcedure
           | null;
 
         if (playerRoundScores.length > 0) {
-          const grossScore = playerRoundScores.reduce(
+          const totalStrokes = playerRoundScores.reduce(
             (sum, s) => sum + s.strokes,
             0
           );
 
-          // Calculate net score using handicap and stroke index
-          let netScore = grossScore;
-          if (holeData) {
-            const handicap = roundPlayer.player.handicap;
-            netScore = playerRoundScores.reduce((sum, s) => {
-              const hole = holeData.find((h) => h.hole === s.holeNumber);
-              if (!hole) return sum + s.strokes;
+          // Calculate par for holes played and strokes received
+          let totalPar = 0;
+          let totalStrokesReceived = 0;
+          const handicap = roundPlayer.player.handicap;
+
+          for (const s of playerRoundScores) {
+            const hole = holeData?.find((h) => h.hole === s.holeNumber);
+            totalPar += hole?.par || 4;
+            if (hole) {
               const base = Math.floor(handicap / 18);
               const extra = hole.strokeIndex <= handicap % 18 ? 1 : 0;
-              return sum + s.strokes - base - extra;
-            }, 0);
+              totalStrokesReceived += base + extra;
+            }
           }
+
+          const grossScore = totalStrokes - totalPar; // relative to par
+          const netScore = grossScore - totalStrokesReceived; // gross minus handicap strokes
 
           playerScores[playerId].totalGrossScore += grossScore;
           playerScores[playerId].totalNetScore += netScore;
@@ -143,6 +148,8 @@ export const getTournamentLeaderboard = baseProcedure
     }
 
     // Calculate position-based points per round (6,5,4,3,2,1 based on net score)
+    // Ties: split the sum of positions' points equally
+    // e.g., 2 tied for 2nd → each gets (5+4)/2 = 4.5
     const positionPoints = [6, 5, 4, 3, 2, 1];
     for (const round of tournament.rounds) {
       const playersWithScores = Object.values(playerScores)
@@ -153,13 +160,38 @@ export const getTournamentLeaderboard = baseProcedure
         .filter((p) => p.netScore !== null && p.netScore !== undefined)
         .sort((a, b) => a.netScore! - b.netScore!);
 
-      playersWithScores.forEach((p, idx) => {
-        const points = idx < positionPoints.length ? positionPoints[idx] : 0;
-        const ps = playerScores[p.playerId];
-        const rs = ps.roundScores.find((r) => r.roundId === round.id);
-        if (rs) rs.points = points;
-        ps.totalPoints += points;
-      });
+      // Group by net score to handle ties
+      let pos = 0;
+      while (pos < playersWithScores.length) {
+        // Find all players with the same net score
+        const currentNet = playersWithScores[pos].netScore!;
+        let tieCount = 0;
+        while (
+          pos + tieCount < playersWithScores.length &&
+          playersWithScores[pos + tieCount].netScore === currentNet
+        ) {
+          tieCount++;
+        }
+
+        // Sum points for all tied positions and divide equally
+        let totalPtsForTied = 0;
+        for (let i = 0; i < tieCount; i++) {
+          const idx = pos + i;
+          totalPtsForTied += idx < positionPoints.length ? positionPoints[idx] : 0;
+        }
+        const sharedPts = totalPtsForTied / tieCount;
+
+        // Assign to each tied player
+        for (let i = 0; i < tieCount; i++) {
+          const p = playersWithScores[pos + i];
+          const ps = playerScores[p.playerId];
+          const rs = ps.roundScores.find((r) => r.roundId === round.id);
+          if (rs) rs.points = sharedPts;
+          ps.totalPoints += sharedPts;
+        }
+
+        pos += tieCount;
+      }
     }
 
     // Sort individual leaderboard by total points (highest first)
