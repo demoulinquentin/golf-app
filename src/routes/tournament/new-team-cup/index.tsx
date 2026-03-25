@@ -537,32 +537,65 @@ function NewTeamCupPage() {
                         </div>
                         <div className="divide-y divide-gray-100">
                           {segMatches.map((match, i) => {
+                            const matchIdx = matches.indexOf(match);
                             const p1 = allPlayers[match.player1Index];
                             const p2 = allPlayers[match.player2Index];
                             const team1Color = p1?.teamIndex === 0 ? watch("teams.0.color") : watch("teams.1.color");
                             const team2Color = p2?.teamIndex === 0 ? watch("teams.0.color") : watch("teams.1.color");
+                            const isInParty1 = (idx: number) => party1.includes(idx);
+                            const sameParty = (a: number, b: number) =>
+                              (isInParty1(a) && isInParty1(b)) || (!isInParty1(a) && !isInParty1(b));
                             return (
-                              <div key={i} className="flex items-center justify-between px-4 py-3">
-                                <div className="flex items-center gap-3">
-                                  <span
-                                    className="inline-block h-3 w-3 rounded-full"
-                                    style={{ backgroundColor: team1Color }}
-                                  />
-                                  <span className="text-sm font-medium text-gray-900">
-                                    {p1?.name || "?"}
-                                  </span>
-                                </div>
-                                <span className="text-xs font-bold uppercase text-gray-400">vs</span>
-                                <div className="flex items-center gap-3">
-                                  <span className="text-sm font-medium text-gray-900">
-                                    {p2?.name || "?"}
-                                  </span>
-                                  <span
-                                    className="inline-block h-3 w-3 rounded-full"
-                                    style={{ backgroundColor: team2Color }}
-                                  />
-                                </div>
-                                <span className={`ml-4 rounded-full px-2 py-0.5 text-xs font-medium ${
+                              <div key={i} className="flex items-center gap-2 px-4 py-3">
+                                <span
+                                  className="inline-block h-3 w-3 shrink-0 rounded-full"
+                                  style={{ backgroundColor: team1Color }}
+                                />
+                                <select
+                                  value={match.player1Index}
+                                  onChange={(e) => {
+                                    const newIdx = parseInt(e.target.value);
+                                    const updatedMatches = [...matches];
+                                    updatedMatches[matchIdx] = {
+                                      ...updatedMatches[matchIdx],
+                                      player1Index: newIdx,
+                                      type: sameParty(newIdx, match.player2Index) ? "within-party" : "blind",
+                                    };
+                                    setValue("day2.matches", updatedMatches);
+                                  }}
+                                  className="w-full rounded border border-gray-200 px-2 py-1 text-sm font-medium text-gray-900 focus:border-green-500 focus:outline-none"
+                                >
+                                  {allPlayers.map((p) => (
+                                    <option key={p.playerIndex} value={p.playerIndex}>{p.name}</option>
+                                  ))}
+                                </select>
+
+                                <span className="shrink-0 text-xs font-bold uppercase text-gray-400">vs</span>
+
+                                <select
+                                  value={match.player2Index}
+                                  onChange={(e) => {
+                                    const newIdx = parseInt(e.target.value);
+                                    const updatedMatches = [...matches];
+                                    updatedMatches[matchIdx] = {
+                                      ...updatedMatches[matchIdx],
+                                      player2Index: newIdx,
+                                      type: sameParty(match.player1Index, newIdx) ? "within-party" : "blind",
+                                    };
+                                    setValue("day2.matches", updatedMatches);
+                                  }}
+                                  className="w-full rounded border border-gray-200 px-2 py-1 text-sm font-medium text-gray-900 focus:border-green-500 focus:outline-none"
+                                >
+                                  {allPlayers.map((p) => (
+                                    <option key={p.playerIndex} value={p.playerIndex}>{p.name}</option>
+                                  ))}
+                                </select>
+                                <span
+                                  className="inline-block h-3 w-3 shrink-0 rounded-full"
+                                  style={{ backgroundColor: team2Color }}
+                                />
+
+                                <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
                                   match.type === "within-party"
                                     ? "bg-green-100 text-green-700"
                                     : "bg-amber-100 text-amber-700"
@@ -602,11 +635,11 @@ function NewTeamCupPage() {
               );
             })()}
 
-            {/* Step 5: Day 3 Party Assignments */}
+            {/* Step 5: Day 3 - Best Ball */}
             {step === 5 && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900">Day 3 Party Assignments</h2>
-                <p className="text-gray-600">Assign players to parties for singles matches</p>
+                <h2 className="text-2xl font-bold text-gray-900">Day 3 — Best Ball</h2>
+                <p className="text-gray-600">Assign players to parties for best ball matches</p>
 
                 <div className="grid gap-6 lg:grid-cols-2">
                   {/* Party 1 */}
@@ -660,12 +693,6 @@ function NewTeamCupPage() {
                       ))}
                     </div>
                   </div>
-                </div>
-
-                <div className="rounded-lg bg-green-50 p-4">
-                  <p className="text-sm text-green-800">
-                    <strong>Note:</strong> Day 3 features 6 singles matches (1 point each) for a total of 6 points.
-                  </p>
                 </div>
 
                 <div className="flex justify-between">
