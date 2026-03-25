@@ -6,7 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Plus, Trash2, ChevronRight, ChevronLeft, Trophy, Calendar, Users, Copy, Check, Shield } from "lucide-react";
+import { ChevronRight, ChevronLeft, Trophy, Calendar, Users, Copy, Check, Shield } from "lucide-react";
 import { CourseSelector } from "~/components/CourseSelector";
 
 export const Route = createFileRoute("/tournament/new-team-cup/")({
@@ -123,7 +123,6 @@ function NewTeamCupPage() {
   });
 
   const teams = watch("teams");
-  const day2Matches = watch("day2.matches");
 
   const createTournamentMutation = useMutation(
     trpc.createTeamCupTournament.mutationOptions({
@@ -168,25 +167,84 @@ function NewTeamCupPage() {
     return players;
   };
 
-  const addMatch = () => {
-    const currentMatches = watch("day2.matches");
-    setValue("day2.matches", [
-      ...currentMatches,
-      {
-        segmentNumber: 1,
-        player1Index: 0,
-        player2Index: 3,
-        type: "within-party" as const,
-      },
-    ]);
-  };
+  const generateDay2Matches = () => {
+    const party1 = watch("day2.party1");
+    const party2 = watch("day2.party2");
+    const allPlayers = getAllPlayers();
 
-  const removeMatch = (index: number) => {
-    const currentMatches = watch("day2.matches");
-    setValue(
-      "day2.matches",
-      currentMatches.filter((_, i) => i !== index)
+    // Identify Europe (team 0) and USA (team 1) players
+    const europeInP1 = party1.filter((i) => allPlayers[i]?.teamIndex === 0);
+    const usaInP1 = party1.filter((i) => allPlayers[i]?.teamIndex === 1);
+    const europeInP2 = party2.filter((i) => allPlayers[i]?.teamIndex === 0);
+    const usaInP2 = party2.filter((i) => allPlayers[i]?.teamIndex === 1);
+
+    const isInParty1 = (idx: number) => party1.includes(idx);
+    const bothSameParty = (a: number, b: number) =>
+      (isInParty1(a) && isInParty1(b)) || (!isInParty1(a) && !isInParty1(b));
+
+    // Build all 9 cross-team matches (every Europe vs every USA)
+    const allEurope = [...europeInP1, ...europeInP2];
+    const allUsa = [...usaInP1, ...usaInP2];
+    const allMatches = allEurope.flatMap((e) =>
+      allUsa.map((u) => ({ europe: e, usa: u, sameParty: bothSameParty(e, u) }))
     );
+
+    // Segment 1 & 2: within-party matches first, then fill with blind
+    const withinParty = allMatches.filter((m) => m.sameParty);
+    const blind = allMatches.filter((m) => !m.sameParty);
+
+    const seg1: typeof allMatches = [];
+    const seg2: typeof allMatches = [];
+    const seg3: typeof allMatches = [];
+    const used = new Set<string>();
+
+    const key = (e: number, u: number) => `${e}-${u}`;
+    const playerUsedInSeg = (seg: typeof allMatches, idx: number) =>
+      seg.some((m) => m.europe === idx || m.usa === idx);
+
+    // Place within-party matches in seg 1 and 2
+    for (const m of withinParty) {
+      if (seg1.length < 2 && !playerUsedInSeg(seg1, m.europe) && !playerUsedInSeg(seg1, m.usa)) {
+        seg1.push(m);
+        used.add(key(m.europe, m.usa));
+      } else if (seg2.length < 2 && !playerUsedInSeg(seg2, m.europe) && !playerUsedInSeg(seg2, m.usa)) {
+        seg2.push(m);
+        used.add(key(m.europe, m.usa));
+      }
+    }
+
+    // Fill seg 1 and 2 with blind matches
+    for (const m of blind) {
+      if (used.has(key(m.europe, m.usa))) continue;
+      if (seg1.length < 3 && !playerUsedInSeg(seg1, m.europe) && !playerUsedInSeg(seg1, m.usa)) {
+        seg1.push(m);
+        used.add(key(m.europe, m.usa));
+      } else if (seg2.length < 3 && !playerUsedInSeg(seg2, m.europe) && !playerUsedInSeg(seg2, m.usa)) {
+        seg2.push(m);
+        used.add(key(m.europe, m.usa));
+      }
+    }
+
+    // Remaining go to seg 3
+    for (const m of [...withinParty, ...blind]) {
+      if (!used.has(key(m.europe, m.usa))) {
+        seg3.push(m);
+        used.add(key(m.europe, m.usa));
+      }
+    }
+
+    const toFormMatch = (m: typeof allMatches[0], seg: number) => ({
+      segmentNumber: seg,
+      player1Index: m.europe,
+      player2Index: m.usa,
+      type: m.sameParty ? ("within-party" as const) : ("blind" as const),
+    });
+
+    return [
+      ...seg1.map((m) => toFormMatch(m, 1)),
+      ...seg2.map((m) => toFormMatch(m, 2)),
+      ...seg3.map((m) => toFormMatch(m, 3)),
+    ];
   };
 
   if (createdTournament) {
@@ -469,135 +527,116 @@ function NewTeamCupPage() {
             )}
 
             {/* Step 4: Day 2 Match Schedule */}
-            {step === 4 && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900">Day 2 Match Schedule</h2>
-                <p className="text-gray-600">Configure 9 matches across 3 segments (3 matches per segment)</p>
+            {step === 4 && (() => {
+              const allPlayers = getAllPlayers();
+              const matches = watch("day2.matches");
+              const party1 = watch("day2.party1");
+              const party2 = watch("day2.party2");
+              const party1Names = party1.map((i) => allPlayers[i]?.name || `Player ${i + 1}`);
+              const party2Names = party2.map((i) => allPlayers[i]?.name || `Player ${i + 1}`);
 
-                <div className="rounded-lg bg-blue-50 p-4">
-                  <p className="text-sm text-blue-800">
-                    <strong>Party 1:</strong> {getAllPlayers().slice(0, 3).map(p => p.name).join(", ")}
+              // Auto-generate if empty
+              if (matches.length === 0) {
+                const generated = generateDay2Matches();
+                setValue("day2.matches", generated);
+              }
+
+              const segments = [1, 2, 3];
+              const segmentLabels = ["Holes 1–6", "Holes 7–12", "Holes 13–18"];
+
+              return (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Day 2 — Match Schedule</h2>
+                  <p className="text-gray-600">
+                    9 matchplay contests over 6 holes each. Every player from {watch("teams.0.name")} faces every player from {watch("teams.1.name")} exactly once.
                   </p>
-                  <p className="text-sm text-blue-800">
-                    <strong>Party 2:</strong> {getAllPlayers().slice(3, 6).map(p => p.name).join(", ")}
-                  </p>
-                </div>
 
-                <div className="space-y-4">
-                  {day2Matches.map((match, idx) => (
-                    <div key={idx} className="rounded-lg border-2 border-gray-200 p-4">
-                      <div className="mb-3 flex items-center justify-between">
-                        <h4 className="font-semibold text-gray-900">Match {idx + 1}</h4>
-                        <button
-                          type="button"
-                          onClick={() => removeMatch(idx)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-5 w-5" />
-                        </button>
-                      </div>
-
-                      <div className="grid gap-4 sm:grid-cols-3">
-                        <div>
-                          <label className="mb-2 block text-sm font-medium text-gray-700">
-                            Segment
-                          </label>
-                          <select
-                            {...register(`day2.matches.${idx}.segmentNumber` as const, {
-                              valueAsNumber: true,
-                            })}
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
-                          >
-                            <option value={1}>Segment 1</option>
-                            <option value={2}>Segment 2</option>
-                            <option value={3}>Segment 3</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="mb-2 block text-sm font-medium text-gray-700">
-                            Player 1
-                          </label>
-                          <select
-                            {...register(`day2.matches.${idx}.player1Index` as const, {
-                              valueAsNumber: true,
-                            })}
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
-                          >
-                            {getAllPlayers().map((player) => (
-                              <option key={player.playerIndex} value={player.playerIndex}>
-                                {player.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="mb-2 block text-sm font-medium text-gray-700">
-                            Player 2
-                          </label>
-                          <select
-                            {...register(`day2.matches.${idx}.player2Index` as const, {
-                              valueAsNumber: true,
-                            })}
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
-                          >
-                            {getAllPlayers().map((player) => (
-                              <option key={player.playerIndex} value={player.playerIndex}>
-                                {player.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="mt-3">
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
-                          Match Type
-                        </label>
-                        <select
-                          {...register(`day2.matches.${idx}.type` as const)}
-                          className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
-                        >
-                          <option value="within-party">Within Party</option>
-                          <option value="blind">Blind Draw</option>
-                        </select>
-                      </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-lg border-2 border-gray-200 p-4">
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Party 1</p>
+                      <p className="text-sm font-medium text-gray-900">{party1Names.join(", ")}</p>
                     </div>
-                  ))}
-                </div>
+                    <div className="rounded-lg border-2 border-gray-200 p-4">
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Party 2</p>
+                      <p className="text-sm font-medium text-gray-900">{party2Names.join(", ")}</p>
+                    </div>
+                  </div>
 
-                {day2Matches.length < 9 && (
-                  <button
-                    type="button"
-                    onClick={addMatch}
-                    className="flex w-full items-center justify-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 px-6 py-4 font-semibold text-gray-600 hover:border-green-500 hover:text-green-600"
-                  >
-                    <Plus className="h-5 w-5" />
-                    <span>Add Match ({day2Matches.length}/9)</span>
-                  </button>
-                )}
+                  {segments.map((seg) => {
+                    const segMatches = matches.filter((m) => m.segmentNumber === seg);
+                    return (
+                      <div key={seg} className="rounded-lg border-2 border-gray-200 overflow-hidden">
+                        <div className="bg-gray-100 px-4 py-3">
+                          <h3 className="text-sm font-bold text-gray-900">
+                            Segment {seg} — {segmentLabels[seg - 1]}
+                          </h3>
+                        </div>
+                        <div className="divide-y divide-gray-100">
+                          {segMatches.map((match, i) => {
+                            const p1 = allPlayers[match.player1Index];
+                            const p2 = allPlayers[match.player2Index];
+                            const team1Color = p1?.teamIndex === 0 ? watch("teams.0.color") : watch("teams.1.color");
+                            const team2Color = p2?.teamIndex === 0 ? watch("teams.0.color") : watch("teams.1.color");
+                            return (
+                              <div key={i} className="flex items-center justify-between px-4 py-3">
+                                <div className="flex items-center gap-3">
+                                  <span
+                                    className="inline-block h-3 w-3 rounded-full"
+                                    style={{ backgroundColor: team1Color }}
+                                  />
+                                  <span className="text-sm font-medium text-gray-900">
+                                    {p1?.name || "?"}
+                                  </span>
+                                </div>
+                                <span className="text-xs font-bold uppercase text-gray-400">vs</span>
+                                <div className="flex items-center gap-3">
+                                  <span className="text-sm font-medium text-gray-900">
+                                    {p2?.name || "?"}
+                                  </span>
+                                  <span
+                                    className="inline-block h-3 w-3 rounded-full"
+                                    style={{ backgroundColor: team2Color }}
+                                  />
+                                </div>
+                                <span className={`ml-4 rounded-full px-2 py-0.5 text-xs font-medium ${
+                                  match.type === "within-party"
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-amber-100 text-amber-700"
+                                }`}>
+                                  {match.type === "within-party" ? "Live" : "Blind"}
+                                </span>
+                              </div>
+                            );
+                          })}
+                          {segMatches.length === 0 && (
+                            <p className="px-4 py-3 text-sm text-gray-400">No matches in this segment</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
 
-                <div className="flex justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setStep(3)}
-                    className="flex items-center space-x-2 rounded-lg border-2 border-gray-300 px-6 py-3 font-semibold text-gray-700 hover:bg-gray-50"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                    <span>Back</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setStep(5)}
-                    className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700"
-                  >
-                    <span>Next: Day 3 Parties</span>
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
+                  <div className="flex justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setStep(3)}
+                      className="flex items-center space-x-2 rounded-lg border-2 border-gray-300 px-6 py-3 font-semibold text-gray-700 hover:bg-gray-50"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                      <span>Back</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStep(5)}
+                      className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700"
+                    >
+                      <span>Next: Day 3 Parties</span>
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Step 5: Day 3 Party Assignments */}
             {step === 5 && (
