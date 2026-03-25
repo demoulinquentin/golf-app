@@ -22,8 +22,8 @@ function RoundLayout() {
   );
 
   // Get tournament access if round is part of a tournament
-  const tournamentAccess = roundQuery.data?.tournament
-    ? getTournamentAccess(roundQuery.data.tournament.id)
+  const tournamentAccess = roundQuery.data?.tournamentId
+    ? getTournamentAccess(roundQuery.data.tournamentId)
     : null;
   const isAdmin = tournamentAccess?.isAdmin || false;
 
@@ -115,11 +115,12 @@ function RoundLayout() {
           <div className="flex items-center justify-between py-6">
             <div className="flex items-center space-x-4">
               <Link
-                to="/"
+                to={round.tournamentId ? "/tournament/$tournamentId/leaderboard" : "/"}
+                params={round.tournamentId ? { tournamentId: String(round.tournamentId) } : {}}
                 className="inline-flex items-center space-x-2 text-sm font-medium text-gray-600 hover:text-gray-900"
               >
                 <Home className="h-4 w-4" />
-                <span>Back to Menu</span>
+                <span>{round.tournamentId ? "Back to Leaderboard" : "Back to Menu"}</span>
               </Link>
             </div>
             
