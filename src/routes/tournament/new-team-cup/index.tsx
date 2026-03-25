@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Plus, Trash2, ChevronRight, ChevronLeft, Trophy, Calendar, Users, Copy, Check, Shield } from "lucide-react";
-import { CourseJsonUpload } from "~/components/CourseJsonUpload";
+import { CourseSelector } from "~/components/CourseSelector";
 
 export const Route = createFileRoute("/tournament/new-team-cup/")({
   component: NewTeamCupPage,
@@ -425,82 +425,37 @@ function NewTeamCupPage() {
                 {/* Day 1 */}
                 <div className="rounded-lg border-2 border-gray-200 p-6">
                   <h3 className="mb-4 text-lg font-semibold text-gray-900">Day 1 - Practice Round</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">
-                        Course Name
-                      </label>
-                      <input
-                        type="text"
-                        {...register("day1.courseName")}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
-                        placeholder="Augusta National"
-                      />
-                    </div>
-                    <CourseJsonUpload
-                      onJsonParsed={(json, courseName) => {
-                        setValue("day1.courseJson", json);
-                        if (!watch("day1.courseName")) {
-                          setValue("day1.courseName", courseName);
-                        }
-                      }}
-                      currentCourseName={watch("day1.courseName")}
-                    />
-                  </div>
+                  <CourseSelector
+                    onCourseSelected={(json, courseName) => {
+                      setValue("day1.courseJson", json);
+                      setValue("day1.courseName", courseName);
+                    }}
+                    currentCourseName={watch("day1.courseName")}
+                  />
                 </div>
 
                 {/* Day 2 */}
                 <div className="rounded-lg border-2 border-gray-200 p-6">
                   <h3 className="mb-4 text-lg font-semibold text-gray-900">Day 2 - Match Play</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">
-                        Course Name
-                      </label>
-                      <input
-                        type="text"
-                        {...register("day2.courseName")}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
-                        placeholder="Pebble Beach"
-                      />
-                    </div>
-                    <CourseJsonUpload
-                      onJsonParsed={(json, courseName) => {
-                        setValue("day2.courseJson", json);
-                        if (!watch("day2.courseName")) {
-                          setValue("day2.courseName", courseName);
-                        }
-                      }}
-                      currentCourseName={watch("day2.courseName")}
-                    />
-                  </div>
+                  <CourseSelector
+                    onCourseSelected={(json, courseName) => {
+                      setValue("day2.courseJson", json);
+                      setValue("day2.courseName", courseName);
+                    }}
+                    currentCourseName={watch("day2.courseName")}
+                  />
                 </div>
 
                 {/* Day 3 */}
                 <div className="rounded-lg border-2 border-gray-200 p-6">
                   <h3 className="mb-4 text-lg font-semibold text-gray-900">Day 3 - Singles</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">
-                        Course Name
-                      </label>
-                      <input
-                        type="text"
-                        {...register("day3.courseName")}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
-                        placeholder="St Andrews"
-                      />
-                    </div>
-                    <CourseJsonUpload
-                      onJsonParsed={(json, courseName) => {
-                        setValue("day3.courseJson", json);
-                        if (!watch("day3.courseName")) {
-                          setValue("day3.courseName", courseName);
-                        }
-                      }}
-                      currentCourseName={watch("day3.courseName")}
-                    />
-                  </div>
+                  <CourseSelector
+                    onCourseSelected={(json, courseName) => {
+                      setValue("day3.courseJson", json);
+                      setValue("day3.courseName", courseName);
+                    }}
+                    currentCourseName={watch("day3.courseName")}
+                  />
                 </div>
 
                 <div className="flex justify-between">

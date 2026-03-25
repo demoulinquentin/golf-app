@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { Plus, Trash2, ChevronRight, ChevronLeft, Home } from "lucide-react";
 import { z } from "zod";
 import { zodValidator } from "@tanstack/zod-adapter";
-import { CourseJsonUpload } from "~/components/CourseJsonUpload";
+import { CourseSelector } from "~/components/CourseSelector";
 
 const searchSchema = z.object({
   templateId: z.number().optional(),
@@ -293,28 +293,10 @@ function NewRoundPage() {
                   )}
                 </div>
 
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Course Name
-                  </label>
-                  <input
-                    type="text"
-                    {...register("courseName", { required: "Course name is required" })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
-                    placeholder="Pebble Beach Golf Links"
-                  />
-                  {errors.courseName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.courseName.message}</p>
-                  )}
-                </div>
-
-                <CourseJsonUpload
-                  onJsonParsed={(json, parsedCourseName, totalPar) => {
+                <CourseSelector
+                  onCourseSelected={(json, courseName, totalPar) => {
                     setCourseJson(json);
-                    // Optionally auto-fill course name if not already set
-                    if (!watch("courseName")) {
-                      setValue("courseName", parsedCourseName);
-                    }
+                    setValue("courseName", courseName);
                   }}
                   currentCourseName={watch("courseName")}
                 />

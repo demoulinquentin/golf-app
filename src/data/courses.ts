@@ -1,0 +1,121 @@
+export interface PreloadedCourse {
+  id: string;
+  name: string;
+  par: number;
+  location: string;
+  holes: { hole: number; par: number; strokeIndex: number }[];
+}
+
+export const PRELOADED_COURSES: PreloadedCourse[] = [
+  {
+    id: "etretat",
+    name: "Golf d'Étretat",
+    par: 72,
+    location: "Étretat, Normandy",
+    holes: [
+      { hole: 1, par: 5, strokeIndex: 8 },
+      { hole: 2, par: 3, strokeIndex: 16 },
+      { hole: 3, par: 4, strokeIndex: 2 },
+      { hole: 4, par: 4, strokeIndex: 10 },
+      { hole: 5, par: 4, strokeIndex: 6 },
+      { hole: 6, par: 5, strokeIndex: 12 },
+      { hole: 7, par: 4, strokeIndex: 13 },
+      { hole: 8, par: 4, strokeIndex: 4 },
+      { hole: 9, par: 3, strokeIndex: 18 },
+      { hole: 10, par: 5, strokeIndex: 1 },
+      { hole: 11, par: 3, strokeIndex: 11 },
+      { hole: 12, par: 5, strokeIndex: 7 },
+      { hole: 13, par: 3, strokeIndex: 14 },
+      { hole: 14, par: 4, strokeIndex: 3 },
+      { hole: 15, par: 3, strokeIndex: 17 },
+      { hole: 16, par: 4, strokeIndex: 9 },
+      { hole: 17, par: 4, strokeIndex: 15 },
+      { hole: 18, par: 5, strokeIndex: 5 },
+    ],
+  },
+  {
+    id: "deauville",
+    name: "Golf Barrière de Deauville",
+    par: 72,
+    location: "Deauville, Normandy",
+    holes: [
+      { hole: 1, par: 4, strokeIndex: 6 },
+      { hole: 2, par: 5, strokeIndex: 14 },
+      { hole: 3, par: 3, strokeIndex: 8 },
+      { hole: 4, par: 4, strokeIndex: 10 },
+      { hole: 5, par: 3, strokeIndex: 12 },
+      { hole: 6, par: 4, strokeIndex: 4 },
+      { hole: 7, par: 4, strokeIndex: 2 },
+      { hole: 8, par: 3, strokeIndex: 16 },
+      { hole: 9, par: 5, strokeIndex: 18 },
+      { hole: 10, par: 5, strokeIndex: 17 },
+      { hole: 11, par: 4, strokeIndex: 5 },
+      { hole: 12, par: 4, strokeIndex: 3 },
+      { hole: 13, par: 4, strokeIndex: 1 },
+      { hole: 14, par: 4, strokeIndex: 7 },
+      { hole: 15, par: 3, strokeIndex: 15 },
+      { hole: 16, par: 5, strokeIndex: 9 },
+      { hole: 17, par: 3, strokeIndex: 11 },
+      { hole: 18, par: 4, strokeIndex: 13 },
+    ],
+  },
+  {
+    id: "saintjulien",
+    name: "Golf Barrière de Saint-Julien",
+    par: 73,
+    location: "Saint-Julien-sur-Calonne, Normandy",
+    holes: [
+      { hole: 1, par: 4, strokeIndex: 4 },
+      { hole: 2, par: 4, strokeIndex: 14 },
+      { hole: 3, par: 5, strokeIndex: 12 },
+      { hole: 4, par: 3, strokeIndex: 16 },
+      { hole: 5, par: 4, strokeIndex: 10 },
+      { hole: 6, par: 3, strokeIndex: 6 },
+      { hole: 7, par: 4, strokeIndex: 18 },
+      { hole: 8, par: 4, strokeIndex: 2 },
+      { hole: 9, par: 4, strokeIndex: 8 },
+      { hole: 10, par: 5, strokeIndex: 1 },
+      { hole: 11, par: 4, strokeIndex: 5 },
+      { hole: 12, par: 4, strokeIndex: 9 },
+      { hole: 13, par: 3, strokeIndex: 7 },
+      { hole: 14, par: 5, strokeIndex: 3 },
+      { hole: 15, par: 3, strokeIndex: 13 },
+      { hole: 16, par: 4, strokeIndex: 15 },
+      { hole: 17, par: 4, strokeIndex: 17 },
+      { hole: 18, par: 5, strokeIndex: 11 },
+    ],
+  },
+  {
+    id: "amiraute-arts",
+    name: "Golf de l'Amirauté — Parcours des Arts",
+    par: 73,
+    location: "Tourgéville, Normandy",
+    holes: [
+      { hole: 1, par: 4, strokeIndex: 12 },
+      { hole: 2, par: 3, strokeIndex: 17 },
+      { hole: 3, par: 5, strokeIndex: 10 },
+      { hole: 4, par: 4, strokeIndex: 8 },
+      { hole: 5, par: 5, strokeIndex: 1 },
+      { hole: 6, par: 3, strokeIndex: 15 },
+      { hole: 7, par: 5, strokeIndex: 13 },
+      { hole: 8, par: 3, strokeIndex: 6 },
+      { hole: 9, par: 4, strokeIndex: 4 },
+      { hole: 10, par: 5, strokeIndex: 3 },
+      { hole: 11, par: 5, strokeIndex: 9 },
+      { hole: 12, par: 3, strokeIndex: 11 },
+      { hole: 13, par: 4, strokeIndex: 14 },
+      { hole: 14, par: 4, strokeIndex: 18 },
+      { hole: 15, par: 5, strokeIndex: 7 },
+      { hole: 16, par: 3, strokeIndex: 5 },
+      { hole: 17, par: 4, strokeIndex: 16 },
+      { hole: 18, par: 4, strokeIndex: 2 },
+    ],
+  },
+];
+
+export function courseToJson(course: PreloadedCourse): string {
+  return JSON.stringify({
+    courseName: course.name,
+    holes: course.holes,
+  });
+}

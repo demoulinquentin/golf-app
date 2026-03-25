@@ -8,7 +8,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Plus, Trash2, ChevronRight, ChevronLeft, Trophy, Calendar, Users, Copy, Check, Shield } from "lucide-react";
 import { SegmentConfigForm } from "~/components/SegmentConfigForm";
-import { CourseJsonUpload } from "~/components/CourseJsonUpload";
+import { CourseSelector } from "~/components/CourseSelector";
 import { GameType, CourseFormat, generateSegmentsFromFormat } from "~/server/types/tournament";
 
 export const Route = createFileRoute("/tournament/new/")({
@@ -625,27 +625,13 @@ function NewTournamentPage() {
                                 placeholder={`Round ${roundIndex + 1}`}
                               />
                             </div>
-                            <div>
-                              <label className="mb-2 block text-sm font-medium text-gray-700">
-                                Course Name
-                              </label>
-                              <input
-                                type="text"
-                                {...register(`rounds.${roundIndex}.courseName`)}
-                                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                                placeholder="Course name"
-                              />
                             </div>
-                          </div>
 
-                          {/* Course JSON Upload */}
-                          <CourseJsonUpload
-                            onJsonParsed={(json, parsedCourseName, totalPar) => {
+                          {/* Course Selector */}
+                          <CourseSelector
+                            onCourseSelected={(json, courseName, totalPar) => {
                               setValue(`rounds.${roundIndex}.courseJson`, json);
-                              // Optionally auto-fill course name if not already set
-                              if (!watch(`rounds.${roundIndex}.courseName`)) {
-                                setValue(`rounds.${roundIndex}.courseName`, parsedCourseName);
-                              }
+                              setValue(`rounds.${roundIndex}.courseName`, courseName);
                             }}
                             currentCourseName={watch(`rounds.${roundIndex}.courseName`)}
                           />
