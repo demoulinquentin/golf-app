@@ -158,27 +158,6 @@ function RoundLayout() {
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="flex space-x-1">
-            <Link
-              to="/round/$roundId"
-              params={{ roundId }}
-              activeProps={{ className: "flex items-center space-x-2 border-b-2 border-green-600 px-4 py-3 text-sm font-medium text-green-600" }}
-              inactiveProps={{ className: "flex items-center space-x-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-gray-600 hover:border-gray-300 hover:text-gray-900" }}
-            >
-              <Target className="h-4 w-4" />
-              <span>Scoring</span>
-            </Link>
-            <Link
-              to="/round/$roundId/leaderboard"
-              params={{ roundId }}
-              activeProps={{ className: "flex items-center space-x-2 border-b-2 border-green-600 px-4 py-3 text-sm font-medium text-green-600" }}
-              inactiveProps={{ className: "flex items-center space-x-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-gray-600 hover:border-gray-300 hover:text-gray-900" }}
-            >
-              <Trophy className="h-4 w-4" />
-              <span>Leaderboard</span>
-            </Link>
-          </div>
         </div>
       </div>
 

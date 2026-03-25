@@ -19,6 +19,7 @@ export const getTournamentLeaderboard = baseProcedure
           },
         },
         rounds: {
+          orderBy: { id: "asc" },
           include: {
             players: {
               include: {

@@ -328,21 +328,26 @@ function LeaderboardTab({
         const player = rp.player;
         const handicap = player.handicap || 0;
 
-        let gross = 0;
-        let net = 0;
+        let totalStrokes = 0;
+        let totalPar = 0;
+        let totalStrokesReceived = 0;
         let lastHole = 0;
         let holesPlayed = 0;
 
         for (let h = 1; h <= 18; h++) {
           const score = getPlayerScore(player.id, h);
           if (score !== undefined) {
-            gross += score;
-            const strokes = getStrokesReceivedForHole(h, handicap);
-            net += Math.max(0, score - strokes);
+            const hd = getHoleData(h);
+            totalStrokes += score;
+            totalPar += hd?.par || 4;
+            totalStrokesReceived += getStrokesReceivedForHole(h, handicap);
             if (h > lastHole) lastHole = h;
             holesPlayed++;
           }
         }
+
+        const gross = totalStrokes - totalPar; // relative to par
+        const net = gross - totalStrokesReceived; // gross minus handicap strokes
 
         return {
           playerId: player.id,
@@ -458,7 +463,7 @@ function LeaderboardTab({
                 <th className="py-2 pr-2 text-left font-semibold text-gray-700">Player</th>
                 <th className="py-2 pr-2 text-left font-semibold text-gray-700">Team</th>
                 <th className="py-2 text-center font-semibold text-gray-700">HCP</th>
-                <th className="py-2 text-center font-semibold text-gray-700">Last</th>
+                <th className="py-2 text-center font-semibold text-gray-700">Hole</th>
                 <th className="py-2 text-center font-semibold text-gray-700">Gross</th>
                 <th className="py-2 text-center font-semibold text-gray-700">Net</th>
                 <th className="py-2 text-center font-semibold text-gray-700">Pts</th>
@@ -477,10 +482,10 @@ function LeaderboardTab({
                     {s.lastHole > 0 ? s.lastHole : "-"}
                   </td>
                   <td className="py-3 text-center font-semibold text-gray-900">
-                    {s.holesPlayed > 0 ? s.gross : "-"}
+                    {s.holesPlayed > 0 ? (s.gross === 0 ? "E" : s.gross > 0 ? `+${s.gross}` : s.gross) : "-"}
                   </td>
                   <td className="py-3 text-center font-semibold text-purple-600">
-                    {s.holesPlayed > 0 ? s.net : "-"}
+                    {s.holesPlayed > 0 ? (s.net === 0 ? "E" : s.net > 0 ? `+${s.net}` : s.net) : "-"}
                   </td>
                   <td className="py-3 text-center font-bold text-green-600">{s.pts}</td>
                 </tr>
