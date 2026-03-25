@@ -580,6 +580,16 @@ function NewTeamCupPage() {
                     );
                   })}
 
+                  {/* Hidden inputs to register match data for form submission */}
+                  {matches.map((_, idx) => (
+                    <div key={idx} className="hidden">
+                      <input type="hidden" {...register(`day2.matches.${idx}.segmentNumber` as const, { valueAsNumber: true })} />
+                      <input type="hidden" {...register(`day2.matches.${idx}.player1Index` as const, { valueAsNumber: true })} />
+                      <input type="hidden" {...register(`day2.matches.${idx}.player2Index` as const, { valueAsNumber: true })} />
+                      <input type="hidden" {...register(`day2.matches.${idx}.type` as const)} />
+                    </div>
+                  ))}
+
                   <div className="flex justify-between">
                     <button
                       type="button"
