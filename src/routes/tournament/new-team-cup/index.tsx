@@ -356,7 +356,10 @@ function NewTeamCupPage() {
                       </div>
 
                       <div className="space-y-3">
-                        <p className="text-sm font-medium text-gray-700">Players</p>
+                        <div className="flex gap-2">
+                          <p className="flex-1 text-sm font-medium text-gray-700">Players</p>
+                          <p className="w-20 text-sm font-medium text-gray-700">Handicap</p>
+                        </div>
                         {[0, 1, 2].map((playerIdx) => (
                           <div key={playerIdx} className="flex gap-2">
                             <input
