@@ -62,23 +62,15 @@ export function calculateStrokesReceived(
   playerHandicap: number,
   strokeIndex: number
 ): number {
-  // Round handicap to nearest integer for stroke allocation
   const roundedHandicap = Math.round(playerHandicap);
-  
+
   if (roundedHandicap <= 0) {
     return 0;
   }
-  
-  // Player receives 1 stroke on holes where strokeIndex <= handicap
-  if (strokeIndex <= roundedHandicap) {
-    // If handicap > 18, player gets additional strokes
-    if (roundedHandicap > 18 && strokeIndex <= (roundedHandicap - 18)) {
-      return 2;
-    }
-    return 1;
-  }
-  
-  return 0;
+
+  const base = Math.floor(roundedHandicap / 18);
+  const remainder = roundedHandicap % 18;
+  return base + (strokeIndex <= remainder ? 1 : 0);
 }
 
 /**

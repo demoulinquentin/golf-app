@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { db } from "~/server/db";
 import { baseProcedure } from "~/server/trpc/main";
+import { calculateStrokesReceived } from "~/server/utils/courseData";
 
 export const getTournamentLeaderboard = baseProcedure
   .input(z.object({ tournamentId: z.number() }))
@@ -116,9 +117,7 @@ export const getTournamentLeaderboard = baseProcedure
             const hole = holeData?.find((h) => h.hole === s.holeNumber);
             totalPar += hole?.par || 4;
             if (hole) {
-              const base = Math.floor(handicap / 18);
-              const extra = hole.strokeIndex <= handicap % 18 ? 1 : 0;
-              totalStrokesReceived += base + extra;
+              totalStrokesReceived += calculateStrokesReceived(handicap, hole.strokeIndex);
             }
           }
 
