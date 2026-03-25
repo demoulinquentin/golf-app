@@ -22,7 +22,21 @@ export const Route = createFileRoute("/round/$roundId/")({
 
 type HoleInfo = { hole: number; par: number; strokeIndex: number };
 
-type TabId = "leaderboard" | "party1" | "party2";
+type TabId = "leaderboard" | "party1" | "party2" | "matchplay" | "seg1" | "seg2" | "seg3";
+
+type Day2Match = {
+  id: string;
+  segmentNumber: number;
+  player1Index: number;
+  player2Index: number;
+  type: "within-party" | "blind";
+};
+
+type Day2Config = {
+  party1PlayerIndices: number[];
+  party2PlayerIndices: number[];
+  matches: Day2Match[];
+};
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
@@ -68,7 +82,7 @@ function ScoringPage() {
   // ── Auto-refresh leaderboard every 10s ───────────────────────────────────
 
   useEffect(() => {
-    if (activeTab !== "leaderboard" || preview) return;
+    if ((activeTab !== "leaderboard" && activeTab !== "matchplay") || preview) return;
     const interval = setInterval(() => {
       void roundQuery.refetch();
     }, 10000);
@@ -184,6 +198,17 @@ function ScoringPage() {
     }
   }, [round]);
 
+  // ── Day 2 detection ──────────────────────────────────────────────────────
+
+  const day2Config: Day2Config | null = useMemo(() => {
+    if (!round?.ruleSet) return null;
+    const rulesJson = round.ruleSet.rulesJson as any;
+    if (!rulesJson?.day2Config) return null;
+    return rulesJson.day2Config as Day2Config;
+  }, [round?.ruleSet]);
+
+  const isDay2 = day2Config !== null;
+
   // ── Permission check ───────────────────────────────────────────────────────
 
   const canEdit = useCallback(
@@ -212,11 +237,22 @@ function ScoringPage() {
 
   // ── Tab definitions ────────────────────────────────────────────────────────
 
-  const tabs: { id: TabId; label: string }[] = [
-    { id: "leaderboard", label: "Leaderboard" },
-    { id: "party1", label: team1Name },
-    { id: "party2", label: team2Name },
-  ];
+  const tabs: { id: TabId; label: string }[] = isDay2
+    ? [
+        { id: "matchplay", label: "Leaderboard" },
+        { id: "seg1", label: "Seg 1 (1-6)" },
+        { id: "seg2", label: "Seg 2 (7-12)" },
+        { id: "seg3", label: "Seg 3 (13-18)" },
+      ]
+    : [
+        { id: "leaderboard", label: "Leaderboard" },
+        { id: "party1", label: team1Name },
+        { id: "party2", label: team2Name },
+      ];
+
+  // Reset active tab if switching between day1/day2 context and current tab is invalid
+  const validTabIds = tabs.map((t) => t.id);
+  const effectiveTab = validTabIds.includes(activeTab) ? activeTab : (tabs[0]?.id ?? "leaderboard");
 
   return (
     <div className="mx-auto max-w-7xl px-2 py-4 sm:px-4 lg:px-8">
@@ -227,13 +263,13 @@ function ScoringPage() {
       )}
 
       {/* Tab bar */}
-      <div className="mb-4 flex space-x-2">
+      <div className="mb-4 flex space-x-2 overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`rounded-full px-4 py-2 text-sm font-semibold transition-all ${
-              activeTab === tab.id
+            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+              effectiveTab === tab.id
                 ? "bg-green-600 text-white shadow-md"
                 : "bg-white text-gray-700 hover:bg-gray-100"
             }`}
@@ -243,8 +279,8 @@ function ScoringPage() {
         ))}
       </div>
 
-      {/* Tab content */}
-      {activeTab === "leaderboard" && (
+      {/* Tab content — Day 1 */}
+      {!isDay2 && effectiveTab === "leaderboard" && (
         <LeaderboardTab
           round={round}
           holeDataArray={holeDataArray}
@@ -253,7 +289,7 @@ function ScoringPage() {
           getStrokesReceivedForHole={getStrokesReceivedForHole}
         />
       )}
-      {activeTab === "party1" && (
+      {!isDay2 && effectiveTab === "party1" && (
         <ScorecardTab
           round={round}
           partyPlayers={team1}
@@ -267,10 +303,67 @@ function ScoringPage() {
           }
         />
       )}
-      {activeTab === "party2" && (
+      {!isDay2 && effectiveTab === "party2" && (
         <ScorecardTab
           round={round}
           partyPlayers={team2}
+          holeDataArray={holeDataArray}
+          getHoleData={getHoleData}
+          getPlayerScore={getPlayerScore}
+          getStrokesReceivedForHole={getStrokesReceivedForHole}
+          canEdit={canEdit}
+          onCellTap={(playerId, holeNumber, playerName) =>
+            setScoreModal({ playerId, holeNumber, playerName })
+          }
+        />
+      )}
+
+      {/* Tab content — Day 2 Matchplay */}
+      {isDay2 && effectiveTab === "matchplay" && (
+        <MatchplayLeaderboardTab
+          round={round}
+          day2Config={day2Config!}
+          holeDataArray={holeDataArray}
+          getHoleData={getHoleData}
+          getPlayerScore={getPlayerScore}
+          getStrokesReceivedForHole={getStrokesReceivedForHole}
+        />
+      )}
+      {isDay2 && effectiveTab === "seg1" && (
+        <SegmentTab
+          round={round}
+          day2Config={day2Config!}
+          segmentNumber={1}
+          holeDataArray={holeDataArray}
+          getHoleData={getHoleData}
+          getPlayerScore={getPlayerScore}
+          getStrokesReceivedForHole={getStrokesReceivedForHole}
+          canEdit={canEdit}
+          onCellTap={(playerId, holeNumber, playerName) =>
+            setScoreModal({ playerId, holeNumber, playerName })
+          }
+        />
+      )}
+      {isDay2 && effectiveTab === "seg2" && (
+        <SegmentTab
+          round={round}
+          day2Config={day2Config!}
+          segmentNumber={2}
+          holeDataArray={holeDataArray}
+          getHoleData={getHoleData}
+          getPlayerScore={getPlayerScore}
+          getStrokesReceivedForHole={getStrokesReceivedForHole}
+          canEdit={canEdit}
+          onCellTap={(playerId, holeNumber, playerName) =>
+            setScoreModal({ playerId, holeNumber, playerName })
+          }
+        />
+      )}
+      {isDay2 && effectiveTab === "seg3" && (
+        <SegmentTab
+          round={round}
+          day2Config={day2Config!}
+          segmentNumber={3}
           holeDataArray={holeDataArray}
           getHoleData={getHoleData}
           getPlayerScore={getPlayerScore}
@@ -302,6 +395,817 @@ function ScoringPage() {
           onClose={() => setScoreModal(null)}
         />
       )}
+    </div>
+  );
+}
+
+// ─── Day 2 Helpers ──────────────────────────────────────────────────────────
+
+/** Get the player object (from round.players) by position index (0-5) */
+function getPlayerByIndex(round: any, playerIndex: number) {
+  const rp = round.players.find((p: any) => p.position === playerIndex);
+  return rp || null;
+}
+
+/** Get the team info for a player index */
+function getTeamForPlayerIndex(round: any, playerIndex: number) {
+  const rp = getPlayerByIndex(round, playerIndex);
+  if (!rp) return null;
+  return {
+    teamId: rp.teamId,
+    teamName: (rp as any).team?.name || "",
+    teamColor: (rp as any).team?.color || "#059669",
+  };
+}
+
+/** Calculate net score for a player over a range of holes */
+function calculateNetScoreForHoles(
+  playerId: number,
+  holes: number[],
+  getPlayerScore: (pid: number, hole: number) => number | undefined,
+  getHoleData: (hole: number) => HoleInfo | undefined,
+  getStrokesReceivedForHole: (hole: number, handicap: number) => number,
+  handicap: number,
+): { netScore: number; grossScore: number; holesPlayed: number; allHolesEntered: boolean } {
+  let grossScore = 0;
+  let totalPar = 0;
+  let totalStrokesReceived = 0;
+  let holesPlayed = 0;
+
+  for (const h of holes) {
+    const score = getPlayerScore(playerId, h);
+    if (score !== undefined) {
+      const hd = getHoleData(h);
+      grossScore += score;
+      totalPar += hd?.par || 4;
+      totalStrokesReceived += getStrokesReceivedForHole(h, handicap);
+      holesPlayed++;
+    }
+  }
+
+  const gross = grossScore - totalPar;
+  const netScore = gross - totalStrokesReceived;
+
+  return {
+    netScore,
+    grossScore,
+    holesPlayed,
+    allHolesEntered: holesPlayed === holes.length,
+  };
+}
+
+// ─── Matchplay Leaderboard Tab ──────────────────────────────────────────────
+
+function MatchplayLeaderboardTab({
+  round,
+  day2Config,
+  holeDataArray,
+  getHoleData,
+  getPlayerScore,
+  getStrokesReceivedForHole,
+}: {
+  round: any;
+  day2Config: Day2Config;
+  holeDataArray: HoleInfo[];
+  getHoleData: (hole: number) => HoleInfo | undefined;
+  getPlayerScore: (playerId: number, hole: number) => number | undefined;
+  getStrokesReceivedForHole: (hole: number, handicap: number) => number;
+}) {
+  // Segment holes mapping
+  const segmentHoles: Record<number, number[]> = {
+    1: [1, 2, 3, 4, 5, 6],
+    2: [7, 8, 9, 10, 11, 12],
+    3: [13, 14, 15, 16, 17, 18],
+  };
+
+  // Calculate match results
+  const matchResults = useMemo(() => {
+    return day2Config.matches.map((match) => {
+      const holes = segmentHoles[match.segmentNumber] || [];
+      const rp1 = getPlayerByIndex(round, match.player1Index);
+      const rp2 = getPlayerByIndex(round, match.player2Index);
+
+      if (!rp1 || !rp2) {
+        return {
+          match,
+          player1: null,
+          player2: null,
+          player1Net: null,
+          player2Net: null,
+          status: "not-started" as const,
+          result: null,
+        };
+      }
+
+      const p1 = rp1.player;
+      const p2 = rp2.player;
+
+      const p1Stats = calculateNetScoreForHoles(
+        p1.id, holes, getPlayerScore, getHoleData, getStrokesReceivedForHole, p1.handicap || 0
+      );
+      const p2Stats = calculateNetScoreForHoles(
+        p2.id, holes, getPlayerScore, getHoleData, getStrokesReceivedForHole, p2.handicap || 0
+      );
+
+      const isBlind = match.type === "blind";
+      const bothComplete = p1Stats.allHolesEntered && p2Stats.allHolesEntered;
+      const eitherStarted = p1Stats.holesPlayed > 0 || p2Stats.holesPlayed > 0;
+
+      let status: "not-started" | "in-progress" | "complete";
+      if (!eitherStarted) {
+        status = "not-started";
+      } else if (bothComplete) {
+        status = "complete";
+      } else {
+        status = "in-progress";
+      }
+
+      // For blind matches, hide net scores until both players have entered all holes
+      const showScores = !isBlind || bothComplete;
+
+      let result: { player1Points: number; player2Points: number } | null = null;
+      if (bothComplete) {
+        if (p1Stats.netScore < p2Stats.netScore) {
+          result = { player1Points: 1, player2Points: 0 };
+        } else if (p2Stats.netScore < p1Stats.netScore) {
+          result = { player1Points: 0, player2Points: 1 };
+        } else {
+          result = { player1Points: 0.5, player2Points: 0.5 };
+        }
+      }
+
+      return {
+        match,
+        player1: { rp: rp1, player: p1, stats: p1Stats },
+        player2: { rp: rp2, player: p2, stats: p2Stats },
+        player1Net: showScores ? p1Stats.netScore : null,
+        player2Net: showScores ? p2Stats.netScore : null,
+        status,
+        result,
+      };
+    });
+  }, [round, day2Config, getPlayerScore, getHoleData, getStrokesReceivedForHole]);
+
+  // Build team standings from match results
+  const teamStandings = useMemo(() => {
+    const teamPoints = new Map<number, { name: string; color: string; points: number; matchesPlayed: number; matchesTotal: number }>();
+
+    for (const mr of matchResults) {
+      if (!mr.player1 || !mr.player2) continue;
+
+      const team1Info = getTeamForPlayerIndex(round, mr.match.player1Index);
+      const team2Info = getTeamForPlayerIndex(round, mr.match.player2Index);
+
+      // Initialize teams
+      for (const tInfo of [team1Info, team2Info]) {
+        if (tInfo && !teamPoints.has(tInfo.teamId)) {
+          teamPoints.set(tInfo.teamId, {
+            name: tInfo.teamName,
+            color: tInfo.teamColor,
+            points: 0,
+            matchesPlayed: 0,
+            matchesTotal: 0,
+          });
+        }
+      }
+
+      if (team1Info) teamPoints.get(team1Info.teamId)!.matchesTotal++;
+      if (team2Info) teamPoints.get(team2Info.teamId)!.matchesTotal++;
+
+      if (mr.result) {
+        if (team1Info) {
+          teamPoints.get(team1Info.teamId)!.points += mr.result.player1Points;
+          teamPoints.get(team1Info.teamId)!.matchesPlayed++;
+        }
+        if (team2Info) {
+          teamPoints.get(team2Info.teamId)!.points += mr.result.player2Points;
+          teamPoints.get(team2Info.teamId)!.matchesPlayed++;
+        }
+      }
+    }
+
+    return Array.from(teamPoints.entries())
+      .map(([id, data]) => ({ teamId: id, ...data }))
+      .sort((a, b) => b.points - a.points);
+  }, [matchResults, round]);
+
+  // Group matches by segment
+  const matchesBySegment = useMemo(() => {
+    const grouped: Record<number, typeof matchResults> = { 1: [], 2: [], 3: [] };
+    for (const mr of matchResults) {
+      const seg = mr.match.segmentNumber;
+      if (grouped[seg]) grouped[seg].push(mr);
+    }
+    return grouped;
+  }, [matchResults]);
+
+  const formatNetScore = (net: number | null): string => {
+    if (net === null) return "?";
+    if (net === 0) return "E";
+    return net > 0 ? `+${net}` : `${net}`;
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Team Standings */}
+      {teamStandings.length > 0 && (
+        <div className="rounded-2xl bg-white p-4 shadow-lg sm:p-6">
+          <h2 className="mb-4 text-xl font-bold text-gray-900">Team Standings</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b-2 border-gray-200">
+                  <th className="py-2 pr-4 text-left font-semibold text-gray-700">#</th>
+                  <th className="py-2 pr-4 text-left font-semibold text-gray-700">Team</th>
+                  <th className="py-2 text-center font-semibold text-gray-700">Matches</th>
+                  <th className="py-2 text-center font-semibold text-gray-700">Points</th>
+                </tr>
+              </thead>
+              <tbody>
+                {teamStandings.map((t, idx) => (
+                  <tr key={t.teamId} className="border-b border-gray-100">
+                    <td className="py-3 pr-4 font-bold text-gray-900">{idx + 1}</td>
+                    <td className="py-3 pr-4">
+                      <div className="flex items-center space-x-2">
+                        <div
+                          className="h-4 w-4 rounded-full"
+                          style={{ backgroundColor: t.color }}
+                        />
+                        <span className="font-semibold text-gray-900">{t.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 text-center text-gray-600">
+                      {t.matchesPlayed}/{t.matchesTotal}
+                    </td>
+                    <td className="py-3 text-center text-lg font-bold text-green-600">
+                      {t.points}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Match Results by Segment */}
+      {[1, 2, 3].map((seg) => {
+        const segMatches = matchesBySegment[seg] || [];
+        const holeRange = segmentHoles[seg] || [];
+        return (
+          <div key={seg} className="rounded-2xl bg-white p-4 shadow-lg sm:p-6">
+            <h2 className="mb-4 text-lg font-bold text-gray-900">
+              Segment {seg} — Holes {holeRange[0]}-{holeRange[holeRange.length - 1]}
+            </h2>
+            <div className="space-y-3">
+              {segMatches.map((mr, idx) => {
+                const team1Info = mr.player1 ? getTeamForPlayerIndex(round, mr.match.player1Index) : null;
+                const team2Info = mr.player2 ? getTeamForPlayerIndex(round, mr.match.player2Index) : null;
+
+                return (
+                  <div
+                    key={mr.match.id || idx}
+                    className="rounded-xl border border-gray-200 p-3"
+                  >
+                    <div className="mb-2 flex items-center justify-between">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                          mr.match.type === "blind"
+                            ? "bg-amber-100 text-amber-700"
+                            : "bg-blue-100 text-blue-700"
+                        }`}
+                      >
+                        {mr.match.type === "blind" ? "Blind" : "Live"}
+                      </span>
+                      <span
+                        className={`text-xs font-semibold ${
+                          mr.status === "complete"
+                            ? "text-green-600"
+                            : mr.status === "in-progress"
+                            ? "text-amber-600"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        {mr.status === "complete"
+                          ? "Complete"
+                          : mr.status === "in-progress"
+                          ? "In progress"
+                          : "Not started"}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      {/* Player 1 */}
+                      <div className="flex items-center space-x-2">
+                        {team1Info && (
+                          <div
+                            className="h-3 w-3 rounded-full"
+                            style={{ backgroundColor: team1Info.teamColor }}
+                          />
+                        )}
+                        <span className="text-sm font-semibold text-gray-900">
+                          {mr.player1?.player.name || "TBD"}
+                        </span>
+                        <span className="text-sm font-bold text-purple-600">
+                          {formatNetScore(mr.player1Net)}
+                        </span>
+                      </div>
+
+                      <span className="px-2 text-xs font-medium text-gray-400">vs</span>
+
+                      {/* Player 2 */}
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm font-bold text-purple-600">
+                          {formatNetScore(mr.player2Net)}
+                        </span>
+                        <span className="text-sm font-semibold text-gray-900">
+                          {mr.player2?.player.name || "TBD"}
+                        </span>
+                        {team2Info && (
+                          <div
+                            className="h-3 w-3 rounded-full"
+                            style={{ backgroundColor: team2Info.teamColor }}
+                          />
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Result */}
+                    {mr.result && (
+                      <div className="mt-2 text-center text-xs font-semibold">
+                        {mr.result.player1Points === 1 ? (
+                          <span className="text-green-600">
+                            {mr.player1?.player.name} wins (1 pt)
+                          </span>
+                        ) : mr.result.player2Points === 1 ? (
+                          <span className="text-green-600">
+                            {mr.player2?.player.name} wins (1 pt)
+                          </span>
+                        ) : (
+                          <span className="text-amber-600">Tie (0.5 pts each)</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Segment Tab (Day 2 Mini Scorecards) ────────────────────────────────────
+
+function SegmentTab({
+  round,
+  day2Config,
+  segmentNumber,
+  holeDataArray,
+  getHoleData,
+  getPlayerScore,
+  getStrokesReceivedForHole,
+  canEdit,
+  onCellTap,
+}: {
+  round: any;
+  day2Config: Day2Config;
+  segmentNumber: number;
+  holeDataArray: HoleInfo[];
+  getHoleData: (hole: number) => HoleInfo | undefined;
+  getPlayerScore: (playerId: number, hole: number) => number | undefined;
+  getStrokesReceivedForHole: (hole: number, handicap: number) => number;
+  canEdit: (playerId: number) => boolean;
+  onCellTap: (playerId: number, holeNumber: number, playerName: string) => void;
+}) {
+  const segmentMatches = useMemo(
+    () => day2Config.matches.filter((m) => m.segmentNumber === segmentNumber),
+    [day2Config, segmentNumber]
+  );
+
+  const holes = useMemo(() => {
+    const start = (segmentNumber - 1) * 6 + 1;
+    return Array.from({ length: 6 }, (_, i) => start + i);
+  }, [segmentNumber]);
+
+  return (
+    <div className="space-y-6">
+      {segmentMatches.map((match, idx) => (
+        <MiniScorecard
+          key={match.id || idx}
+          round={round}
+          match={match}
+          holes={holes}
+          holeDataArray={holeDataArray}
+          getHoleData={getHoleData}
+          getPlayerScore={getPlayerScore}
+          getStrokesReceivedForHole={getStrokesReceivedForHole}
+          canEdit={canEdit}
+          onCellTap={onCellTap}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Mini Scorecard (6-hole, 2 players, with winner row) ────────────────────
+
+function MiniScorecard({
+  round,
+  match,
+  holes,
+  holeDataArray,
+  getHoleData,
+  getPlayerScore,
+  getStrokesReceivedForHole,
+  canEdit,
+  onCellTap,
+}: {
+  round: any;
+  match: Day2Match;
+  holes: number[];
+  holeDataArray: HoleInfo[];
+  getHoleData: (hole: number) => HoleInfo | undefined;
+  getPlayerScore: (playerId: number, hole: number) => number | undefined;
+  getStrokesReceivedForHole: (hole: number, handicap: number) => number;
+  canEdit: (playerId: number) => boolean;
+  onCellTap: (playerId: number, holeNumber: number, playerName: string) => void;
+}) {
+  const rp1 = getPlayerByIndex(round, match.player1Index);
+  const rp2 = getPlayerByIndex(round, match.player2Index);
+
+  if (!rp1 || !rp2) {
+    return (
+      <div className="rounded-2xl bg-white p-4 shadow-lg">
+        <p className="text-gray-500">Match data unavailable</p>
+      </div>
+    );
+  }
+
+  const p1 = rp1.player;
+  const p2 = rp2.player;
+  const p1Handicap = p1.handicap || 0;
+  const p2Handicap = p2.handicap || 0;
+  const isBlind = match.type === "blind";
+
+  const team1Info = getTeamForPlayerIndex(round, match.player1Index);
+  const team2Info = getTeamForPlayerIndex(round, match.player2Index);
+
+  // Score indicator symbols
+  const getScoreSymbol = (
+    strokes: number,
+    par: number
+  ): { className: string } => {
+    const diff = strokes - par;
+    if (diff <= -2) return { className: "text-red-600 font-bold ring-2 ring-red-400 ring-offset-1 rounded-full" };
+    if (diff === -1) return { className: "text-red-600 font-bold ring-1 ring-red-400 rounded-full" };
+    if (diff === 1) return { className: "text-gray-900 font-bold ring-1 ring-gray-900 rounded-sm" };
+    if (diff >= 2) return { className: "text-gray-900 font-bold ring-2 ring-gray-900 rounded-sm" };
+    return { className: "text-gray-900" };
+  };
+
+  // For blind matches: determine visibility per hole
+  // A hole's scores are visible only if BOTH players have entered that hole
+  const holeVisibility = useMemo(() => {
+    return holes.map((h) => {
+      const p1Score = getPlayerScore(p1.id, h);
+      const p2Score = getPlayerScore(p2.id, h);
+      const p1Entered = p1Score !== undefined;
+      const p2Entered = p2Score !== undefined;
+      return {
+        hole: h,
+        bothEntered: p1Entered && p2Entered,
+        p1Entered,
+        p2Entered,
+      };
+    });
+  }, [holes, p1.id, p2.id, getPlayerScore]);
+
+  // Compute net score per hole for winner determination
+  const holeWinners = useMemo(() => {
+    return holes.map((h, idx) => {
+      const vis = holeVisibility[idx];
+      if (!vis || !vis.bothEntered) return null; // Can't determine winner
+      if (isBlind && !vis.bothEntered) return null;
+
+      const p1Score = getPlayerScore(p1.id, h)!;
+      const p2Score = getPlayerScore(p2.id, h)!;
+      const hd = getHoleData(h);
+      const par = hd?.par || 4;
+
+      const p1StrokesReceived = getStrokesReceivedForHole(h, p1Handicap);
+      const p2StrokesReceived = getStrokesReceivedForHole(h, p2Handicap);
+
+      const p1Net = p1Score - p1StrokesReceived;
+      const p2Net = p2Score - p2StrokesReceived;
+
+      if (p1Net < p2Net) return "p1";
+      if (p2Net < p1Net) return "p2";
+      return "tie";
+    });
+  }, [holes, holeVisibility, isBlind, p1.id, p2.id, p1Handicap, p2Handicap, getPlayerScore, getHoleData, getStrokesReceivedForHole]);
+
+  // Overall match result
+  const matchSummary = useMemo(() => {
+    const p1Stats = calculateNetScoreForHoles(
+      p1.id, holes, getPlayerScore, getHoleData, getStrokesReceivedForHole, p1Handicap
+    );
+    const p2Stats = calculateNetScoreForHoles(
+      p2.id, holes, getPlayerScore, getHoleData, getStrokesReceivedForHole, p2Handicap
+    );
+    return { p1Stats, p2Stats, bothComplete: p1Stats.allHolesEntered && p2Stats.allHolesEntered };
+  }, [p1.id, p2.id, p1Handicap, p2Handicap, holes, getPlayerScore, getHoleData, getStrokesReceivedForHole]);
+
+  // Totals
+  const computeSum = (playerId: number): number | null => {
+    let sum = 0;
+    let hasAny = false;
+    for (const h of holes) {
+      const s = getPlayerScore(playerId, h);
+      if (s !== undefined) {
+        sum += s;
+        hasAny = true;
+      }
+    }
+    return hasAny ? sum : null;
+  };
+
+  const p1Total = computeSum(p1.id);
+  const p2Total = computeSum(p2.id);
+
+  const cellClass = "min-w-[40px] px-1 py-1 text-center text-xs";
+  const headerCellClass = "min-w-[40px] px-1 py-1 text-center text-xs font-semibold";
+  const nameCellClass =
+    "sticky left-0 z-10 bg-white min-w-[100px] max-w-[130px] px-2 py-1 text-xs font-semibold whitespace-nowrap";
+  const sumCellClass = "min-w-[44px] px-1 py-1 text-center text-xs font-bold";
+
+  /** Render a score cell, respecting blind visibility */
+  const renderScoreCell = (
+    playerId: number,
+    playerName: string,
+    holeNumber: number,
+    handicap: number,
+    isPlayerEditable: boolean,
+    holeIdx: number,
+  ) => {
+    const score = getPlayerScore(playerId, holeNumber);
+    const vis = holeVisibility[holeIdx];
+    const isThisPlayer1 = playerId === p1.id;
+    const thisPlayerEntered = isThisPlayer1 ? vis?.p1Entered : vis?.p2Entered;
+
+    // For blind matches, show special display
+    if (isBlind && !vis?.bothEntered) {
+      return (
+        <td
+          key={holeNumber}
+          className={`${cellClass} cursor-pointer hover:bg-green-50`}
+          onClick={() => isPlayerEditable && onCellTap(playerId, holeNumber, playerName)}
+        >
+          {thisPlayerEntered ? (
+            <span className="inline-flex h-6 w-6 items-center justify-center text-green-500 font-medium">
+              &#10003;
+            </span>
+          ) : (
+            <span className="text-gray-300">&ndash;</span>
+          )}
+        </td>
+      );
+    }
+
+    // Normal display (live match or both entered for blind)
+    const hd = getHoleData(holeNumber);
+    const par = hd?.par ?? 4;
+    const sym = score !== undefined ? getScoreSymbol(score, par) : null;
+
+    return (
+      <td
+        key={holeNumber}
+        className={`${cellClass} cursor-pointer hover:bg-green-50`}
+        onClick={() => isPlayerEditable && onCellTap(playerId, holeNumber, playerName)}
+      >
+        {score !== undefined ? (
+          <span
+            className={`inline-flex h-6 w-6 items-center justify-center ${sym?.className ?? ""}`}
+          >
+            {score}
+          </span>
+        ) : (
+          <span className="text-gray-300">&ndash;</span>
+        )}
+      </td>
+    );
+  };
+
+  /** Render blind-aware total */
+  const renderTotal = (playerId: number) => {
+    if (isBlind) {
+      // For blind, show total only if all holes visible (both entered all)
+      const allVisible = holeVisibility.every((v) => v.bothEntered);
+      if (!allVisible) return <span className="text-gray-400">?</span>;
+    }
+    const total = playerId === p1.id ? p1Total : p2Total;
+    return total !== null ? total : "-";
+  };
+
+  return (
+    <div className="rounded-2xl bg-white shadow-lg overflow-hidden">
+      {/* Match header */}
+      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-3">
+        <div className="flex items-center space-x-2">
+          {team1Info && (
+            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: team1Info.teamColor }} />
+          )}
+          <span className="text-sm font-bold text-gray-900">{p1.name}</span>
+          <span className="text-xs text-gray-400">vs</span>
+          <span className="text-sm font-bold text-gray-900">{p2.name}</span>
+          {team2Info && (
+            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: team2Info.teamColor }} />
+          )}
+        </div>
+        <span
+          className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+            isBlind ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"
+          }`}
+        >
+          {isBlind ? "Blind" : "Live"}
+        </span>
+      </div>
+
+      {/* Scorecard table */}
+      <div className="overflow-x-auto">
+        <table className="w-max border-collapse">
+          <thead>
+            {/* Hole number row */}
+            <tr className="border-b border-gray-300 bg-gray-50">
+              <th className={`${nameCellClass} bg-gray-50`}>Hole</th>
+              {holes.map((h) => (
+                <th key={h} className={`${headerCellClass} text-gray-700`}>
+                  {h}
+                </th>
+              ))}
+              <th className={`${headerCellClass} bg-gray-100 text-gray-900`}>TOT</th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* Par row */}
+            <tr className="border-b border-gray-200 bg-gray-50">
+              <td className={`${nameCellClass} bg-gray-50 text-gray-600`}>Par</td>
+              {holes.map((h) => {
+                const hd = getHoleData(h);
+                return (
+                  <td key={h} className={`${cellClass} text-gray-600`}>
+                    {hd?.par ?? "-"}
+                  </td>
+                );
+              })}
+              <td className={`${sumCellClass} bg-gray-100 text-gray-900`}>
+                {holeDataArray.length > 0
+                  ? holes.reduce((sum, h) => sum + (getHoleData(h)?.par ?? 0), 0)
+                  : "-"}
+              </td>
+            </tr>
+
+            {/* SI row */}
+            <tr className="border-b-2 border-gray-300 bg-gray-50">
+              <td className={`${nameCellClass} bg-gray-50 text-gray-500`}>SI</td>
+              {holes.map((h) => {
+                const hd = getHoleData(h);
+                return (
+                  <td key={h} className={`${cellClass} text-gray-500`}>
+                    {hd?.strokeIndex ?? "-"}
+                  </td>
+                );
+              })}
+              <td className={`${sumCellClass} bg-gray-100`} />
+            </tr>
+
+            {/* Player 1 score row */}
+            <tr className="border-b border-gray-100">
+              <td className={`${nameCellClass} truncate`}>
+                <div className="leading-tight">
+                  <div className="flex items-center space-x-1">
+                    {team1Info && (
+                      <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: team1Info.teamColor }} />
+                    )}
+                    <span className="truncate">{p1.name}</span>
+                  </div>
+                  <div className="text-[10px] text-gray-500">HCP {p1Handicap}</div>
+                </div>
+              </td>
+              {holes.map((h, idx) =>
+                renderScoreCell(p1.id, p1.name, h, p1Handicap, canEdit(p1.id), idx)
+              )}
+              <td className={`${sumCellClass} bg-gray-100 text-gray-900`}>
+                {renderTotal(p1.id)}
+              </td>
+            </tr>
+
+            {/* Player 1 strokes received row */}
+            <tr className="border-b-2 border-gray-200 bg-purple-50/50">
+              <td className={`${nameCellClass} bg-purple-50/50 text-[10px] text-purple-600`}>
+                Strokes
+              </td>
+              {holes.map((h) => {
+                const sr = getStrokesReceivedForHole(h, p1Handicap);
+                return (
+                  <td key={h} className={`${cellClass} text-[10px] text-purple-500`}>
+                    {sr > 0 ? sr : "0"}
+                  </td>
+                );
+              })}
+              <td className={`${sumCellClass} bg-gray-100`} />
+            </tr>
+
+            {/* Player 2 score row */}
+            <tr className="border-b border-gray-100">
+              <td className={`${nameCellClass} truncate`}>
+                <div className="leading-tight">
+                  <div className="flex items-center space-x-1">
+                    {team2Info && (
+                      <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: team2Info.teamColor }} />
+                    )}
+                    <span className="truncate">{p2.name}</span>
+                  </div>
+                  <div className="text-[10px] text-gray-500">HCP {p2Handicap}</div>
+                </div>
+              </td>
+              {holes.map((h, idx) =>
+                renderScoreCell(p2.id, p2.name, h, p2Handicap, canEdit(p2.id), idx)
+              )}
+              <td className={`${sumCellClass} bg-gray-100 text-gray-900`}>
+                {renderTotal(p2.id)}
+              </td>
+            </tr>
+
+            {/* Player 2 strokes received row */}
+            <tr className="border-b-2 border-gray-200 bg-purple-50/50">
+              <td className={`${nameCellClass} bg-purple-50/50 text-[10px] text-purple-600`}>
+                Strokes
+              </td>
+              {holes.map((h) => {
+                const sr = getStrokesReceivedForHole(h, p2Handicap);
+                return (
+                  <td key={h} className={`${cellClass} text-[10px] text-purple-500`}>
+                    {sr > 0 ? sr : "0"}
+                  </td>
+                );
+              })}
+              <td className={`${sumCellClass} bg-gray-100`} />
+            </tr>
+
+            {/* Winner row */}
+            <tr className="bg-green-50/50">
+              <td className={`${nameCellClass} bg-green-50/50 text-[10px] text-green-700 font-semibold`}>
+                Winner
+              </td>
+              {holes.map((h, idx) => {
+                const winner = holeWinners[idx];
+                let content: React.ReactNode = <span className="text-gray-300">&ndash;</span>;
+                let cellBg = "";
+
+                if (winner === "p1") {
+                  const color1 = team1Info?.teamColor || "#059669";
+                  content = (
+                    <div className="h-4 w-4 rounded-full mx-auto" style={{ backgroundColor: color1 }} />
+                  );
+                  cellBg = "bg-green-100/50";
+                } else if (winner === "p2") {
+                  const color2 = team2Info?.teamColor || "#059669";
+                  content = (
+                    <div className="h-4 w-4 rounded-full mx-auto" style={{ backgroundColor: color2 }} />
+                  );
+                  cellBg = "bg-green-100/50";
+                } else if (winner === "tie") {
+                  content = (
+                    <span className="text-xs font-semibold text-amber-600">T</span>
+                  );
+                }
+
+                return (
+                  <td key={h} className={`${cellClass} ${cellBg}`}>
+                    {content}
+                  </td>
+                );
+              })}
+              <td className={`${sumCellClass} bg-gray-100`}>
+                {matchSummary.bothComplete ? (
+                  matchSummary.p1Stats.netScore < matchSummary.p2Stats.netScore ? (
+                    <span className="text-xs font-bold text-green-700">{p1.name.split(" ")[0]}</span>
+                  ) : matchSummary.p2Stats.netScore < matchSummary.p1Stats.netScore ? (
+                    <span className="text-xs font-bold text-green-700">{p2.name.split(" ")[0]}</span>
+                  ) : (
+                    <span className="text-xs font-bold text-amber-600">Tie</span>
+                  )
+                ) : (
+                  <span className="text-gray-400">-</span>
+                )}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -386,7 +1290,7 @@ function LeaderboardTab({
       let totalPts = 0;
       for (let i = 0; i < tieCount; i++) {
         const idx = pos + i;
-        totalPts += idx < pointsMap.length ? pointsMap[idx] : 0;
+        totalPts += idx < pointsMap.length ? (pointsMap[idx] ?? 0) : 0;
       }
       const sharedPts = totalPts / tieCount;
       for (let i = 0; i < tieCount; i++) {
