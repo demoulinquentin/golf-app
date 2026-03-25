@@ -35,7 +35,7 @@ export const PRELOADED_COURSES: PreloadedCourse[] = [
   },
   {
     id: "deauville",
-    name: "Golf Barrière de Deauville",
+    name: "Golf Barrière de Deauville — Diane Barrière",
     par: 72,
     location: "Deauville, Normandy",
     holes: [
@@ -61,7 +61,7 @@ export const PRELOADED_COURSES: PreloadedCourse[] = [
   },
   {
     id: "saintjulien",
-    name: "Golf Barrière de Saint-Julien",
+    name: "Golf Barrière de Saint-Julien — Le Vallon",
     par: 73,
     location: "Saint-Julien-sur-Calonne, Normandy",
     holes: [

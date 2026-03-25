@@ -15,7 +15,6 @@ export const Route = createFileRoute("/tournament/new-team-cup/")({
 
 type TeamCupFormData = {
   name: string;
-  description: string;
   startDate: string;
   endDate: string;
   teams: [
@@ -81,7 +80,6 @@ function NewTeamCupPage() {
   } = useForm<TeamCupFormData>({
     defaultValues: {
       name: "",
-      description: "",
       startDate: "",
       endDate: "",
       teams: [
@@ -288,18 +286,6 @@ function NewTeamCupPage() {
                     placeholder="Masters Team Cup 2024"
                   />
                   {errors.name && <p className="mt-1 text-sm text-red-600">Tournament name is required</p>}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Description
-                  </label>
-                  <textarea
-                    {...register("description")}
-                    rows={3}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
-                    placeholder="A Ryder Cup-style competition..."
-                  />
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">

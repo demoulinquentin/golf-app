@@ -17,7 +17,6 @@ export const Route = createFileRoute("/tournament/new/")({
 
 type TournamentFormData = {
   name: string;
-  description: string;
   startDate: string;
   endDate: string;
   players: { name: string; handicap: number }[];
@@ -80,7 +79,6 @@ function NewTournamentPage() {
   } = useForm<TournamentFormData>({
     defaultValues: {
       name: "",
-      description: "",
       startDate: "",
       endDate: "",
       players: [
@@ -189,7 +187,7 @@ function NewTournamentPage() {
     createTournamentMutation.mutate({
       authToken: authToken || undefined,
       name: data.name,
-      description: data.description,
+      description: undefined,
       startDate: data.startDate || undefined,
       endDate: data.endDate || undefined,
       players: validPlayers,
@@ -357,18 +355,6 @@ function NewTournamentPage() {
                   {errors.name && (
                     <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
                   )}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Description
-                  </label>
-                  <textarea
-                    {...register("description")}
-                    rows={3}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                    placeholder="A friendly competition over multiple rounds..."
-                  />
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
