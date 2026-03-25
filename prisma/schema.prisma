@@ -1,0 +1,175 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:postgres@postgres/app"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  email     String   @unique
+  password  String
+  name      String
+  
+  rounds      Round[]
+  players     Player[]
+  tournaments Tournament[]
+}
+
+model Tournament {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  name        String
+  description String?
+  status      String   @default("setup") // setup, in_progress, completed
+  startDate   DateTime?
+  endDate     DateTime?
+  shareableLink String? @unique @default(uuid()) // For backward compatibility
+  joinCode    String?  @unique // Short code for easy joining (e.g., "GOLF123")
+  
+  creatorId   Int
+  creator     User     @relation(fields: [creatorId], references: [id])
+  
+  rounds      Round[]
+  teams       Team[]
+}
+
+model Player {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  name        String
+  handicap    Float    @default(0)
+  userId      Int?
+  user        User?    @relation(fields: [userId], references: [id])
+  
+  rounds      RoundPlayer[]
+  scores      Score[]
+}
+
+model Team {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  name        String
+  color       String   @default("#059669") // Default green color
+  
+  roundId     Int?
+  round       Round?   @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  
+  tournamentId Int?
+  tournament   Tournament? @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  
+  players     RoundPlayer[]
+}
+
+model Round {
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  name            String
+  courseId        String?
+  courseName      String
+  startedAt       DateTime?
+  completedAt     DateTime?
+  status          String   @default("setup") // setup, in_progress, completed
+  shareableId     String   @unique @default(uuid())
+  currentHole     Int      @default(1)
+  
+  // Course data for better scoring display
+  coursePar       Int      @default(72) // Total par for the course
+  holeData        Json?    // Array of hole info: { number, par, handicap, yardage }
+  
+  creatorId       Int
+  creator         User     @relation(fields: [creatorId], references: [id])
+  
+  tournamentId    Int?
+  tournament      Tournament? @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  
+  gameTemplateId  Int?
+  gameTemplate    GameTemplate? @relation(fields: [gameTemplateId], references: [id])
+  
+  ruleSetId       Int?
+  ruleSet         RuleSet? @relation(fields: [ruleSetId], references: [id])
+  
+  players         RoundPlayer[]
+  scores          Score[]
+  brandingConfig  BrandingConfig?
+  teams           Team[]
+}
+
+model RoundPlayer {
+  id        Int      @id @default(autoincrement())
+  roundId   Int
+  round     Round    @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  playerId  Int
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  position  Int      @default(0)
+  
+  teamId    Int?
+  team      Team?    @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  
+  @@unique([roundId, playerId])
+}
+
+model GameTemplate {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  name        String
+  description String?
+  isPublic    Boolean  @default(true)
+  category    String   @default("popular") // popular, team, individual, betting
+  imageUrl    String?
+  
+  ruleSetId   Int
+  ruleSet     RuleSet  @relation(fields: [ruleSetId], references: [id])
+  
+  rounds      Round[]
+}
+
+model RuleSet {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  
+  // JSON structure for per-hole rules
+  // Example: { "holes": [{ "number": 1, "teams": [[0,1],[2,3]], "scoringMode": "bestBall", "handicapMode": "full" }, ...] }
+  rulesJson   Json
+  
+  gameTemplates GameTemplate[]
+  rounds        Round[]
+}
+
+model Score {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  
+  roundId     Int
+  round       Round    @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  
+  playerId    Int
+  player      Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  
+  holeNumber  Int
+  strokes     Int
+  putts       Int?
+  fairwayHit  Boolean?
+  greenInReg  Boolean?
+  
+  @@unique([roundId, playerId, holeNumber])
+}
+
+model BrandingConfig {
+  id          Int      @id @default(autoincrement())
+  
+  roundId     Int      @unique
+  round       Round    @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  
+  logoUrl     String?
+  primaryColor String  @default("#059669") // green-600
+  secondaryColor String @default("#1f2937") // gray-800
+  clubName    String?
+  sponsorBanner String?
+}
