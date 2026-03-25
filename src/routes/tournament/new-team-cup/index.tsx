@@ -109,8 +109,8 @@ function NewTeamCupPage() {
       day2: {
         courseName: "",
         courseJson: undefined,
-        party1: [0, 1, 2],
-        party2: [3, 4, 5],
+        party1: [0, 1, 3],
+        party2: [2, 4, 5],
         matches: [],
       },
       day3: {
