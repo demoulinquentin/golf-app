@@ -538,11 +538,16 @@ function NewTeamCupPage() {
                         <div className="divide-y divide-gray-100">
                           {segMatches.map((match, i) => {
                             const matchIdx = matches.indexOf(match);
+                            const p1 = allPlayers[match.player1Index];
+                            const p2 = allPlayers[match.player2Index];
+                            const team1Color = p1?.teamIndex === 0 ? watch("teams.0.color") : watch("teams.1.color");
+                            const team2Color = p2?.teamIndex === 0 ? watch("teams.0.color") : watch("teams.1.color");
                             const isInParty1 = (idx: number) => party1.includes(idx);
                             const sameParty = (a: number, b: number) =>
                               (isInParty1(a) && isInParty1(b)) || (!isInParty1(a) && !isInParty1(b));
                             return (
-                              <div key={i} className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-3 px-4 py-2">
+                              <div key={i} className="grid grid-cols-[auto_1fr_auto_1fr_auto_auto] items-center gap-2 px-4 py-2">
+                                <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: team1Color }} />
                                 <select
                                   value={match.player1Index}
                                   onChange={(e) => {
@@ -582,6 +587,7 @@ function NewTeamCupPage() {
                                     <option key={p.playerIndex} value={p.playerIndex}>{p.name}</option>
                                   ))}
                                 </select>
+                                <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: team2Color }} />
 
                                 <span className={`w-12 text-center rounded-full px-2 py-0.5 text-xs font-medium ${
                                   match.type === "within-party"
