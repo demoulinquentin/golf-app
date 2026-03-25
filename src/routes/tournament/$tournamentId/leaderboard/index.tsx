@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTRPC } from "~/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import { Trophy, Users, Target, Calendar, Info, Copy, Check, KeyRound } from "lucide-react";
-import { GameType } from "~/server/types/tournament";
 import { z } from "zod";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { useTournamentAccessStore } from "~/stores/tournamentAccessStore";
@@ -237,6 +236,7 @@ function TournamentLeaderboardPage() {
                             <tr className="bg-gray-50 text-xs text-gray-500">
                               <th className="px-3 py-2 text-left font-medium">Day</th>
                               <th className="px-3 py-2 text-right font-medium">Gross</th>
+                              <th className="px-3 py-2 text-right font-medium">Net</th>
                               <th className="px-3 py-2 text-right font-medium">Pts</th>
                             </tr>
                           </thead>
@@ -244,14 +244,16 @@ function TournamentLeaderboardPage() {
                             {entry.roundScores.map((rs: any) => (
                               <tr key={rs.roundId}>
                                 <td className="px-3 py-2 text-gray-700">{rs.roundName}</td>
-                                <td className="px-3 py-2 text-right font-medium text-gray-900">{rs.grossScore || "–"}</td>
-                                <td className="px-3 py-2 text-right font-medium text-purple-600">{rs.points}</td>
+                                <td className="px-3 py-2 text-right font-medium text-gray-900">{rs.grossScore ?? "–"}</td>
+                                <td className="px-3 py-2 text-right font-medium text-gray-900">{rs.netScore ?? "–"}</td>
+                                <td className="px-3 py-2 text-right font-medium text-purple-600">{rs.points || "–"}</td>
                               </tr>
                             ))}
                             <tr className="bg-gray-50 font-semibold">
                               <td className="px-3 py-2 text-gray-900">Total</td>
-                              <td className="px-3 py-2 text-right text-gray-900">{entry.totalGrossScore}</td>
-                              <td className="px-3 py-2 text-right text-purple-600">{entry.totalPoints}</td>
+                              <td className="px-3 py-2 text-right text-gray-900">{entry.totalGrossScore || "–"}</td>
+                              <td className="px-3 py-2 text-right text-gray-900">{entry.totalNetScore || "–"}</td>
+                              <td className="px-3 py-2 text-right text-purple-600">{entry.totalPoints || "–"}</td>
                             </tr>
                           </tbody>
                         </table>
