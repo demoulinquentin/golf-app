@@ -181,6 +181,55 @@ function TournamentLeaderboardPage() {
         )}
 
         <div className="space-y-8">
+          {/* Team Leaderboard */}
+          {teamLeaderboard.length > 0 && (
+            <div className="rounded-2xl bg-white p-8 shadow-xl">
+              <div className="mb-6 flex items-center space-x-3">
+                <Trophy className="h-6 w-6 text-purple-600" />
+                <h2 className="text-2xl font-bold text-gray-900">Team Standings</h2>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b-2 border-gray-200 text-xs text-gray-500">
+                      <th className="px-3 py-3 text-left font-medium">#</th>
+                      <th className="px-3 py-3 text-left font-medium">Team</th>
+                      {rounds.map((r: any) => (
+                        <th key={r.roundId} className="px-3 py-3 text-center font-medium">{r.roundName}</th>
+                      ))}
+                      <th className="px-3 py-3 text-center font-medium">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {teamLeaderboard.map((entry) => (
+                      <tr key={entry.team.id} className="hover:bg-gray-50">
+                        <td className="px-3 py-3">
+                          <span
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white"
+                            style={{ backgroundColor: entry.team.color }}
+                          >
+                            {entry.position}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 font-semibold text-gray-900">{entry.team.name}</td>
+                        {rounds.map((r: any) => {
+                          const rp = entry.roundPoints?.find((p: any) => p.roundId === r.roundId);
+                          return (
+                            <td key={r.roundId} className="px-3 py-3 text-center font-medium text-purple-600">
+                              {rp?.points || "–"}
+                            </td>
+                          );
+                        })}
+                        <td className="px-3 py-3 text-center font-bold text-purple-600">{entry.totalPoints}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
           {/* Individual Leaderboard */}
           <div className="rounded-2xl bg-white p-8 shadow-xl">
             <div className="mb-6 flex items-center space-x-3">
@@ -274,55 +323,6 @@ function TournamentLeaderboardPage() {
               </div>
             )}
           </div>
-
-          {/* Team Leaderboard */}
-          {teamLeaderboard.length > 0 && (
-            <div className="rounded-2xl bg-white p-8 shadow-xl">
-              <div className="mb-6 flex items-center space-x-3">
-                <Trophy className="h-6 w-6 text-purple-600" />
-                <h2 className="text-2xl font-bold text-gray-900">Team Standings</h2>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b-2 border-gray-200 text-xs text-gray-500">
-                      <th className="px-3 py-3 text-left font-medium">#</th>
-                      <th className="px-3 py-3 text-left font-medium">Team</th>
-                      {rounds.map((r: any) => (
-                        <th key={r.roundId} className="px-3 py-3 text-center font-medium">{r.roundName}</th>
-                      ))}
-                      <th className="px-3 py-3 text-center font-medium">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {teamLeaderboard.map((entry) => (
-                      <tr key={entry.team.id} className="hover:bg-gray-50">
-                        <td className="px-3 py-3">
-                          <span
-                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white"
-                            style={{ backgroundColor: entry.team.color }}
-                          >
-                            {entry.position}
-                          </span>
-                        </td>
-                        <td className="px-3 py-3 font-semibold text-gray-900">{entry.team.name}</td>
-                        {rounds.map((r: any) => {
-                          const rp = entry.roundPoints?.find((p: any) => p.roundId === r.roundId);
-                          return (
-                            <td key={r.roundId} className="px-3 py-3 text-center font-medium text-purple-600">
-                              {rp?.points || "–"}
-                            </td>
-                          );
-                        })}
-                        <td className="px-3 py-3 text-center font-bold text-purple-600">{entry.totalPoints}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Rounds */}
