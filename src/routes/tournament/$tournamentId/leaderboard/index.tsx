@@ -193,13 +193,7 @@ function TournamentLeaderboardPage() {
               <div className="space-y-3">
                 {individualLeaderboard.map((entry) => (
                   <div key={entry.player.id} className="rounded-xl border-2 border-gray-200 p-4 transition-all hover:border-purple-300">
-                    <div
-                      className={`flex items-center justify-between ${
-                        entry.position === 1
-                          ? "mb-3"
-                          : ""
-                      }`}
-                    >
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div
                           className={`flex h-10 w-10 items-center justify-center rounded-full font-bold ${
@@ -229,36 +223,38 @@ function TournamentLeaderboardPage() {
                       </div>
                       <div className="text-right">
                         <p className="text-2xl font-bold text-gray-900">
-                          {Math.abs(entry.totalScore)}
+                          {entry.totalPoints} <span className="text-sm font-normal text-gray-500">pts</span>
                         </p>
-                        <p className="text-xs text-gray-600">{entry.roundsPlayed} rounds</p>
+                        <p className="text-xs text-gray-600">Gross: {entry.totalGrossScore}</p>
                       </div>
                     </div>
-                    
-                    {/* Segment Breakdown */}
-                    {entry.segmentBreakdown.length > 0 && (
-                      <div className="mt-3 space-y-2">
-                        {entry.segmentBreakdown.map((round) => (
-                          <div key={round.roundId} className="rounded-lg bg-gray-50 p-3">
-                            <p className="mb-2 text-xs font-semibold text-gray-700">{round.roundName}</p>
-                            <div className="grid grid-cols-3 gap-2">
-                              {round.segments.map((segment) => (
-                                <div key={segment.segmentNumber} className="rounded bg-white p-2 text-center">
-                                  <p className="text-xs text-gray-600">
-                                    Seg {segment.segmentNumber}
-                                  </p>
-                                  <p className="font-semibold text-gray-900">
-                                    {segment.gameType === GameType.STABLEFORD ? `${segment.score} pts` : segment.score}
-                                  </p>
-                                  <p className="text-xs text-gray-500">
-                                    {segment.gameType === GameType.STABLEFORD ? "Stableford" : 
-                                     segment.gameType === GameType.SCRAMBLE ? "Scramble" : "Stroke"}
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
+
+                    {/* Per-round breakdown */}
+                    {entry.roundScores && entry.roundScores.length > 0 && (
+                      <div className="mt-3 overflow-hidden rounded-lg border border-gray-100">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-gray-50 text-xs text-gray-500">
+                              <th className="px-3 py-2 text-left font-medium">Day</th>
+                              <th className="px-3 py-2 text-right font-medium">Gross</th>
+                              <th className="px-3 py-2 text-right font-medium">Pts</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {entry.roundScores.map((rs: any) => (
+                              <tr key={rs.roundId}>
+                                <td className="px-3 py-2 text-gray-700">{rs.roundName}</td>
+                                <td className="px-3 py-2 text-right font-medium text-gray-900">{rs.grossScore || "–"}</td>
+                                <td className="px-3 py-2 text-right font-medium text-purple-600">{rs.points}</td>
+                              </tr>
+                            ))}
+                            <tr className="bg-gray-50 font-semibold">
+                              <td className="px-3 py-2 text-gray-900">Total</td>
+                              <td className="px-3 py-2 text-right text-gray-900">{entry.totalGrossScore}</td>
+                              <td className="px-3 py-2 text-right text-purple-600">{entry.totalPoints}</td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     )}
                   </div>
@@ -283,10 +279,7 @@ function TournamentLeaderboardPage() {
               <div className="space-y-3">
                 {teamLeaderboard.map((entry) => (
                   <div key={entry.team.id} className="rounded-xl border-2 border-gray-200 p-4 transition-all hover:border-purple-300">
-                    <div
-                      className="flex items-center justify-between"
-                      style={{ borderColor: entry.position === 1 ? entry.team.color : undefined }}
-                    >
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div
                           className="flex h-10 w-10 items-center justify-center rounded-full font-bold text-white"
@@ -300,35 +293,35 @@ function TournamentLeaderboardPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-2xl font-bold text-gray-900">{Math.abs(entry.totalScore)}</p>
-                        <p className="text-xs text-gray-600">total score</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {entry.totalPoints} <span className="text-sm font-normal text-gray-500">pts</span>
+                        </p>
                       </div>
                     </div>
-                    
-                    {/* Team Segment Breakdown */}
-                    {entry.segmentBreakdown.length > 0 && (
-                      <div className="mt-3 space-y-2">
-                        {entry.segmentBreakdown.map((round) => (
-                          <div key={round.roundId} className="rounded-lg bg-gray-50 p-3">
-                            <p className="mb-2 text-xs font-semibold text-gray-700">{round.roundName}</p>
-                            <div className="grid grid-cols-3 gap-2">
-                              {round.segments.map((segment) => (
-                                <div key={segment.segmentNumber} className="rounded bg-white p-2 text-center">
-                                  <p className="text-xs text-gray-600">
-                                    Seg {segment.segmentNumber}
-                                  </p>
-                                  <p className="font-semibold text-gray-900">
-                                    {segment.gameType === GameType.STABLEFORD ? `${Math.abs(segment.score)} pts` : Math.abs(segment.score)}
-                                  </p>
-                                  <p className="text-xs text-gray-500">
-                                    {segment.gameType === GameType.STABLEFORD ? "Stableford" : 
-                                     segment.gameType === GameType.SCRAMBLE ? "Scramble" : "Stroke"}
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
+
+                    {/* Points per round */}
+                    {entry.roundPoints && entry.roundPoints.length > 0 && (
+                      <div className="mt-3 overflow-hidden rounded-lg border border-gray-100">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-gray-50 text-xs text-gray-500">
+                              <th className="px-3 py-2 text-left font-medium">Day</th>
+                              <th className="px-3 py-2 text-right font-medium">Points</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {entry.roundPoints.map((rp: any) => (
+                              <tr key={rp.roundId}>
+                                <td className="px-3 py-2 text-gray-700">{rp.roundName}</td>
+                                <td className="px-3 py-2 text-right font-medium text-purple-600">{rp.points}</td>
+                              </tr>
+                            ))}
+                            <tr className="bg-gray-50 font-semibold">
+                              <td className="px-3 py-2 text-gray-900">Total</td>
+                              <td className="px-3 py-2 text-right text-purple-600">{entry.totalPoints}</td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     )}
                   </div>

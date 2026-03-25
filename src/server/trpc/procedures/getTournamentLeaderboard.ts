@@ -70,9 +70,17 @@ export const getTournamentLeaderboard = baseProcedure
       [playerId: number]: {
         player: { id: number; name: string; handicap: number };
         totalScore: number;
+        totalGrossScore: number;
+        totalPoints: number;
         roundsPlayed: number;
         teamId?: number;
         teamName?: string;
+        roundScores: {
+          roundId: number;
+          roundName: string;
+          grossScore: number;
+          points: number;
+        }[];
         segmentBreakdown: {
           roundId: number;
           roundName: string;
@@ -100,9 +108,12 @@ export const getTournamentLeaderboard = baseProcedure
               handicap: roundPlayer.player.handicap,
             },
             totalScore: 0,
+            totalGrossScore: 0,
+            totalPoints: 0,
             roundsPlayed: 0,
             teamId: roundPlayer.team?.id,
             teamName: roundPlayer.team?.name,
+            roundScores: [],
             segmentBreakdown: [],
           };
         }
@@ -113,7 +124,20 @@ export const getTournamentLeaderboard = baseProcedure
         
         if (playerRoundScores.length > 0) {
           playerScores[playerId].roundsPlayed += 1;
-          
+
+          // Calculate gross score for this round
+          const roundGrossScore = playerRoundScores.reduce(
+            (sum, score) => sum + score.strokes,
+            0
+          );
+          playerScores[playerId].totalGrossScore += roundGrossScore;
+          playerScores[playerId].roundScores.push({
+            roundId: round.id,
+            roundName: round.name,
+            grossScore: roundGrossScore,
+            points: 0, // Will be calculated after all rounds are processed
+          });
+
           // Calculate segment scores if rulesJson is available
           if (rulesJson?.segments) {
             const roundBreakdown = {
@@ -165,6 +189,29 @@ export const getTournamentLeaderboard = baseProcedure
       }
     }
 
+    // Calculate Day 1 position-based points (6,5,4,3,2,1)
+    // For each round, rank players by gross score and assign points
+    const positionPoints = [6, 5, 4, 3, 2, 1];
+    for (const round of tournament.rounds) {
+      const roundPlayerScores = Object.values(playerScores)
+        .filter((ps) => ps.roundScores.some((rs) => rs.roundId === round.id))
+        .map((ps) => ({
+          playerId: ps.player.id,
+          grossScore: ps.roundScores.find((rs) => rs.roundId === round.id)!.grossScore,
+        }))
+        .sort((a, b) => a.grossScore - b.grossScore);
+
+      roundPlayerScores.forEach((rps, idx) => {
+        const points = idx < positionPoints.length ? positionPoints[idx] : 0;
+        const ps = playerScores[rps.playerId];
+        const roundScore = ps.roundScores.find((rs) => rs.roundId === round.id);
+        if (roundScore) {
+          roundScore.points = points;
+        }
+        ps.totalPoints += points;
+      });
+    }
+
     // Sort individual leaderboard
     const individualLeaderboard = Object.values(playerScores)
       .sort((a, b) => a.totalScore - b.totalScore)
@@ -173,20 +220,17 @@ export const getTournamentLeaderboard = baseProcedure
         ...entry,
       }));
 
-    // Calculate team scores with segment awareness
+    // Calculate team scores
     const teamScores: {
       [teamId: number]: {
         team: { id: number; name: string; color: string };
         totalScore: number;
+        totalPoints: number;
         playerCount: number;
-        segmentBreakdown: {
+        roundPoints: {
           roundId: number;
           roundName: string;
-          segments: {
-            segmentNumber: number;
-            gameType: GameType;
-            score: number;
-          }[];
+          points: number;
         }[];
       };
     } = {};
@@ -199,8 +243,9 @@ export const getTournamentLeaderboard = baseProcedure
           color: team.color,
         },
         totalScore: 0,
+        totalPoints: 0,
         playerCount: 0,
-        segmentBreakdown: [],
+        roundPoints: [],
       };
     }
 
@@ -208,38 +253,31 @@ export const getTournamentLeaderboard = baseProcedure
     for (const playerScore of Object.values(playerScores)) {
       if (playerScore.teamId && teamScores[playerScore.teamId]) {
         teamScores[playerScore.teamId].totalScore += playerScore.totalScore;
+        teamScores[playerScore.teamId].totalPoints += playerScore.totalPoints;
         teamScores[playerScore.teamId].playerCount += 1;
-        
-        // Merge segment breakdowns
-        for (const roundBreakdown of playerScore.segmentBreakdown) {
-          const existingRound = teamScores[playerScore.teamId].segmentBreakdown.find(
-            rb => rb.roundId === roundBreakdown.roundId
+
+        // Aggregate points per round
+        for (const roundScore of playerScore.roundScores) {
+          const existingRound = teamScores[playerScore.teamId].roundPoints.find(
+            (rp) => rp.roundId === roundScore.roundId
           );
-          
           if (!existingRound) {
-            teamScores[playerScore.teamId].segmentBreakdown.push({
-              roundId: roundBreakdown.roundId,
-              roundName: roundBreakdown.roundName,
-              segments: roundBreakdown.segments.map(seg => ({
-                segmentNumber: seg.segmentNumber,
-                gameType: seg.gameType,
-                score: seg.score,
-              })),
+            teamScores[playerScore.teamId].roundPoints.push({
+              roundId: roundScore.roundId,
+              roundName: roundScore.roundName,
+              points: roundScore.points,
             });
           } else {
-            // Add to existing segment scores
-            for (let i = 0; i < roundBreakdown.segments.length; i++) {
-              existingRound.segments[i].score += roundBreakdown.segments[i].score;
-            }
+            existingRound.points += roundScore.points;
           }
         }
       }
     }
 
-    // Sort team leaderboard
+    // Sort team leaderboard by total points (higher is better)
     const teamLeaderboard = Object.values(teamScores)
       .filter((entry) => entry.playerCount > 0)
-      .sort((a, b) => a.totalScore - b.totalScore)
+      .sort((a, b) => b.totalPoints - a.totalPoints)
       .map((entry, index) => ({
         position: index + 1,
         ...entry,
