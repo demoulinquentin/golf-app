@@ -480,7 +480,13 @@ function NewTeamCupPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setStep(4)}
+                    onClick={() => {
+                      const current = watch("day2.matches");
+                      if (!current || current.length === 0) {
+                        setValue("day2.matches", generateDay2Matches());
+                      }
+                      setStep(4);
+                    }}
                     className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700"
                   >
                     <span>Next: Day 2 Matches</span>
@@ -490,20 +496,14 @@ function NewTeamCupPage() {
               </div>
             )}
 
-            {/* Step 4: Day 2 Match Schedule */}
+            {/* Step 4: Day 2 Match Schedule — generate matches on first visit */}
             {step === 4 && (() => {
               const allPlayers = getAllPlayers();
-              const matches = watch("day2.matches");
+              const matches = watch("day2.matches") || [];
               const party1 = watch("day2.party1");
               const party2 = watch("day2.party2");
               const party1Names = party1.map((i) => allPlayers[i]?.name || `Player ${i + 1}`);
               const party2Names = party2.map((i) => allPlayers[i]?.name || `Player ${i + 1}`);
-
-              // Auto-generate if empty
-              if (matches.length === 0) {
-                const generated = generateDay2Matches();
-                setValue("day2.matches", generated);
-              }
 
               const segments = [1, 2, 3];
               const segmentLabels = ["Holes 1–6", "Holes 7–12", "Holes 13–18"];
