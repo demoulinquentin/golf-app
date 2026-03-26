@@ -146,15 +146,6 @@ function RoundLayout() {
                 </button>
               )}
               
-              {isAdmin && (
-                <button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="inline-flex items-center space-x-2 rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  <span>Delete</span>
-                </button>
-              )}
             </div>
           </div>
 
