@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useTRPC } from "~/trpc/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSubscription } from "@trpc/tanstack-react-query";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, Fragment } from "react";
 import toast from "react-hot-toast";
 import { calculateStrokesReceived } from "~/server/utils/courseData";
 import { z } from "zod";
@@ -334,6 +334,7 @@ function ScoringPage() {
           round={round}
           day2Config={day2Config!}
           segmentNumber={1}
+          variant="A"
           holeDataArray={holeDataArray}
           getHoleData={getHoleData}
           getPlayerScore={getPlayerScore}
@@ -349,6 +350,7 @@ function ScoringPage() {
           round={round}
           day2Config={day2Config!}
           segmentNumber={2}
+          variant="B"
           holeDataArray={holeDataArray}
           getHoleData={getHoleData}
           getPlayerScore={getPlayerScore}
@@ -364,6 +366,7 @@ function ScoringPage() {
           round={round}
           day2Config={day2Config!}
           segmentNumber={3}
+          variant="C"
           holeDataArray={holeDataArray}
           getHoleData={getHoleData}
           getPlayerScore={getPlayerScore}
@@ -478,7 +481,7 @@ function MatchplayLeaderboardTab({
     3: [13, 14, 15, 16, 17, 18],
   };
 
-  // Calculate match results
+  // Calculate match results with LIVE hole-by-hole matchplay scoring
   const matchResults = useMemo(() => {
     return day2Config.matches.map((match) => {
       const holes = segmentHoles[match.segmentNumber] || [];
@@ -494,17 +497,24 @@ function MatchplayLeaderboardTab({
           player2Net: null,
           status: "not-started" as const,
           result: null,
+          liveStatus: null as string | null,
+          p1HolesWon: 0,
+          p2HolesWon: 0,
+          holesCompared: 0,
+          holesRemaining: holes.length,
         };
       }
 
       const p1 = rp1.player;
       const p2 = rp2.player;
+      const p1Handicap = p1.handicap || 0;
+      const p2Handicap = p2.handicap || 0;
 
       const p1Stats = calculateNetScoreForHoles(
-        p1.id, holes, getPlayerScore, getHoleData, getStrokesReceivedForHole, p1.handicap || 0
+        p1.id, holes, getPlayerScore, getHoleData, getStrokesReceivedForHole, p1Handicap
       );
       const p2Stats = calculateNetScoreForHoles(
-        p2.id, holes, getPlayerScore, getHoleData, getStrokesReceivedForHole, p2.handicap || 0
+        p2.id, holes, getPlayerScore, getHoleData, getStrokesReceivedForHole, p2Handicap
       );
 
       const isBlind = match.type === "blind";
@@ -523,14 +533,57 @@ function MatchplayLeaderboardTab({
       // For blind matches, hide net scores until both players have entered all holes
       const showScores = !isBlind || bothComplete;
 
-      let result: { player1Points: number; player2Points: number } | null = null;
-      if (bothComplete) {
-        if (p1Stats.netScore < p2Stats.netScore) {
-          result = { player1Points: 1, player2Points: 0 };
-        } else if (p2Stats.netScore < p1Stats.netScore) {
-          result = { player1Points: 0, player2Points: 1 };
+      // LIVE hole-by-hole matchplay: compare net scores on each hole where BOTH scored
+      let p1HolesWon = 0;
+      let p2HolesWon = 0;
+      let holesCompared = 0;
+
+      for (const h of holes) {
+        const p1Score = getPlayerScore(p1.id, h);
+        const p2Score = getPlayerScore(p2.id, h);
+        if (p1Score === undefined || p2Score === undefined) continue;
+        // For blind matches, only count if we're allowed to show scores
+        if (isBlind && !bothComplete) continue;
+
+        const p1StrokesReceived = getStrokesReceivedForHole(h, p1Handicap);
+        const p2StrokesReceived = getStrokesReceivedForHole(h, p2Handicap);
+        const p1Net = p1Score - p1StrokesReceived;
+        const p2Net = p2Score - p2StrokesReceived;
+
+        holesCompared++;
+        if (p1Net < p2Net) p1HolesWon++;
+        else if (p2Net < p1Net) p2HolesWon++;
+      }
+
+      const holesRemaining = holes.length - holesCompared;
+
+      // Build live status string
+      let liveStatus: string | null = null;
+      if (holesCompared > 0) {
+        const diff = p1HolesWon - p2HolesWon;
+        if (diff === 0) {
+          liveStatus = "All Square";
         } else {
-          result = { player1Points: 0.5, player2Points: 0.5 };
+          const leader = diff > 0 ? p1.name.split(" ")[0] : p2.name.split(" ")[0];
+          const upBy = Math.abs(diff);
+          if (bothComplete) {
+            liveStatus = upBy === 1 ? `${leader} wins 1 UP` : `${leader} wins ${upBy} UP`;
+          } else {
+            liveStatus = `${leader} is ${upBy} UP with ${holesRemaining} to play`;
+          }
+        }
+      }
+
+      // LIVE points: award provisional points based on holes won so far
+      let result: { player1Points: number; player2Points: number; provisional: boolean } | null = null;
+      if (holesCompared > 0) {
+        const provisional = !bothComplete;
+        if (p1HolesWon > p2HolesWon) {
+          result = { player1Points: 1, player2Points: 0, provisional };
+        } else if (p2HolesWon > p1HolesWon) {
+          result = { player1Points: 0, player2Points: 1, provisional };
+        } else {
+          result = { player1Points: 0.5, player2Points: 0.5, provisional };
         }
       }
 
@@ -542,13 +595,18 @@ function MatchplayLeaderboardTab({
         player2Net: showScores ? p2Stats.netScore : null,
         status,
         result,
+        liveStatus,
+        p1HolesWon,
+        p2HolesWon,
+        holesCompared,
+        holesRemaining,
       };
     });
   }, [round, day2Config, getPlayerScore, getHoleData, getStrokesReceivedForHole]);
 
-  // Build team standings from match results
+  // Build team standings from LIVE match results (hole-by-hole)
   const teamStandings = useMemo(() => {
-    const teamPoints = new Map<number, { name: string; color: string; points: number; matchesPlayed: number; matchesTotal: number }>();
+    const teamPoints = new Map<number, { name: string; color: string; points: number; provisionalPoints: number; matchesPlayed: number; matchesComplete: number; matchesTotal: number }>();
 
     for (const mr of matchResults) {
       if (!mr.player1 || !mr.player2) continue;
@@ -563,7 +621,9 @@ function MatchplayLeaderboardTab({
             name: tInfo.teamName,
             color: tInfo.teamColor,
             points: 0,
+            provisionalPoints: 0,
             matchesPlayed: 0,
+            matchesComplete: 0,
             matchesTotal: 0,
           });
         }
@@ -573,13 +633,24 @@ function MatchplayLeaderboardTab({
       if (team2Info) teamPoints.get(team2Info.teamId)!.matchesTotal++;
 
       if (mr.result) {
+        // Live points: count all matches with any compared holes
         if (team1Info) {
           teamPoints.get(team1Info.teamId)!.points += mr.result.player1Points;
           teamPoints.get(team1Info.teamId)!.matchesPlayed++;
+          if (mr.result.provisional) {
+            teamPoints.get(team1Info.teamId)!.provisionalPoints += mr.result.player1Points;
+          } else {
+            teamPoints.get(team1Info.teamId)!.matchesComplete++;
+          }
         }
         if (team2Info) {
           teamPoints.get(team2Info.teamId)!.points += mr.result.player2Points;
           teamPoints.get(team2Info.teamId)!.matchesPlayed++;
+          if (mr.result.provisional) {
+            teamPoints.get(team2Info.teamId)!.provisionalPoints += mr.result.player2Points;
+          } else {
+            teamPoints.get(team2Info.teamId)!.matchesComplete++;
+          }
         }
       }
     }
@@ -610,7 +681,10 @@ function MatchplayLeaderboardTab({
       {/* Team Standings */}
       {teamStandings.length > 0 && (
         <div className="rounded-2xl bg-white p-4 shadow-lg sm:p-6">
-          <h2 className="mb-4 text-xl font-bold text-gray-900">Team Standings</h2>
+          <h2 className="mb-4 text-xl font-bold text-gray-900">
+            Team Standings
+            <span className="ml-2 text-xs font-normal text-gray-400">LIVE</span>
+          </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -635,10 +709,20 @@ function MatchplayLeaderboardTab({
                       </div>
                     </td>
                     <td className="py-3 text-center text-gray-600">
-                      {t.matchesPlayed}/{t.matchesTotal}
+                      {t.matchesComplete}/{t.matchesTotal}
+                      {t.matchesPlayed > t.matchesComplete && (
+                        <span className="ml-1 text-xs text-amber-500">
+                          ({t.matchesPlayed - t.matchesComplete} live)
+                        </span>
+                      )}
                     </td>
-                    <td className="py-3 text-center text-lg font-bold text-green-600">
-                      {t.points}
+                    <td className="py-3 text-center">
+                      <span className="text-lg font-bold text-green-600">{t.points}</span>
+                      {t.provisionalPoints > 0 && (
+                        <div className="text-[10px] text-amber-500">
+                          ({t.provisionalPoints} provisional)
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -706,18 +790,28 @@ function MatchplayLeaderboardTab({
                         <span className="text-sm font-semibold text-gray-900">
                           {mr.player1?.player.name || "TBD"}
                         </span>
-                        <span className="text-sm font-bold text-purple-600">
-                          {formatNetScore(mr.player1Net)}
-                        </span>
                       </div>
 
-                      <span className="px-2 text-xs font-medium text-gray-400">vs</span>
+                      {/* Live matchplay status */}
+                      <div className="px-2 text-center">
+                        {mr.liveStatus ? (
+                          <span className={`text-xs font-bold ${
+                            mr.status === "complete" ? "text-green-700" : "text-amber-600"
+                          }`}>
+                            {mr.liveStatus}
+                          </span>
+                        ) : (
+                          <span className="text-xs font-medium text-gray-400">vs</span>
+                        )}
+                        {mr.holesCompared > 0 && (
+                          <div className="text-[10px] text-gray-400">
+                            {mr.p1HolesWon}W-{mr.holesCompared - mr.p1HolesWon - mr.p2HolesWon}T-{mr.p2HolesWon}W
+                          </div>
+                        )}
+                      </div>
 
                       {/* Player 2 */}
                       <div className="flex items-center space-x-2">
-                        <span className="text-sm font-bold text-purple-600">
-                          {formatNetScore(mr.player2Net)}
-                        </span>
                         <span className="text-sm font-semibold text-gray-900">
                           {mr.player2?.player.name || "TBD"}
                         </span>
@@ -733,16 +827,26 @@ function MatchplayLeaderboardTab({
                     {/* Result */}
                     {mr.result && (
                       <div className="mt-2 text-center text-xs font-semibold">
-                        {mr.result.player1Points === 1 ? (
-                          <span className="text-green-600">
-                            {mr.player1?.player.name} wins (1 pt)
-                          </span>
-                        ) : mr.result.player2Points === 1 ? (
-                          <span className="text-green-600">
-                            {mr.player2?.player.name} wins (1 pt)
+                        {mr.result.provisional ? (
+                          <span className="text-amber-500">
+                            Provisional: {mr.result.player1Points === 1
+                              ? `${mr.player1?.player.name} leading (1 pt)`
+                              : mr.result.player2Points === 1
+                              ? `${mr.player2?.player.name} leading (1 pt)`
+                              : "Tied (0.5 pts each)"}
                           </span>
                         ) : (
-                          <span className="text-amber-600">Tie (0.5 pts each)</span>
+                          mr.result.player1Points === 1 ? (
+                            <span className="text-green-600">
+                              {mr.player1?.player.name} wins (1 pt)
+                            </span>
+                          ) : mr.result.player2Points === 1 ? (
+                            <span className="text-green-600">
+                              {mr.player2?.player.name} wins (1 pt)
+                            </span>
+                          ) : (
+                            <span className="text-amber-600">Tie (0.5 pts each)</span>
+                          )
                         )}
                       </div>
                     )}
@@ -757,29 +861,46 @@ function MatchplayLeaderboardTab({
   );
 }
 
-// ─── Segment Tab (Day 2 Mini Scorecards) ────────────────────────────────────
+// ─── Segment Tab types ──────────────────────────────────────────────────────
 
-function SegmentTab({
-  round,
-  day2Config,
-  segmentNumber,
-  holeDataArray,
-  getHoleData,
-  getPlayerScore,
-  getStrokesReceivedForHole,
-  canEdit,
-  onCellTap,
-}: {
+type SegmentTabProps = {
   round: any;
   day2Config: Day2Config;
   segmentNumber: number;
+  variant: "A" | "B" | "C";
   holeDataArray: HoleInfo[];
   getHoleData: (hole: number) => HoleInfo | undefined;
   getPlayerScore: (playerId: number, hole: number) => number | undefined;
   getStrokesReceivedForHole: (hole: number, handicap: number) => number;
   canEdit: (playerId: number) => boolean;
   onCellTap: (playerId: number, holeNumber: number, playerName: string) => void;
-}) {
+};
+
+// ─── Segment Tab (Day 2 — dispatches to variant) ────────────────────────────
+
+function SegmentTab(props: SegmentTabProps) {
+  switch (props.variant) {
+    case "A":
+      return <SegmentVariantA {...props} />;
+    case "B":
+      return <SegmentVariantB {...props} />;
+    case "C":
+      return <SegmentVariantC {...props} />;
+    default:
+      return <SegmentVariantA {...props} />;
+  }
+}
+
+// ─── Shared matchplay helper for segment variants ───────────────────────────
+
+function useSegmentMatchData(
+  round: any,
+  day2Config: Day2Config,
+  segmentNumber: number,
+  getHoleData: (hole: number) => HoleInfo | undefined,
+  getPlayerScore: (playerId: number, hole: number) => number | undefined,
+  getStrokesReceivedForHole: (hole: number, handicap: number) => number,
+) {
   const segmentMatches = useMemo(
     () => day2Config.matches.filter((m) => m.segmentNumber === segmentNumber),
     [day2Config, segmentNumber]
@@ -790,22 +911,759 @@ function SegmentTab({
     return Array.from({ length: 6 }, (_, i) => start + i);
   }, [segmentNumber]);
 
+  // Compute matchplay data for each match
+  const matchData = useMemo(() => {
+    return segmentMatches.map((match) => {
+      const rp1 = getPlayerByIndex(round, match.player1Index);
+      const rp2 = getPlayerByIndex(round, match.player2Index);
+      if (!rp1 || !rp2) return { match, rp1: null, rp2: null, p1: null, p2: null, holeResults: [] as (null | "p1" | "p2" | "tie")[], p1HolesWon: 0, p2HolesWon: 0, holesCompared: 0, liveStatus: "", team1Info: null as ReturnType<typeof getTeamForPlayerIndex>, team2Info: null as ReturnType<typeof getTeamForPlayerIndex>, isBlind: match.type === "blind", bothComplete: false, holeVisibility: [] as { hole: number; bothEntered: boolean; p1Entered: boolean; p2Entered: boolean }[] };
+
+      const p1 = rp1.player;
+      const p2 = rp2.player;
+      const p1Handicap = p1.handicap || 0;
+      const p2Handicap = p2.handicap || 0;
+      const isBlind = match.type === "blind";
+      const team1Info = getTeamForPlayerIndex(round, match.player1Index);
+      const team2Info = getTeamForPlayerIndex(round, match.player2Index);
+
+      const holeVisibility = holes.map((h) => {
+        const p1Score = getPlayerScore(p1.id, h);
+        const p2Score = getPlayerScore(p2.id, h);
+        return {
+          hole: h,
+          bothEntered: p1Score !== undefined && p2Score !== undefined,
+          p1Entered: p1Score !== undefined,
+          p2Entered: p2Score !== undefined,
+        };
+      });
+
+      const bothComplete = holeVisibility.every((v) => v.bothEntered);
+
+      let p1HolesWon = 0;
+      let p2HolesWon = 0;
+      let holesCompared = 0;
+
+      const holeResults: (null | "p1" | "p2" | "tie")[] = holes.map((h, idx) => {
+        const vis = holeVisibility[idx];
+        if (!vis || !vis.bothEntered) return null;
+        if (isBlind && !bothComplete) return null;
+
+        const p1Score = getPlayerScore(p1.id, h)!;
+        const p2Score = getPlayerScore(p2.id, h)!;
+        const p1StrokesReceived = getStrokesReceivedForHole(h, p1Handicap);
+        const p2StrokesReceived = getStrokesReceivedForHole(h, p2Handicap);
+        const p1Net = p1Score - p1StrokesReceived;
+        const p2Net = p2Score - p2StrokesReceived;
+
+        holesCompared++;
+        if (p1Net < p2Net) { p1HolesWon++; return "p1"; }
+        if (p2Net < p1Net) { p2HolesWon++; return "p2"; }
+        return "tie";
+      });
+
+      const holesRemaining = holes.length - holesCompared;
+      let liveStatus = "";
+      if (holesCompared > 0) {
+        const diff = p1HolesWon - p2HolesWon;
+        if (diff === 0) {
+          liveStatus = "All Square";
+        } else {
+          const leaderName = diff > 0 ? p1.name.split(" ")[0] : p2.name.split(" ")[0];
+          const upBy = Math.abs(diff);
+          if (bothComplete) {
+            liveStatus = upBy === 1 ? `${leaderName} wins 1 UP` : `${leaderName} wins ${upBy} UP`;
+          } else {
+            liveStatus = `${leaderName} ${upBy} UP (${holesRemaining} left)`;
+          }
+        }
+      }
+
+      return { match, rp1, rp2, p1, p2, holeResults, p1HolesWon, p2HolesWon, holesCompared, liveStatus, team1Info, team2Info, isBlind, bothComplete, holeVisibility };
+    });
+  }, [segmentMatches, round, holes, getPlayerScore, getHoleData, getStrokesReceivedForHole]);
+
+  return { segmentMatches, holes, matchData };
+}
+
+// Score indicator (shared across variants)
+function getScoreSymbolShared(strokes: number, par: number): { className: string } {
+  const diff = strokes - par;
+  if (diff <= -2) return { className: "text-red-600 font-bold ring-2 ring-red-400 ring-offset-1 rounded-full" };
+  if (diff === -1) return { className: "text-red-600 font-bold ring-1 ring-red-400 rounded-full" };
+  if (diff === 1) return { className: "text-gray-900 font-bold ring-1 ring-gray-900 rounded-sm" };
+  if (diff >= 2) return { className: "text-gray-900 font-bold ring-2 ring-gray-900 rounded-sm" };
+  return { className: "text-gray-900" };
+}
+
+// ─── Variant A: Match cards with compact grid ───────────────────────────────
+
+function SegmentVariantA({
+  round,
+  day2Config,
+  segmentNumber,
+  holeDataArray,
+  getHoleData,
+  getPlayerScore,
+  getStrokesReceivedForHole,
+  canEdit,
+  onCellTap,
+}: SegmentTabProps) {
+  const { holes, matchData } = useSegmentMatchData(
+    round, day2Config, segmentNumber, getHoleData, getPlayerScore, getStrokesReceivedForHole
+  );
+
   return (
-    <div className="space-y-6">
-      {segmentMatches.map((match, idx) => (
-        <MiniScorecard
-          key={match.id || idx}
-          round={round}
-          match={match}
-          holes={holes}
-          holeDataArray={holeDataArray}
-          getHoleData={getHoleData}
-          getPlayerScore={getPlayerScore}
-          getStrokesReceivedForHole={getStrokesReceivedForHole}
-          canEdit={canEdit}
-          onCellTap={onCellTap}
-        />
-      ))}
+    <div className="space-y-4">
+      {/* Shared Par & SI row */}
+      <div className="rounded-xl bg-white px-3 py-2 shadow">
+        <div className="grid grid-cols-[auto_repeat(6,1fr)] gap-0 text-xs">
+          <div className="w-12 text-gray-500 font-semibold py-0.5">Par</div>
+          {holes.map((h) => {
+            const hd = getHoleData(h);
+            return (
+              <div key={h} className="text-center text-gray-600 font-medium py-0.5">
+                {hd?.par ?? "-"}
+              </div>
+            );
+          })}
+          <div className="w-12 text-gray-400 font-semibold py-0.5">SI</div>
+          {holes.map((h) => {
+            const hd = getHoleData(h);
+            return (
+              <div key={h} className="text-center text-gray-400 py-0.5">
+                {hd?.strokeIndex ?? "-"}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Match cards */}
+      {matchData.map((md, idx) => {
+        if (!md.p1 || !md.p2) {
+          return (
+            <div key={md.match.id || idx} className="rounded-xl bg-white p-4 shadow">
+              <p className="text-gray-500">Match data unavailable</p>
+            </div>
+          );
+        }
+
+        const p1 = md.p1;
+        const p2 = md.p2;
+        const p1Handicap = p1.handicap || 0;
+        const p2Handicap = p2.handicap || 0;
+
+        return (
+          <div key={md.match.id || idx} className="rounded-xl bg-white shadow overflow-hidden">
+            {/* Card header */}
+            <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200">
+              <div className="flex items-center space-x-1.5">
+                {md.team1Info && (
+                  <div className="h-3 w-3 rounded-full" style={{ backgroundColor: md.team1Info.teamColor }} />
+                )}
+                <span className="text-sm font-semibold text-gray-900">{p1.name}</span>
+              </div>
+              <div className="text-center px-2">
+                <span className={`text-xs font-bold ${md.liveStatus.includes("wins") ? "text-green-700" : md.liveStatus === "All Square" ? "text-gray-600" : "text-amber-600"}`}>
+                  {md.liveStatus || "vs"}
+                </span>
+              </div>
+              <div className="flex items-center space-x-1.5">
+                <span className="text-sm font-semibold text-gray-900">{p2.name}</span>
+                {md.team2Info && (
+                  <div className="h-3 w-3 rounded-full" style={{ backgroundColor: md.team2Info.teamColor }} />
+                )}
+              </div>
+              <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                md.isBlind ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"
+              }`}>
+                {md.isBlind ? "Blind" : "Live"}
+              </span>
+            </div>
+
+            {/* Compact 6-column score grid */}
+            <div className="px-3 py-2">
+              {/* Hole numbers */}
+              <div className="grid grid-cols-6 gap-1 mb-1">
+                {holes.map((h) => (
+                  <div key={h} className="text-center text-[10px] text-gray-400 font-medium">
+                    {h}
+                  </div>
+                ))}
+              </div>
+              {/* Player 1 scores */}
+              <div className="grid grid-cols-6 gap-1 mb-0.5">
+                {holes.map((h, hIdx) => {
+                  const vis = md.holeVisibility[hIdx];
+                  const score = getPlayerScore(p1.id, h);
+                  const hd = getHoleData(h);
+                  const par = hd?.par ?? 4;
+                  const isEditable = canEdit(p1.id);
+
+                  if (md.isBlind && !vis?.bothEntered) {
+                    return (
+                      <div
+                        key={h}
+                        className="text-center py-1 cursor-pointer hover:bg-green-50 rounded"
+                        onClick={() => isEditable && onCellTap(p1.id, h, p1.name)}
+                      >
+                        {vis?.p1Entered ? (
+                          <span className="text-green-500 text-xs">&#10003;</span>
+                        ) : (
+                          <span className="text-gray-300 text-xs">&ndash;</span>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  const sym = score !== undefined ? getScoreSymbolShared(score, par) : null;
+                  return (
+                    <div
+                      key={h}
+                      className="text-center py-1 cursor-pointer hover:bg-green-50 rounded"
+                      onClick={() => isEditable && onCellTap(p1.id, h, p1.name)}
+                    >
+                      {score !== undefined ? (
+                        <span className={`inline-flex h-6 w-6 items-center justify-center text-xs ${sym?.className ?? ""}`}>
+                          {score}
+                        </span>
+                      ) : (
+                        <span className="text-gray-300 text-xs">&ndash;</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Player 2 scores */}
+              <div className="grid grid-cols-6 gap-1 mb-0.5">
+                {holes.map((h, hIdx) => {
+                  const vis = md.holeVisibility[hIdx];
+                  const score = getPlayerScore(p2.id, h);
+                  const hd = getHoleData(h);
+                  const par = hd?.par ?? 4;
+                  const isEditable = canEdit(p2.id);
+
+                  if (md.isBlind && !vis?.bothEntered) {
+                    return (
+                      <div
+                        key={h}
+                        className="text-center py-1 cursor-pointer hover:bg-green-50 rounded"
+                        onClick={() => isEditable && onCellTap(p2.id, h, p2.name)}
+                      >
+                        {vis?.p2Entered ? (
+                          <span className="text-green-500 text-xs">&#10003;</span>
+                        ) : (
+                          <span className="text-gray-300 text-xs">&ndash;</span>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  const sym = score !== undefined ? getScoreSymbolShared(score, par) : null;
+                  return (
+                    <div
+                      key={h}
+                      className="text-center py-1 cursor-pointer hover:bg-green-50 rounded"
+                      onClick={() => isEditable && onCellTap(p2.id, h, p2.name)}
+                    >
+                      {score !== undefined ? (
+                        <span className={`inline-flex h-6 w-6 items-center justify-center text-xs ${sym?.className ?? ""}`}>
+                          {score}
+                        </span>
+                      ) : (
+                        <span className="text-gray-300 text-xs">&ndash;</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Hole winner indicators */}
+              <div className="grid grid-cols-6 gap-1 border-t border-gray-100 pt-1">
+                {holes.map((h, hIdx) => {
+                  const winner = md.holeResults[hIdx];
+                  return (
+                    <div key={h} className="text-center">
+                      {winner === "p1" ? (
+                        <div className="h-3 w-3 rounded-full mx-auto" style={{ backgroundColor: md.team1Info?.teamColor || "#059669" }} />
+                      ) : winner === "p2" ? (
+                        <div className="h-3 w-3 rounded-full mx-auto" style={{ backgroundColor: md.team2Info?.teamColor || "#059669" }} />
+                      ) : winner === "tie" ? (
+                        <span className="text-[10px] font-semibold text-amber-600">T</span>
+                      ) : (
+                        <span className="text-gray-300 text-[10px]">&ndash;</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Variant B: Single combined table ───────────────────────────────────────
+
+function SegmentVariantB({
+  round,
+  day2Config,
+  segmentNumber,
+  holeDataArray,
+  getHoleData,
+  getPlayerScore,
+  getStrokesReceivedForHole,
+  canEdit,
+  onCellTap,
+}: SegmentTabProps) {
+  const { holes, matchData } = useSegmentMatchData(
+    round, day2Config, segmentNumber, getHoleData, getPlayerScore, getStrokesReceivedForHole
+  );
+
+  const cellClass = "min-w-[40px] px-1 py-1 text-center text-xs";
+  const headerCellClass = "min-w-[40px] px-1 py-1 text-center text-xs font-semibold";
+  const nameCellClass =
+    "sticky left-0 z-10 bg-white min-w-[100px] max-w-[130px] px-2 py-1 text-xs font-semibold whitespace-nowrap";
+  const sumCellClass = "min-w-[44px] px-1 py-1 text-center text-xs font-bold";
+
+  return (
+    <div className="rounded-2xl bg-white shadow-lg overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-max border-collapse">
+          <thead>
+            {/* Column headers: Player | Hole numbers | TOT */}
+            <tr className="border-b border-gray-300 bg-gray-50">
+              <th className={`${nameCellClass} bg-gray-50`}>Player</th>
+              {holes.map((h) => (
+                <th key={h} className={`${headerCellClass} text-gray-700`}>{h}</th>
+              ))}
+              <th className={`${headerCellClass} bg-gray-100 text-gray-900`}>TOT</th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* Par row */}
+            <tr className="border-b border-gray-200 bg-gray-50">
+              <td className={`${nameCellClass} bg-gray-50 text-gray-600`}>Par</td>
+              {holes.map((h) => {
+                const hd = getHoleData(h);
+                return <td key={h} className={`${cellClass} text-gray-600`}>{hd?.par ?? "-"}</td>;
+              })}
+              <td className={`${sumCellClass} bg-gray-100 text-gray-900`}>
+                {holes.reduce((sum, h) => sum + (getHoleData(h)?.par ?? 0), 0)}
+              </td>
+            </tr>
+            {/* SI row */}
+            <tr className="border-b-2 border-gray-300 bg-gray-50">
+              <td className={`${nameCellClass} bg-gray-50 text-gray-500`}>SI</td>
+              {holes.map((h) => {
+                const hd = getHoleData(h);
+                return <td key={h} className={`${cellClass} text-gray-500`}>{hd?.strokeIndex ?? "-"}</td>;
+              })}
+              <td className={`${sumCellClass} bg-gray-100`} />
+            </tr>
+
+            {/* Matches */}
+            {matchData.map((md, mIdx) => {
+              if (!md.p1 || !md.p2) return null;
+
+              const p1 = md.p1;
+              const p2 = md.p2;
+              const p1Handicap = p1.handicap || 0;
+              const p2Handicap = p2.handicap || 0;
+
+              const p1Total = holes.reduce((sum, h) => {
+                const s = getPlayerScore(p1.id, h);
+                return s !== undefined ? sum + s : sum;
+              }, 0);
+              const p2Total = holes.reduce((sum, h) => {
+                const s = getPlayerScore(p2.id, h);
+                return s !== undefined ? sum + s : sum;
+              }, 0);
+              const p1HasScores = holes.some((h) => getPlayerScore(p1.id, h) !== undefined);
+              const p2HasScores = holes.some((h) => getPlayerScore(p2.id, h) !== undefined);
+
+              const renderBlindAwareScore = (
+                playerId: number,
+                playerName: string,
+                holeNumber: number,
+                handicap: number,
+                hIdx: number,
+                isP1: boolean,
+              ) => {
+                const vis = md.holeVisibility[hIdx];
+                const score = getPlayerScore(playerId, holeNumber);
+                const isEditable = canEdit(playerId);
+
+                if (md.isBlind && !vis?.bothEntered) {
+                  const thisEntered = isP1 ? vis?.p1Entered : vis?.p2Entered;
+                  return (
+                    <td
+                      key={holeNumber}
+                      className={`${cellClass} cursor-pointer hover:bg-green-50`}
+                      onClick={() => isEditable && onCellTap(playerId, holeNumber, playerName)}
+                    >
+                      {thisEntered ? (
+                        <span className="text-green-500 font-medium">&#10003;</span>
+                      ) : (
+                        <span className="text-gray-300">&ndash;</span>
+                      )}
+                    </td>
+                  );
+                }
+
+                const hd = getHoleData(holeNumber);
+                const par = hd?.par ?? 4;
+                const sym = score !== undefined ? getScoreSymbolShared(score, par) : null;
+                return (
+                  <td
+                    key={holeNumber}
+                    className={`${cellClass} cursor-pointer hover:bg-green-50`}
+                    onClick={() => isEditable && onCellTap(playerId, holeNumber, playerName)}
+                  >
+                    {score !== undefined ? (
+                      <span className={`inline-flex h-6 w-6 items-center justify-center ${sym?.className ?? ""}`}>
+                        {score}
+                      </span>
+                    ) : (
+                      <span className="text-gray-300">&ndash;</span>
+                    )}
+                  </td>
+                );
+              };
+
+              const renderBlindAwareTotal = (playerId: number, total: number, hasScores: boolean) => {
+                if (md.isBlind && !md.bothComplete) {
+                  return <span className="text-gray-400">?</span>;
+                }
+                return hasScores ? total : "-";
+              };
+
+              return (
+                <Fragment key={md.match.id || mIdx}>
+                  {/* Thick separator between matches */}
+                  {mIdx > 0 && (
+                    <tr>
+                      <td colSpan={holes.length + 2} className="h-1 bg-gray-300" />
+                    </tr>
+                  )}
+
+                  {/* Player 1 score row */}
+                  <tr className="border-b border-gray-100">
+                    <td className={`${nameCellClass} truncate`}>
+                      <div className="leading-tight">
+                        <div className="flex items-center space-x-1">
+                          {md.team1Info && (
+                            <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: md.team1Info.teamColor }} />
+                          )}
+                          <span className="truncate">{p1.name}</span>
+                        </div>
+                        <div className="text-[10px] text-gray-500">HCP {p1Handicap}</div>
+                      </div>
+                    </td>
+                    {holes.map((h, hIdx) => renderBlindAwareScore(p1.id, p1.name, h, p1Handicap, hIdx, true))}
+                    <td className={`${sumCellClass} bg-gray-100`}>
+                      <div>{renderBlindAwareTotal(p1.id, p1Total, p1HasScores)}</div>
+                      {md.liveStatus && (
+                        <div className={`text-[9px] mt-0.5 font-semibold ${md.bothComplete ? "text-green-700" : "text-amber-600"}`}>
+                          {md.liveStatus}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+
+                  {/* Player 1 strokes received */}
+                  <tr className="border-b border-gray-100 bg-purple-50/50">
+                    <td className={`${nameCellClass} bg-purple-50/50 text-[10px] text-purple-600`}>Strokes</td>
+                    {holes.map((h) => {
+                      const sr = getStrokesReceivedForHole(h, p1Handicap);
+                      return <td key={h} className={`${cellClass} text-[10px] text-purple-500`}>{sr > 0 ? sr : "0"}</td>;
+                    })}
+                    <td className={`${sumCellClass} bg-gray-100`} />
+                  </tr>
+
+                  {/* Player 2 score row */}
+                  <tr className="border-b border-gray-100">
+                    <td className={`${nameCellClass} truncate`}>
+                      <div className="leading-tight">
+                        <div className="flex items-center space-x-1">
+                          {md.team2Info && (
+                            <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: md.team2Info.teamColor }} />
+                          )}
+                          <span className="truncate">{p2.name}</span>
+                        </div>
+                        <div className="text-[10px] text-gray-500">HCP {p2Handicap}</div>
+                      </div>
+                    </td>
+                    {holes.map((h, hIdx) => renderBlindAwareScore(p2.id, p2.name, h, p2Handicap, hIdx, false))}
+                    <td className={`${sumCellClass} bg-gray-100`}>
+                      {renderBlindAwareTotal(p2.id, p2Total, p2HasScores)}
+                    </td>
+                  </tr>
+
+                  {/* Player 2 strokes received */}
+                  <tr className="border-b border-gray-100 bg-purple-50/50">
+                    <td className={`${nameCellClass} bg-purple-50/50 text-[10px] text-purple-600`}>Strokes</td>
+                    {holes.map((h) => {
+                      const sr = getStrokesReceivedForHole(h, p2Handicap);
+                      return <td key={h} className={`${cellClass} text-[10px] text-purple-500`}>{sr > 0 ? sr : "0"}</td>;
+                    })}
+                    <td className={`${sumCellClass} bg-gray-100`} />
+                  </tr>
+
+                  {/* Winner row */}
+                  <tr className={`bg-green-50/50 ${mIdx < matchData.length - 1 ? "border-b-4 border-gray-300" : ""}`}>
+                    <td className={`${nameCellClass} bg-green-50/50 text-[10px] text-green-700 font-semibold`}>Winner</td>
+                    {holes.map((h, hIdx) => {
+                      const winner = md.holeResults[hIdx];
+                      let content: React.ReactNode = <span className="text-gray-300">&ndash;</span>;
+                      let cellBg = "";
+                      if (winner === "p1") {
+                        content = <div className="h-4 w-4 rounded-full mx-auto" style={{ backgroundColor: md.team1Info?.teamColor || "#059669" }} />;
+                        cellBg = "bg-green-100/50";
+                      } else if (winner === "p2") {
+                        content = <div className="h-4 w-4 rounded-full mx-auto" style={{ backgroundColor: md.team2Info?.teamColor || "#059669" }} />;
+                        cellBg = "bg-green-100/50";
+                      } else if (winner === "tie") {
+                        content = <span className="text-xs font-semibold text-amber-600">T</span>;
+                      }
+                      return <td key={h} className={`${cellClass} ${cellBg}`}>{content}</td>;
+                    })}
+                    <td className={`${sumCellClass} bg-gray-100`} />
+                  </tr>
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ─── Variant C: Status cards + shared scorecard ─────────────────────────────
+
+function SegmentVariantC({
+  round,
+  day2Config,
+  segmentNumber,
+  holeDataArray,
+  getHoleData,
+  getPlayerScore,
+  getStrokesReceivedForHole,
+  canEdit,
+  onCellTap,
+}: SegmentTabProps) {
+  const { holes, matchData } = useSegmentMatchData(
+    round, day2Config, segmentNumber, getHoleData, getPlayerScore, getStrokesReceivedForHole
+  );
+
+  const cellClass = "min-w-[40px] px-1 py-1 text-center text-xs";
+  const headerCellClass = "min-w-[40px] px-1 py-1 text-center text-xs font-semibold";
+  const nameCellClass =
+    "sticky left-0 z-10 bg-white min-w-[100px] max-w-[130px] px-2 py-1 text-xs font-semibold whitespace-nowrap";
+  const sumCellClass = "min-w-[44px] px-1 py-1 text-center text-xs font-bold";
+
+  // Determine status card bg color from team 1 perspective
+  const getStatusCardStyle = (md: (typeof matchData)[number]) => {
+    if (!md.p1 || !md.p2 || md.holesCompared === 0) {
+      return { bg: "bg-gray-100", text: "text-gray-500" };
+    }
+    const diff = md.p1HolesWon - md.p2HolesWon;
+    if (diff > 0) return { bg: "bg-green-100", text: "text-green-800" };
+    if (diff < 0) return { bg: "bg-red-100", text: "text-red-800" };
+    return { bg: "bg-gray-100", text: "text-gray-700" };
+  };
+
+  // Build a lookup: for each player, which holes did they win in their match?
+  const playerHoleWins = useMemo(() => {
+    const map = new Map<number, Set<number>>();
+    for (const md of matchData) {
+      if (!md.p1 || !md.p2) continue;
+      if (!map.has(md.p1.id)) map.set(md.p1.id, new Set());
+      if (!map.has(md.p2.id)) map.set(md.p2.id, new Set());
+      const p1Id = md.p1.id;
+      const p2Id = md.p2.id;
+      md.holeResults.forEach((result, idx) => {
+        const h = holes[idx];
+        if (h === undefined) return;
+        if (result === "p1") map.get(p1Id)!.add(h);
+        if (result === "p2") map.get(p2Id)!.add(h);
+      });
+    }
+    return map;
+  }, [matchData, holes]);
+
+  return (
+    <div className="space-y-4">
+      {/* Status cards */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {matchData.map((md, idx) => {
+          const style = getStatusCardStyle(md);
+          return (
+            <div key={md.match.id || idx} className={`rounded-xl p-3 ${style.bg} shadow`}>
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-1">
+                  {md.team1Info && (
+                    <div className="h-3 w-3 rounded-full" style={{ backgroundColor: md.team1Info.teamColor }} />
+                  )}
+                  <span className="font-semibold text-gray-900">{md.p1?.name || "TBD"}</span>
+                </div>
+                <span className="text-gray-400">vs</span>
+                <div className="flex items-center space-x-1">
+                  <span className="font-semibold text-gray-900">{md.p2?.name || "TBD"}</span>
+                  {md.team2Info && (
+                    <div className="h-3 w-3 rounded-full" style={{ backgroundColor: md.team2Info.teamColor }} />
+                  )}
+                </div>
+              </div>
+              <div className={`mt-2 text-center text-lg font-bold ${style.text}`}>
+                {md.liveStatus || "Not started"}
+              </div>
+              <div className="mt-1 text-center">
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                  md.isBlind ? "bg-amber-200 text-amber-800" : "bg-blue-200 text-blue-800"
+                }`}>
+                  {md.isBlind ? "Blind" : "Live"}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Shared scorecard with all 6 players */}
+      <div className="rounded-2xl bg-white shadow-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-max border-collapse">
+            <thead>
+              <tr className="border-b border-gray-300 bg-gray-50">
+                <th className={`${nameCellClass} bg-gray-50`}>Player</th>
+                {holes.map((h) => (
+                  <th key={h} className={`${headerCellClass} text-gray-700`}>{h}</th>
+                ))}
+                <th className={`${headerCellClass} bg-gray-100 text-gray-900`}>TOT</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Par row */}
+              <tr className="border-b border-gray-200 bg-gray-50">
+                <td className={`${nameCellClass} bg-gray-50 text-gray-600`}>Par</td>
+                {holes.map((h) => {
+                  const hd = getHoleData(h);
+                  return <td key={h} className={`${cellClass} text-gray-600`}>{hd?.par ?? "-"}</td>;
+                })}
+                <td className={`${sumCellClass} bg-gray-100 text-gray-900`}>
+                  {holes.reduce((sum, h) => sum + (getHoleData(h)?.par ?? 0), 0)}
+                </td>
+              </tr>
+              {/* SI row */}
+              <tr className="border-b-2 border-gray-300 bg-gray-50">
+                <td className={`${nameCellClass} bg-gray-50 text-gray-500`}>SI</td>
+                {holes.map((h) => {
+                  const hd = getHoleData(h);
+                  return <td key={h} className={`${cellClass} text-gray-500`}>{hd?.strokeIndex ?? "-"}</td>;
+                })}
+                <td className={`${sumCellClass} bg-gray-100`} />
+              </tr>
+
+              {/* All players */}
+              {matchData.map((md, mIdx) => {
+                if (!md.p1 || !md.p2) return null;
+
+                const players = [
+                  { player: md.p1, handicap: md.p1.handicap || 0, teamInfo: md.team1Info, isP1: true },
+                  { player: md.p2, handicap: md.p2.handicap || 0, teamInfo: md.team2Info, isP1: false },
+                ];
+
+                return players.map(({ player, handicap, teamInfo, isP1 }) => {
+                  const pId = player.id;
+                  const wins = playerHoleWins.get(pId) || new Set<number>();
+                  const isEditable = canEdit(pId);
+
+                  let total = 0;
+                  let hasScores = false;
+                  for (const h of holes) {
+                    const s = getPlayerScore(pId, h);
+                    if (s !== undefined) { total += s; hasScores = true; }
+                  }
+
+                  const showTotal = () => {
+                    if (md.isBlind && !md.bothComplete) return <span className="text-gray-400">?</span>;
+                    return hasScores ? total : "-";
+                  };
+
+                  return (
+                    <tr key={pId} className={`border-b border-gray-100 ${mIdx > 0 && isP1 ? "border-t-2 border-gray-300" : ""}`}>
+                      <td className={`${nameCellClass} truncate`}>
+                        <div className="leading-tight">
+                          <div className="flex items-center space-x-1">
+                            {teamInfo && (
+                              <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: teamInfo.teamColor }} />
+                            )}
+                            <span className="truncate">{player.name}</span>
+                          </div>
+                          <div className="text-[10px] text-gray-500">HCP {handicap}</div>
+                        </div>
+                      </td>
+                      {holes.map((h, hIdx) => {
+                        const vis = md.holeVisibility[hIdx];
+                        const score = getPlayerScore(pId, h);
+                        const hd = getHoleData(h);
+                        const par = hd?.par ?? 4;
+                        const wonThisHole = wins.has(h);
+
+                        // Blind check
+                        if (md.isBlind && !vis?.bothEntered) {
+                          const thisEntered = isP1 ? vis?.p1Entered : vis?.p2Entered;
+                          return (
+                            <td
+                              key={h}
+                              className={`${cellClass} cursor-pointer hover:bg-green-50`}
+                              onClick={() => isEditable && onCellTap(pId, h, player.name)}
+                            >
+                              {thisEntered ? (
+                                <span className="text-green-500 font-medium">&#10003;</span>
+                              ) : (
+                                <span className="text-gray-300">&ndash;</span>
+                              )}
+                            </td>
+                          );
+                        }
+
+                        const sym = score !== undefined ? getScoreSymbolShared(score, par) : null;
+                        const winBg = wonThisHole && teamInfo
+                          ? { backgroundColor: teamInfo.teamColor + "22" }
+                          : {};
+
+                        return (
+                          <td
+                            key={h}
+                            className={`${cellClass} cursor-pointer hover:bg-green-50`}
+                            style={winBg}
+                            onClick={() => isEditable && onCellTap(pId, h, player.name)}
+                          >
+                            {score !== undefined ? (
+                              <span className={`inline-flex h-6 w-6 items-center justify-center ${sym?.className ?? ""}`}>
+                                {score}
+                              </span>
+                            ) : (
+                              <span className="text-gray-300">&ndash;</span>
+                            )}
+                          </td>
+                        );
+                      })}
+                      <td className={`${sumCellClass} bg-gray-100 text-gray-900`}>
+                        {showTotal()}
+                      </td>
+                    </tr>
+                  );
+                });
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
