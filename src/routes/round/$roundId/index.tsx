@@ -1667,7 +1667,7 @@ function Day3ScorecardTab({
   const getBestBallForTeam = (teamPlayers: any[], holeRange: number[]) => {
     return holeRange.map((h) => {
       let bestNet: number | null = null;
-      let bestPlayerId: number | null = null;
+      let bestPlayerIds: number[] = [];
 
       for (const rp of teamPlayers) {
         const score = getPlayerScore(rp.player.id, h);
@@ -1676,12 +1676,14 @@ function Day3ScorecardTab({
           const net = score - sr;
           if (bestNet === null || net < bestNet) {
             bestNet = net;
-            bestPlayerId = rp.player.id;
+            bestPlayerIds = [rp.player.id];
+          } else if (net === bestNet) {
+            bestPlayerIds.push(rp.player.id);
           }
         }
       }
 
-      return { hole: h, bestNet, bestPlayerId };
+      return { hole: h, bestNet, bestPlayerIds };
     });
   };
 
@@ -1844,7 +1846,7 @@ function Day3ScorecardTab({
                   nameCellClass={nameCellClass}
                   sumCellClass={sumCellClass}
                   highlightHoles={team1BestBall
-                    .filter((bb) => bb.bestPlayerId === player.id)
+                    .filter((bb) => bb.bestPlayerIds.includes(player.id))
                     .map((bb) => bb.hole)}
                   highlightColor={team1Color}
                 />
@@ -1903,7 +1905,7 @@ function Day3ScorecardTab({
                   nameCellClass={nameCellClass}
                   sumCellClass={sumCellClass}
                   highlightHoles={team2BestBall
-                    .filter((bb) => bb.bestPlayerId === player.id)
+                    .filter((bb) => bb.bestPlayerIds.includes(player.id))
                     .map((bb) => bb.hole)}
                   highlightColor={team2Color}
                 />
