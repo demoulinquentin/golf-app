@@ -29,14 +29,14 @@ function TemplatesPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-100">
+    <div className="min-h-screen bg-[#fff8e7]">
       {/* Navigation */}
-      <nav className="border-b border-green-200/50 bg-white/80 backdrop-blur-sm">
+      <nav className="border-b border-[#003d2e]/10 bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center space-x-3">
               <Link to="/" className="flex items-center space-x-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-green-600 to-emerald-600 text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#003d2e] text-[#fff8e7]">
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
@@ -51,7 +51,7 @@ function TemplatesPage() {
                     Home
                   </Link>
                   <div className="flex items-center space-x-2">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center text-white text-sm font-semibold">
+                    <div className="h-8 w-8 rounded-full bg-[#003d2e] flex items-center justify-center text-[#fff8e7] text-sm font-semibold">
                       {user.name.charAt(0).toUpperCase()}
                     </div>
                     <span className="text-sm font-medium text-gray-700">{user.name}</span>
@@ -65,7 +65,7 @@ function TemplatesPage() {
                   </Link>
                   <Link
                     to="/auth/signup"
-                    className="rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-lg hover:from-green-700 hover:to-emerald-700"
+                    className="rounded-lg bg-[#003d2e] px-4 py-2 text-sm font-medium text-[#fff8e7] shadow-lg hover:bg-[#00261c]"
                   >
                     Get Started
                   </Link>
@@ -100,7 +100,7 @@ function TemplatesPage() {
                 onClick={() => setSelectedCategory(category.id)}
                 className={`flex items-center space-x-2 rounded-xl px-6 py-3 font-medium transition-all ${
                   selectedCategory === category.id
-                    ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg"
+                    ? "bg-[#003d2e] text-[#fff8e7] shadow-lg"
                     : "bg-white text-gray-700 shadow hover:shadow-md"
                 }`}
               >
@@ -114,7 +114,7 @@ function TemplatesPage() {
         {/* Templates Grid */}
         {templatesQuery.isLoading && (
           <div className="text-center py-12">
-            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-green-600 border-t-transparent"></div>
+            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-[#003d2e] border-t-transparent"></div>
             <p className="mt-4 text-gray-600">Loading templates...</p>
           </div>
         )}
@@ -133,7 +133,7 @@ function TemplatesPage() {
                 className="group overflow-hidden rounded-2xl bg-white shadow-lg transition-all hover:shadow-2xl"
               >
                 {/* Template Image */}
-                <div className="relative h-48 overflow-hidden bg-gradient-to-br from-green-100 to-emerald-100">
+                <div className="relative h-48 overflow-hidden bg-[#e8f5e9]">
                   {template.imageUrl && (
                     <img
                       src={template.imageUrl}
@@ -162,7 +162,7 @@ function TemplatesPage() {
                         void navigate({ to: "/round/new", search: { templateId: template.id } });
                       }
                     }}
-                    className="w-full rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 py-2 font-semibold text-white transition-all hover:from-green-700 hover:to-emerald-700"
+                    className="w-full rounded-lg bg-[#003d2e] py-2 font-semibold text-[#fff8e7] transition-all hover:bg-[#00261c]"
                   >
                     Use Template
                   </button>
@@ -179,9 +179,9 @@ function TemplatesPage() {
         )}
 
         {/* Custom Template CTA */}
-        <div className="mt-12 rounded-2xl bg-gradient-to-br from-green-600 to-emerald-600 p-8 text-center shadow-xl">
-          <h2 className="mb-2 text-2xl font-bold text-white">Want to create your own format?</h2>
-          <p className="mb-6 text-green-50">
+        <div className="mt-12 rounded-2xl bg-[#003d2e] p-8 text-center shadow-xl">
+          <h2 className="mb-2 text-2xl font-bold text-[#fff8e7]">Want to create your own format?</h2>
+          <p className="mb-6 text-[#fff8e7]/90">
             Use our advanced rule builder to configure any game format imaginable
           </p>
           <button
@@ -192,7 +192,7 @@ function TemplatesPage() {
                 void navigate({ to: "/round/new" });
               }
             }}
-            className="rounded-lg bg-white px-8 py-3 font-semibold text-green-600 shadow-lg transition-all hover:bg-gray-50"
+            className="rounded-lg bg-white px-8 py-3 font-semibold text-[#003d2e] shadow-lg transition-all hover:bg-gray-50"
           >
             Create Custom Game
           </button>

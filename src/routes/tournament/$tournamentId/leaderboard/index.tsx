@@ -46,9 +46,9 @@ function TournamentLeaderboardPage() {
 
   if (leaderboardQuery.isLoading || tournamentQuery.isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+      <div className="flex h-screen items-center justify-center bg-[#fff8e7]">
         <div className="text-center">
-          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-purple-600 border-t-transparent"></div>
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-[#003d2e] border-t-transparent"></div>
           <p className="text-lg font-medium text-gray-700">Loading tournament...</p>
         </div>
       </div>
@@ -57,10 +57,10 @@ function TournamentLeaderboardPage() {
 
   if (!leaderboardQuery.data || !tournamentQuery.data) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+      <div className="flex h-screen items-center justify-center bg-[#fff8e7]">
         <div className="text-center">
           <p className="text-lg font-medium text-red-600">Tournament not found</p>
-          <Link to="/" className="mt-4 text-purple-600 hover:text-purple-700">
+          <Link to="/" className="mt-4 text-[#003d2e] hover:text-[#00261c]">
             Go Home
           </Link>
         </div>
@@ -81,12 +81,12 @@ function TournamentLeaderboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+    <div className="min-h-screen bg-[#fff8e7]">
       {/* Header */}
-      <div className="border-b border-purple-200/50 bg-white/80 backdrop-blur-sm">
+      <div className="border-b border-[#003d2e]/10 bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="py-8 text-center">
-            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white">
+            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#003d2e] text-[#ffd700]">
               <Trophy className="h-8 w-8" />
             </div>
             <h1 className="text-4xl font-bold text-gray-900">{tournament.name}</h1>
@@ -128,20 +128,20 @@ function TournamentLeaderboardPage() {
 
         {/* Join Code Section - Show for admins */}
         {isAdmin && tournamentData.joinCode && (
-          <div className="mb-6 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white shadow-xl">
+          <div className="mb-6 rounded-2xl bg-[#003d2e] p-6 text-[#fff8e7] shadow-xl">
             <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-2">
                   <KeyRound className="h-5 w-5" />
                   <h3 className="text-lg font-bold">Tournament Join Code</h3>
                 </div>
-                <p className="text-sm text-purple-100">
+                <p className="text-sm text-[#fff8e7]/80">
                   Share this code with players so they can join the tournament
                 </p>
               </div>
               <div className="flex items-center space-x-3">
                 <div className="rounded-lg bg-white/20 px-6 py-3 backdrop-blur-sm">
-                  <code className="text-2xl font-bold tracking-wider text-white">
+                  <code className="text-2xl font-bold tracking-wider text-[#ffd700]">
                     {tournamentData.joinCode}
                   </code>
                 </div>
@@ -151,15 +151,15 @@ function TournamentLeaderboardPage() {
                   title="Copy join code"
                 >
                   {copiedJoinCode ? (
-                    <Check className="h-5 w-5 text-white" />
+                    <Check className="h-5 w-5 text-[#fff8e7]" />
                   ) : (
-                    <Copy className="h-5 w-5 text-white" />
+                    <Copy className="h-5 w-5 text-[#fff8e7]" />
                   )}
                 </button>
               </div>
             </div>
             <div className="mt-4 rounded-lg bg-white/10 p-3 backdrop-blur-sm">
-              <p className="text-sm text-purple-50">
+              <p className="text-sm text-[#fff8e7]/90">
                 Players can join at: <span className="font-mono font-semibold">{typeof window !== "undefined" ? `${window.location.origin}/tournament/join` : ""}</span>
               </p>
             </div>
@@ -171,14 +171,14 @@ function TournamentLeaderboardPage() {
           <div className="mb-6 rounded-xl bg-white p-4 shadow-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 text-purple-600">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e8f5e9] text-[#003d2e]">
                   <Users className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Playing as</p>
                   <p className="font-semibold text-gray-900">
                     {tournamentAccess.playerName}
-                    {isAdmin && <span className="ml-2 text-xs text-purple-600">(Admin)</span>}
+                    {isAdmin && <span className="ml-2 text-xs text-[#003d2e]">(Admin)</span>}
                   </p>
                 </div>
               </div>
@@ -191,7 +191,7 @@ function TournamentLeaderboardPage() {
           {teamLeaderboard.length > 0 && (
             <div className="rounded-2xl bg-white p-8 shadow-xl">
               <div className="mb-6 flex items-center space-x-3">
-                <Trophy className="h-6 w-6 text-purple-600" />
+                <Trophy className="h-6 w-6 text-[#ffd700]" />
                 <h2 className="text-2xl font-bold text-gray-900">Team Standings</h2>
               </div>
 
@@ -222,12 +222,12 @@ function TournamentLeaderboardPage() {
                         {rounds.map((r: any) => {
                           const rp = entry.roundPoints?.find((p: any) => p.roundId === r.roundId);
                           return (
-                            <td key={r.roundId} className="px-3 py-3 text-center font-medium text-purple-600">
+                            <td key={r.roundId} className="px-3 py-3 text-center font-medium text-[#003d2e]">
                               {rp?.points || "–"}
                             </td>
                           );
                         })}
-                        <td className="px-3 py-3 text-center font-bold text-purple-600">{entry.totalPoints}</td>
+                        <td className="px-3 py-3 text-center font-bold text-[#003d2e]">{entry.totalPoints}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -239,7 +239,7 @@ function TournamentLeaderboardPage() {
           {/* Individual Leaderboard */}
           <div className="rounded-2xl bg-white p-8 shadow-xl">
             <div className="mb-6 flex items-center space-x-3">
-              <Users className="h-6 w-6 text-purple-600" />
+              <Users className="h-6 w-6 text-[#003d2e]" />
               <h2 className="text-2xl font-bold text-gray-900">Individual Standings</h2>
             </div>
 
@@ -310,7 +310,7 @@ function TournamentLeaderboardPage() {
                             <React.Fragment key={r.roundId}>
                               <td className="px-1 py-3 text-center text-gray-700">{formatScore(rs?.grossScore)}</td>
                               <td className="px-1 py-3 text-center text-gray-700">{formatScore(rs?.netScore)}</td>
-                              <td className="px-1 py-3 text-center font-medium text-purple-600">
+                              <td className="px-1 py-3 text-center font-medium text-[#003d2e]">
                                 {rs?.isDay3 ? (rs?.bbCount ?? "–") : (rs?.points || "–")}
                               </td>
                             </React.Fragment>
@@ -318,7 +318,7 @@ function TournamentLeaderboardPage() {
                         })}
                         <td className="px-1 py-3 text-center font-semibold text-gray-900">{formatScore(entry.totalGrossScore)}</td>
                         <td className="px-1 py-3 text-center font-semibold text-gray-900">{formatScore(entry.totalNetScore)}</td>
-                        <td className="px-1 py-3 text-center font-bold text-purple-600">{entry.totalPoints || "–"}</td>
+                        <td className="px-1 py-3 text-center font-bold text-[#003d2e]">{entry.totalPoints || "–"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -336,7 +336,7 @@ function TournamentLeaderboardPage() {
         {/* Rounds */}
         <div className="mt-8 rounded-2xl bg-white p-8 shadow-xl">
           <div className="mb-6 flex items-center space-x-3">
-            <Target className="h-6 w-6 text-purple-600" />
+            <Target className="h-6 w-6 text-[#003d2e]" />
             <h2 className="text-2xl font-bold text-gray-900">Rounds</h2>
           </div>
 
@@ -346,11 +346,11 @@ function TournamentLeaderboardPage() {
                 key={round.id}
                 to="/round/$roundId"
                 params={{ roundId: String(round.id) }}
-                className="group rounded-xl border-2 border-gray-200 bg-white p-6 transition-all hover:border-purple-600 hover:shadow-lg"
+                className="group rounded-xl border-2 border-gray-200 bg-white p-6 transition-all hover:border-[#003d2e] hover:shadow-lg"
               >
                 <div className="mb-3">
-                  <p className="text-sm font-medium text-purple-600">Round {index + 1}</p>
-                  <h3 className="font-bold text-gray-900 group-hover:text-purple-600">
+                  <p className="text-sm font-medium text-[#003d2e]">Round {index + 1}</p>
+                  <h3 className="font-bold text-gray-900 group-hover:text-[#003d2e]">
                     {round.name}
                   </h3>
                   <p className="text-sm text-gray-600">{round.courseName}</p>

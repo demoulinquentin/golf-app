@@ -15,9 +15,9 @@ function RootComponent() {
 
   if (isFetching) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
+      <div className="flex h-screen items-center justify-center bg-[#fff8e7]">
         <div className="text-center">
-          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-green-600 border-t-transparent"></div>
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-[#003d2e] border-t-transparent"></div>
           <p className="text-lg font-medium text-gray-700">Loading...</p>
         </div>
       </div>

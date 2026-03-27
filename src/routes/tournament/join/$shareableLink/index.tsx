@@ -68,9 +68,9 @@ function JoinTournamentPage() {
 
   if (tournamentQuery.isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+      <div className="flex min-h-screen items-center justify-center bg-[#fff8e7]">
         <div className="text-center">
-          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-purple-600 border-t-transparent"></div>
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-[#003d2e] border-t-transparent"></div>
           <p className="text-lg font-medium text-gray-700">Loading tournament...</p>
         </div>
       </div>
@@ -79,7 +79,7 @@ function JoinTournamentPage() {
 
   if (tournamentQuery.isError || !tournamentQuery.data) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+      <div className="flex min-h-screen items-center justify-center bg-[#fff8e7]">
         <div className="text-center">
           <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-red-600">
             <Trophy className="h-8 w-8" />
@@ -108,16 +108,16 @@ function JoinTournamentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+    <div className="min-h-screen bg-[#fff8e7]">
       <div className="mx-auto max-w-4xl px-4 py-12">
         {/* Header */}
         <div className="mb-8 text-center">
-          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white">
+          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#003d2e] text-[#ffd700]">
             <Trophy className="h-8 w-8" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900">Join Tournament</h1>
           <p className="mt-2 text-lg text-gray-600">
-            You've been invited to join <span className="font-semibold text-purple-600">{tournament.name}</span>
+            You've been invited to join <span className="font-semibold text-[#003d2e]">{tournament.name}</span>
           </p>
         </div>
 
@@ -162,7 +162,7 @@ function JoinTournamentPage() {
                 onClick={() => setSelectedPlayerId(player.id)}
                 className={`rounded-xl border-2 p-4 text-left transition-all ${
                   selectedPlayerId === player.id
-                    ? "border-purple-600 bg-purple-50"
+                    ? "border-[#003d2e] bg-[#e8f5e9]"
                     : "border-gray-200 hover:border-gray-300"
                 }`}
               >
@@ -172,7 +172,7 @@ function JoinTournamentPage() {
                     <p className="text-sm text-gray-600">Handicap: {player.handicap}</p>
                   </div>
                   {selectedPlayerId === player.id && (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-600 text-white">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#003d2e] text-[#fff8e7]">
                       <Check className="h-5 w-5" />
                     </div>
                   )}
@@ -184,7 +184,7 @@ function JoinTournamentPage() {
           <button
             onClick={handleJoinAsPlayer}
             disabled={!selectedPlayerId}
-            className="mt-6 w-full rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 py-4 text-lg font-semibold text-white shadow-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50"
+            className="mt-6 w-full rounded-lg bg-[#003d2e] py-4 text-lg font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c] disabled:opacity-50"
           >
             Join as Selected Player
           </button>
@@ -198,7 +198,7 @@ function JoinTournamentPage() {
           </p>
           <button
             onClick={handleJoinAsViewer}
-            className="flex w-full items-center justify-center space-x-2 rounded-lg border-2 border-purple-600 py-4 text-lg font-semibold text-purple-600 hover:bg-purple-50"
+            className="flex w-full items-center justify-center space-x-2 rounded-lg border-2 border-[#003d2e] py-4 text-lg font-semibold text-[#003d2e] hover:bg-[#e8f5e9]"
           >
             <Eye className="h-5 w-5" />
             <span>Join as Viewer</span>

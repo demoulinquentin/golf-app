@@ -52,7 +52,7 @@ function BetsPage() {
           <h2 className="text-3xl font-bold text-gray-900">Betting Ledger</h2>
           <p className="text-gray-600">Track wagers and payouts</p>
         </div>
-        <button className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700">
+        <button className="flex items-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c]">
           <Plus className="h-5 w-5" />
           <span>Add Bet</span>
         </button>
@@ -62,7 +62,7 @@ function BetsPage() {
       <div className="mb-8 grid gap-6 sm:grid-cols-3">
         <div className="rounded-2xl bg-white p-6 shadow-xl">
           <div className="flex items-center space-x-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-600">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#e8f5e9] text-[#003d2e]">
               <DollarSign className="h-6 w-6" />
             </div>
             <div>
@@ -74,7 +74,7 @@ function BetsPage() {
 
         <div className="rounded-2xl bg-white p-6 shadow-xl">
           <div className="flex items-center space-x-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#e8f5e9] text-[#003d2e]">
               <TrendingUp className="h-6 w-6" />
             </div>
             <div>
@@ -86,7 +86,7 @@ function BetsPage() {
 
         <div className="rounded-2xl bg-white p-6 shadow-xl">
           <div className="flex items-center space-x-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-100 text-teal-600">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#e8f5e9] text-[#003d2e]">
               <Users className="h-6 w-6" />
             </div>
             <div>
@@ -107,14 +107,14 @@ function BetsPage() {
               <div>
                 <div className="mb-2 flex items-center space-x-3">
                   <h4 className="text-xl font-bold text-gray-900">{bet.type}</h4>
-                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-600">
+                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-[#003d2e]">
                     Active
                   </span>
                 </div>
                 <p className="text-gray-600">{bet.description}</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-green-600">${bet.amount}</p>
+                <p className="text-2xl font-bold text-[#003d2e]">${bet.amount}</p>
                 <p className="text-sm text-gray-600">per player</p>
               </div>
             </div>
@@ -127,7 +127,7 @@ function BetsPage() {
                     {bet.participants.map((player, idx) => (
                       <div
                         key={idx}
-                        className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-green-600 to-emerald-600 text-xs font-semibold text-white ring-2 ring-white"
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-[#003d2e] text-xs font-semibold text-[#fff8e7] ring-2 ring-white"
                       >
                         {player.name.charAt(0).toUpperCase()}
                       </div>
@@ -155,12 +155,12 @@ function BetsPage() {
             return (
               <div key={player.id} className="flex items-center justify-between border-b border-gray-100 pb-4">
                 <div className="flex items-center space-x-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-green-600 to-emerald-600 text-sm font-semibold text-white">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#003d2e] text-sm font-semibold text-[#fff8e7]">
                     {player.name.charAt(0).toUpperCase()}
                   </div>
                   <span className="font-semibold text-gray-900">{player.name}</span>
                 </div>
-                <div className={`text-xl font-bold ${mockPayout >= 0 ? "text-green-600" : "text-red-600"}`}>
+                <div className={`text-xl font-bold ${mockPayout >= 0 ? "text-[#003d2e]" : "text-red-600"}`}>
                   {mockPayout >= 0 ? "+" : ""}${mockPayout}
                 </div>
               </div>
@@ -176,9 +176,9 @@ function BetsPage() {
       </div>
 
       {/* Coming Soon Banner */}
-      <div className="mt-8 rounded-2xl bg-gradient-to-br from-green-600 to-emerald-600 p-8 text-center shadow-xl">
-        <h3 className="mb-2 text-2xl font-bold text-white">Full Betting Features Coming Soon</h3>
-        <p className="text-green-50">
+      <div className="mt-8 rounded-2xl bg-[#003d2e] p-8 text-center shadow-xl">
+        <h3 className="mb-2 text-2xl font-bold text-[#fff8e7]">Full Betting Features Coming Soon</h3>
+        <p className="text-[#fff8e7]/90">
           Automated payout calculations, custom bet types, and payment integration
         </p>
       </div>

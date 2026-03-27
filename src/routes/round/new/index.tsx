@@ -210,7 +210,7 @@ function NewRoundPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-100">
+    <div className="min-h-screen bg-[#fff8e7]">
       <div className="mx-auto max-w-4xl px-4 py-12">
         {/* Header */}
         <div className="mb-8">
@@ -236,7 +236,7 @@ function NewRoundPage() {
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold ${
                   step >= s
-                    ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white"
+                    ? "bg-[#003d2e] text-[#fff8e7]"
                     : "bg-white text-gray-400"
                 }`}
               >
@@ -244,7 +244,7 @@ function NewRoundPage() {
               </div>
               {idx < arr.length - 1 && (
                 <div
-                  className={`mx-2 h-1 w-16 ${step > s ? "bg-green-600" : "bg-gray-300"}`}
+                  className={`mx-2 h-1 w-16 ${step > s ? "bg-[#003d2e]" : "bg-gray-300"}`}
                 ></div>
               )}
             </div>
@@ -253,7 +253,7 @@ function NewRoundPage() {
 
         {/* Template Info Banner */}
         {selectedTemplate && (
-          <div className="mb-6 rounded-2xl bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-white shadow-xl">
+          <div className="mb-6 rounded-2xl bg-[#003d2e] p-6 text-[#fff8e7] shadow-xl">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium opacity-90">Using Template</p>
@@ -285,7 +285,7 @@ function NewRoundPage() {
                   <input
                     type="text"
                     {...register("name", { required: "Round name is required" })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                     placeholder="Saturday Morning Round"
                   />
                   {errors.name && (
@@ -305,7 +305,7 @@ function NewRoundPage() {
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700"
+                    className="flex items-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c]"
                   >
                     <span>Next</span>
                     <ChevronRight className="h-5 w-5" />
@@ -326,7 +326,7 @@ function NewRoundPage() {
                         <input
                           type="text"
                           {...register(`players.${index}.name`)}
-                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                           placeholder={`Player ${index + 1} Name`}
                         />
                       </div>
@@ -335,7 +335,7 @@ function NewRoundPage() {
                           type="number"
                           step="0.1"
                           {...register(`players.${index}.handicap`, { valueAsNumber: true })}
-                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                           placeholder="HCP"
                         />
                       </div>
@@ -355,7 +355,7 @@ function NewRoundPage() {
                 <button
                   type="button"
                   onClick={() => append({ name: "", handicap: 0 })}
-                  className="flex items-center space-x-2 text-green-600 hover:text-green-700"
+                  className="flex items-center space-x-2 text-[#003d2e] hover:text-[#00261c]"
                 >
                   <Plus className="h-5 w-5" />
                   <span>Add Player</span>
@@ -374,7 +374,7 @@ function NewRoundPage() {
                     <button
                       type="submit"
                       disabled={createRoundMutation.isPending}
-                      className="rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50"
+                      className="rounded-lg bg-[#003d2e] px-8 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c] disabled:opacity-50"
                     >
                       {createRoundMutation.isPending ? "Creating..." : "Create Round"}
                     </button>
@@ -382,7 +382,7 @@ function NewRoundPage() {
                     <button
                       type="button"
                       onClick={() => setStep(3)}
-                      className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700"
+                      className="flex items-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c]"
                     >
                       <span>Next</span>
                       <ChevronRight className="h-5 w-5" />
@@ -409,7 +409,7 @@ function NewRoundPage() {
                     <label
                       className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                         watch("holeStructure") === "18"
-                          ? "border-green-600 bg-green-50"
+                          ? "border-[#003d2e] bg-[#e8f5e9]"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -428,7 +428,7 @@ function NewRoundPage() {
                     <label
                       className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                         watch("holeStructure") === "9x2"
-                          ? "border-green-600 bg-green-50"
+                          ? "border-[#003d2e] bg-[#e8f5e9]"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -447,7 +447,7 @@ function NewRoundPage() {
                     <label
                       className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                         watch("holeStructure") === "6x3"
-                          ? "border-green-600 bg-green-50"
+                          ? "border-[#003d2e] bg-[#e8f5e9]"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -474,7 +474,7 @@ function NewRoundPage() {
                     <label
                       className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                         watch("teamConfiguration") === "individual"
-                          ? "border-green-600 bg-green-50"
+                          ? "border-[#003d2e] bg-[#e8f5e9]"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -493,7 +493,7 @@ function NewRoundPage() {
                     <label
                       className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                         watch("teamConfiguration") === "2v2"
-                          ? "border-green-600 bg-green-50"
+                          ? "border-[#003d2e] bg-[#e8f5e9]"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -512,7 +512,7 @@ function NewRoundPage() {
                     <label
                       className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                         watch("teamConfiguration") === "allTeam"
-                          ? "border-green-600 bg-green-50"
+                          ? "border-[#003d2e] bg-[#e8f5e9]"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -543,7 +543,7 @@ function NewRoundPage() {
                         <input
                           type="text"
                           {...register("team1Name")}
-                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                         />
                         <label className="mb-2 mt-2 block text-sm font-medium text-gray-700">
                           Team 1 Color
@@ -562,7 +562,7 @@ function NewRoundPage() {
                         <input
                           type="text"
                           {...register("team2Name")}
-                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                         />
                         <label className="mb-2 mt-2 block text-sm font-medium text-gray-700">
                           Team 2 Color
@@ -586,7 +586,7 @@ function NewRoundPage() {
                     <input
                       type="text"
                       {...register("allTeamName")}
-                      className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                      className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                     />
                     <label className="mb-2 mt-2 block text-sm font-medium text-gray-700">
                       Team Color
@@ -608,7 +608,7 @@ function NewRoundPage() {
                     <label
                       className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                         watch("scoringMode") === "strokePlay"
-                          ? "border-green-600 bg-green-50"
+                          ? "border-[#003d2e] bg-[#e8f5e9]"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -627,7 +627,7 @@ function NewRoundPage() {
                     <label
                       className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                         watch("scoringMode") === "bestBall"
-                          ? "border-green-600 bg-green-50"
+                          ? "border-[#003d2e] bg-[#e8f5e9]"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -646,7 +646,7 @@ function NewRoundPage() {
                     <label
                       className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                         watch("scoringMode") === "scramble"
-                          ? "border-green-600 bg-green-50"
+                          ? "border-[#003d2e] bg-[#e8f5e9]"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -665,7 +665,7 @@ function NewRoundPage() {
                     <label
                       className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                         watch("scoringMode") === "skins"
-                          ? "border-green-600 bg-green-50"
+                          ? "border-[#003d2e] bg-[#e8f5e9]"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -692,7 +692,7 @@ function NewRoundPage() {
                     <label
                       className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                         watch("handicapMode") === "full"
-                          ? "border-green-600 bg-green-50"
+                          ? "border-[#003d2e] bg-[#e8f5e9]"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -711,7 +711,7 @@ function NewRoundPage() {
                     <label
                       className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                         watch("handicapMode") === "team"
-                          ? "border-green-600 bg-green-50"
+                          ? "border-[#003d2e] bg-[#e8f5e9]"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -730,7 +730,7 @@ function NewRoundPage() {
                     <label
                       className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                         watch("handicapMode") === "none"
-                          ? "border-green-600 bg-green-50"
+                          ? "border-[#003d2e] bg-[#e8f5e9]"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -749,9 +749,9 @@ function NewRoundPage() {
                 </div>
 
                 {/* Summary */}
-                <div className="rounded-lg bg-green-50 p-4">
-                  <p className="text-sm font-medium text-green-900">Game Configuration Summary</p>
-                  <ul className="mt-2 space-y-1 text-sm text-green-800">
+                <div className="rounded-lg bg-[#e8f5e9] p-4">
+                  <p className="text-sm font-medium text-[#003d2e]">Game Configuration Summary</p>
+                  <ul className="mt-2 space-y-1 text-sm text-[#003d2e]/80">
                     <li>• Structure: {watch("holeStructure") === "18" ? "18 holes" : watch("holeStructure") === "9x2" ? "9 holes × 2" : "6 holes × 3"}</li>
                     <li>• Teams: {watch("teamConfiguration") === "individual" ? "Individual play" : watch("teamConfiguration") === "2v2" ? "2v2 teams" : "All on one team"}</li>
                     <li>• Scoring: {watch("scoringMode") === "strokePlay" ? "Stroke Play" : watch("scoringMode") === "bestBall" ? "Best Ball" : watch("scoringMode") === "scramble" ? "Scramble" : "Skins"}</li>
@@ -771,7 +771,7 @@ function NewRoundPage() {
                   <button
                     type="submit"
                     disabled={createRoundMutation.isPending}
-                    className="rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50"
+                    className="rounded-lg bg-[#003d2e] px-8 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c] disabled:opacity-50"
                   >
                     {createRoundMutation.isPending ? "Creating..." : "Create Round"}
                   </button>

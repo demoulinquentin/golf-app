@@ -24,7 +24,7 @@ export function CourseSelector({ onCourseSelected, currentCourseName }: CourseSe
       <select
         value={selectedId}
         onChange={handleChange}
-        className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+        className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
       >
         <option value="" disabled>
           Select a course...

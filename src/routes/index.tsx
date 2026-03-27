@@ -9,13 +9,13 @@ function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-100">
+    <div className="min-h-screen bg-[#fff8e7]">
       {/* Navigation */}
-      <nav className="border-b border-green-200/50 bg-white/80 backdrop-blur-sm">
+      <nav className="border-b border-[#003d2e]/10 bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-green-600 to-emerald-600 text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#003d2e] text-[#fff8e7]">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -40,7 +40,7 @@ function Home() {
           <div className="text-center">
             <h1 className="text-5xl font-extrabold tracking-tight text-gray-900 sm:text-6xl md:text-7xl">
               <span className="block">Score Your Round.</span>
-              <span className="block bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+              <span className="block text-[#003d2e]">
                 Track Every Shot.
               </span>
             </h1>
@@ -50,13 +50,13 @@ function Home() {
             <div className="mt-10 flex justify-center space-x-4">
               <button
                 onClick={() => void navigate({ to: "/tournament/new" })}
-                className="rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-4 text-lg font-semibold text-white shadow-xl transition-all hover:from-green-700 hover:to-emerald-700 hover:shadow-2xl"
+                className="rounded-xl bg-[#003d2e] px-8 py-4 text-lg font-semibold text-[#fff8e7] shadow-xl transition-all hover:bg-[#00261c] hover:shadow-2xl"
               >
                 Create Tournament
               </button>
               <button
                 onClick={() => void navigate({ to: "/tournament/join" })}
-                className="rounded-xl border-2 border-green-600 bg-white px-8 py-4 text-lg font-semibold text-green-600 transition-all hover:bg-green-50"
+                className="rounded-xl border-2 border-[#003d2e] bg-white px-8 py-4 text-lg font-semibold text-[#003d2e] transition-all hover:bg-[#e8f5e9]"
               >
                 Join Tournament
               </button>
@@ -66,7 +66,7 @@ function Home() {
           {/* Features */}
           <div className="mt-24 grid gap-8 sm:grid-cols-3">
             <div className="rounded-2xl bg-white p-8 shadow-xl">
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-600">
+              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#e8f5e9] text-[#003d2e]">
                 <Trophy className="h-6 w-6" />
               </div>
               <h3 className="mb-2 text-xl font-bold text-gray-900">Live Leaderboards</h3>
@@ -76,7 +76,7 @@ function Home() {
             </div>
 
             <div className="rounded-2xl bg-white p-8 shadow-xl">
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#e8f5e9] text-[#003d2e]">
                 <Users className="h-6 w-6" />
               </div>
               <h3 className="mb-2 text-xl font-bold text-gray-900">No Login Required</h3>
@@ -86,7 +86,7 @@ function Home() {
             </div>
 
             <div className="rounded-2xl bg-white p-8 shadow-xl">
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-teal-100 text-teal-600">
+              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#e8f5e9] text-[#003d2e]">
                 <Target className="h-6 w-6" />
               </div>
               <h3 className="mb-2 text-xl font-bold text-gray-900">Flexible Formats</h3>
@@ -101,7 +101,7 @@ function Home() {
             <h2 className="mb-12 text-center text-4xl font-bold text-gray-900">How It Works</h2>
             <div className="grid gap-8 md:grid-cols-3">
               <div className="text-center">
-                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-purple-100 text-purple-600">
+                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#e8f5e9] text-[#003d2e]">
                   <span className="text-2xl font-bold">1</span>
                 </div>
                 <h3 className="mb-2 text-xl font-bold text-gray-900">Create Tournament</h3>
@@ -110,7 +110,7 @@ function Home() {
                 </p>
               </div>
               <div className="text-center">
-                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-pink-100 text-pink-600">
+                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#fff8e7] text-[#ffd700]">
                   <span className="text-2xl font-bold">2</span>
                 </div>
                 <h3 className="mb-2 text-xl font-bold text-gray-900">Share Join Code</h3>
@@ -119,7 +119,7 @@ function Home() {
                 </p>
               </div>
               <div className="text-center">
-                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 text-orange-600">
+                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#003d2e] text-[#ffd700]">
                   <span className="text-2xl font-bold">3</span>
                 </div>
                 <h3 className="mb-2 text-xl font-bold text-gray-900">Start Playing</h3>

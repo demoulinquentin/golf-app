@@ -156,7 +156,7 @@ export function PlayerMatchAssignment({
   const assignedPlayers = getAssignedPlayers();
   
   return (
-    <div className="rounded-xl border-2 border-green-200 bg-green-50 p-6">
+    <div className="rounded-xl border-2 border-[#003d2e]/20 bg-[#e8f5e9] p-6">
       <div className="mb-4">
         <h4 className="text-lg font-bold text-gray-900">
           Assign Players - Segment {segmentNumber}
@@ -218,9 +218,9 @@ export function PlayerMatchAssignment({
                             className={`relative w-full rounded-lg border-2 p-3 text-left transition-all cursor-pointer ${
                               selectedSlot?.matchIndex === matchIndex && 
                               selectedSlot?.slotIndex === slot.sideIndex * match.playersPerSide + slot.slotIndex
-                                ? "border-green-600 bg-green-100"
+                                ? "border-[#003d2e] bg-[#e8f5e9]"
                                 : slot.playerIndex !== null
-                                ? "border-purple-300 bg-purple-50"
+                                ? "border-[#003d2e]/30 bg-[#e8f5e9]"
                                 : "border-gray-300 bg-gray-50 hover:border-gray-400"
                             }`}
                           >
@@ -286,7 +286,7 @@ export function PlayerMatchAssignment({
                   className={`rounded-lg border-2 p-3 text-left transition-all ${
                     isAssigned
                       ? "border-gray-300 bg-gray-100 opacity-50"
-                      : "border-purple-300 bg-white hover:border-purple-500 hover:bg-purple-50"
+                      : "border-[#003d2e]/30 bg-white hover:border-[#003d2e] hover:bg-[#e8f5e9]"
                   }`}
                 >
                   <div className="flex items-center space-x-2">
@@ -314,7 +314,7 @@ export function PlayerMatchAssignment({
         type="button"
         onClick={handleConfirm}
         disabled={!isComplete}
-        className="w-full rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full rounded-lg bg-[#003d2e] py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isComplete ? "Confirm Player Assignments" : `Assign ${playerSlots.filter(s => s.playerIndex === null).length} More Player(s)`}
       </button>

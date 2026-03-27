@@ -34,7 +34,7 @@ function LeaderboardPage() {
   if (!leaderboardQuery.data) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-green-600 border-t-transparent"></div>
+        <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-[#003d2e] border-t-transparent"></div>
       </div>
     );
   }
@@ -47,7 +47,7 @@ function LeaderboardPage() {
       <div className="mb-8 grid gap-6 sm:grid-cols-3">
         <div className="rounded-2xl bg-white p-6 shadow-xl">
           <div className="flex items-center space-x-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-600">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#e8f5e9] text-[#003d2e]">
               <Trophy className="h-6 w-6" />
             </div>
             <div>
@@ -59,7 +59,7 @@ function LeaderboardPage() {
 
         <div className="rounded-2xl bg-white p-6 shadow-xl">
           <div className="flex items-center space-x-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#e8f5e9] text-[#003d2e]">
               <TrendingUp className="h-6 w-6" />
             </div>
             <div>
@@ -71,7 +71,7 @@ function LeaderboardPage() {
 
         <div className="rounded-2xl bg-white p-6 shadow-xl">
           <div className="flex items-center space-x-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-100 text-teal-600">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#e8f5e9] text-[#003d2e]">
               <Minus className="h-6 w-6" />
             </div>
             <div>
@@ -84,9 +84,9 @@ function LeaderboardPage() {
 
       {/* Leaderboard */}
       <div className="rounded-2xl bg-white shadow-xl overflow-hidden">
-        <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-6">
-          <h2 className="text-3xl font-bold text-white">Live Leaderboard</h2>
-          <p className="text-green-50">Real-time standings</p>
+        <div className="bg-[#003d2e] px-8 py-6">
+          <h2 className="text-3xl font-bold text-[#fff8e7]">Live Leaderboard</h2>
+          <p className="text-[#fff8e7]/90">Real-time standings</p>
         </div>
 
         <div className="divide-y divide-gray-100">
@@ -99,7 +99,7 @@ function LeaderboardPage() {
               <div
                 key={player.playerId}
                 className={`px-8 py-6 transition-all hover:bg-gray-50 ${
-                  isLeader ? "bg-green-50" : ""
+                  isLeader ? "bg-[#e8f5e9]" : ""
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -152,7 +152,7 @@ function LeaderboardPage() {
                     <div className="flex items-center justify-end space-x-6">
                       {/* Relative to Par */}
                       <div>
-                        <p className="text-4xl font-bold text-green-600">
+                        <p className="text-4xl font-bold text-[#003d2e]">
                           {formatRelativeToPar(player.totalStrokes, player.holesPlayed)}
                         </p>
                         <p className="text-xs text-gray-600">To Par</p>
@@ -169,7 +169,7 @@ function LeaderboardPage() {
                       {/* Net Score (if handicap > 0) */}
                       {player.handicap > 0 && player.totalStrokes > 0 && (
                         <div className="text-right">
-                          <p className="text-2xl font-semibold text-purple-600">
+                          <p className="text-2xl font-semibold text-[#003d2e]">
                             {Math.round(player.totalStrokes - player.handicap)}
                           </p>
                           <p className="text-xs text-gray-600">Net</p>
@@ -199,9 +199,9 @@ function LeaderboardPage() {
       {/* Team Leaderboard */}
       {leaderboardQuery.data.teamLeaderboard && leaderboardQuery.data.teamLeaderboard.length > 0 && (
         <div className="mt-8 rounded-2xl bg-white shadow-xl overflow-hidden">
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-6">
-            <h2 className="text-3xl font-bold text-white">Team Standings</h2>
-            <p className="text-purple-50">Combined team scores</p>
+          <div className="bg-[#003d2e] px-8 py-6">
+            <h2 className="text-3xl font-bold text-[#fff8e7]">Team Standings</h2>
+            <p className="text-[#fff8e7]/90">Combined team scores</p>
           </div>
 
           <div className="divide-y divide-gray-100">
@@ -212,7 +212,7 @@ function LeaderboardPage() {
                 <div
                   key={team.teamId}
                   className={`px-8 py-6 transition-all hover:bg-gray-50 ${
-                    isLeading ? "bg-purple-50" : ""
+                    isLeading ? "bg-[#e8f5e9]" : ""
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -245,7 +245,7 @@ function LeaderboardPage() {
 
                     {/* Score Info */}
                     <div className="text-right">
-                      <p className="text-4xl font-bold text-purple-600">
+                      <p className="text-4xl font-bold text-[#003d2e]">
                         {team.totalStrokes}
                       </p>
                       <p className="text-sm text-gray-600">Total Strokes</p>
@@ -282,13 +282,13 @@ function LeaderboardPage() {
       )}
 
       {/* Share Card */}
-      <div className="mt-8 rounded-2xl bg-gradient-to-br from-green-600 to-emerald-600 p-8 text-center shadow-xl">
-        <h3 className="mb-2 text-2xl font-bold text-white">Share This Leaderboard</h3>
-        <p className="mb-6 text-green-50">
+      <div className="mt-8 rounded-2xl bg-[#003d2e] p-8 text-center shadow-xl">
+        <h3 className="mb-2 text-2xl font-bold text-[#fff8e7]">Share This Leaderboard</h3>
+        <p className="mb-6 text-[#fff8e7]/90">
           Anyone with this link can view the live leaderboard
         </p>
         <div className="mx-auto max-w-2xl rounded-lg bg-white/20 p-4 backdrop-blur-sm">
-          <code className="break-all text-sm text-white">
+          <code className="break-all text-sm text-[#fff8e7]">
             {typeof window !== "undefined" ? window.location.origin : ""}/leaderboard/{round.id}
           </code>
         </div>

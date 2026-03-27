@@ -140,13 +140,13 @@ export function CourseJsonUpload({ onJsonParsed, currentCourseName }: CourseJson
           <label className="flex-1 cursor-pointer">
             <div className={`flex items-center justify-center space-x-2 rounded-lg border-2 border-dashed p-6 transition-all ${
               isValid === true
-                ? "border-green-500 bg-green-50"
+                ? "border-[#003d2e] bg-[#e8f5e9]"
                 : isValid === false
                 ? "border-red-500 bg-red-50"
                 : "border-gray-300 hover:border-gray-400"
             }`}>
               {isValid === true ? (
-                <CheckCircle className="h-6 w-6 text-green-600" />
+                <CheckCircle className="h-6 w-6 text-[#003d2e]" />
               ) : isValid === false ? (
                 <XCircle className="h-6 w-6 text-red-600" />
               ) : (
@@ -187,7 +187,7 @@ export function CourseJsonUpload({ onJsonParsed, currentCourseName }: CourseJson
       )}
 
       {parsedData && isValid && (
-        <div className="rounded-lg bg-green-50 p-4">
+        <div className="rounded-lg bg-[#e8f5e9] p-4">
           <p className="mb-2 text-sm font-semibold text-green-900">
             ✓ Course Loaded: {parsedData.courseName}
           </p>

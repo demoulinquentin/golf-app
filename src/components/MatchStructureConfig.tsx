@@ -108,7 +108,7 @@ export function MatchStructureConfig({
           <button
             type="button"
             onClick={() => addMatch(2, 1)}
-            className="rounded-lg border-2 border-purple-300 bg-white p-3 text-left transition-all hover:border-purple-500 hover:bg-purple-50"
+            className="rounded-lg border-2 border-[#003d2e]/30 bg-white p-3 text-left transition-all hover:border-[#003d2e] hover:bg-[#e8f5e9]"
           >
             <p className="font-semibold text-gray-900">1v1</p>
             <p className="text-xs text-gray-600">2 players (singles)</p>
@@ -117,7 +117,7 @@ export function MatchStructureConfig({
           <button
             type="button"
             onClick={() => addMatch(2, 2)}
-            className="rounded-lg border-2 border-purple-300 bg-white p-3 text-left transition-all hover:border-purple-500 hover:bg-purple-50"
+            className="rounded-lg border-2 border-[#003d2e]/30 bg-white p-3 text-left transition-all hover:border-[#003d2e] hover:bg-[#e8f5e9]"
           >
             <p className="font-semibold text-gray-900">2v2</p>
             <p className="text-xs text-gray-600">4 players (teams)</p>
@@ -126,7 +126,7 @@ export function MatchStructureConfig({
           <button
             type="button"
             onClick={() => addMatch(2, 3)}
-            className="rounded-lg border-2 border-purple-300 bg-white p-3 text-left transition-all hover:border-purple-500 hover:bg-purple-50"
+            className="rounded-lg border-2 border-[#003d2e]/30 bg-white p-3 text-left transition-all hover:border-[#003d2e] hover:bg-[#e8f5e9]"
           >
             <p className="font-semibold text-gray-900">3v3</p>
             <p className="text-xs text-gray-600">6 players (teams)</p>
@@ -135,7 +135,7 @@ export function MatchStructureConfig({
           <button
             type="button"
             onClick={() => addMatch(3, 1)}
-            className="rounded-lg border-2 border-purple-300 bg-white p-3 text-left transition-all hover:border-purple-500 hover:bg-purple-50"
+            className="rounded-lg border-2 border-[#003d2e]/30 bg-white p-3 text-left transition-all hover:border-[#003d2e] hover:bg-[#e8f5e9]"
           >
             <p className="font-semibold text-gray-900">1v1v1</p>
             <p className="text-xs text-gray-600">3 players (three-way)</p>
@@ -227,7 +227,7 @@ export function MatchStructureConfig({
                 className="flex items-center justify-between rounded-lg bg-white p-4"
               >
                 <div className="flex items-center space-x-3">
-                  <Users className="h-5 w-5 text-purple-600" />
+                  <Users className="h-5 w-5 text-[#003d2e]" />
                   <div>
                     <p className="font-semibold text-gray-900">
                       Match {idx + 1}: {getMatchDescription(match)}
@@ -294,7 +294,7 @@ export function MatchStructureConfig({
         type="button"
         onClick={handleConfirmStructure}
         disabled={!canProceed}
-        className="w-full rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 py-3 font-semibold text-white shadow-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full rounded-lg bg-[#003d2e] py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {canProceed ? "Confirm Structure & Assign Players" : "Configure Matches First"}
       </button>

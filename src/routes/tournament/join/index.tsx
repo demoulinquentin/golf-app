@@ -95,11 +95,11 @@ function JoinTournamentByCodePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+    <div className="min-h-screen bg-[#fff8e7]">
       <div className="mx-auto max-w-2xl px-4 py-12">
         {/* Header */}
         <div className="mb-8 text-center">
-          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white">
+          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#003d2e] text-[#ffd700]">
             <Trophy className="h-8 w-8" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900">Join Tournament</h1>
@@ -128,14 +128,14 @@ function JoinTournamentByCodePage() {
                       }
                     }}
                     placeholder="e.g., GOLF123"
-                    className="w-full rounded-lg border border-gray-300 py-4 pl-12 pr-4 text-lg font-mono uppercase tracking-wider focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                    className="w-full rounded-lg border border-gray-300 py-4 pl-12 pr-4 text-lg font-mono uppercase tracking-wider focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                     maxLength={10}
                   />
                 </div>
                 <button
                   onClick={() => void lookupTournament()}
                   disabled={isLoading || !joinCode.trim()}
-                  className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4 font-semibold text-white shadow-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50"
+                  className="flex items-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-4 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c] disabled:opacity-50"
                 >
                   <span>{isLoading ? "Looking up..." : "Continue"}</span>
                   <ArrowRight className="h-5 w-5" />
@@ -143,8 +143,8 @@ function JoinTournamentByCodePage() {
               </div>
             </div>
 
-            <div className="rounded-lg bg-purple-50 p-4">
-              <p className="text-sm text-purple-900">
+            <div className="rounded-lg bg-[#e8f5e9] p-4">
+              <p className="text-sm text-[#003d2e]">
                 <strong>Don't have a code?</strong> Ask the tournament organizer for the join code.
                 It's usually displayed on the tournament page.
               </p>
@@ -198,7 +198,7 @@ function JoinTournamentByCodePage() {
                     onClick={() => setSelectedPlayerId(player.id)}
                     className={`rounded-xl border-2 p-4 text-left transition-all ${
                       selectedPlayerId === player.id
-                        ? "border-purple-600 bg-purple-50"
+                        ? "border-[#003d2e] bg-[#e8f5e9]"
                         : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
@@ -208,7 +208,7 @@ function JoinTournamentByCodePage() {
                         <p className="text-sm text-gray-600">Handicap: {player.handicap}</p>
                       </div>
                       {selectedPlayerId === player.id && (
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-600 text-white">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#003d2e] text-[#fff8e7]">
                           <Check className="h-5 w-5" />
                         </div>
                       )}
@@ -220,7 +220,7 @@ function JoinTournamentByCodePage() {
               <button
                 onClick={handleJoinAsPlayer}
                 disabled={!selectedPlayerId}
-                className="mt-6 w-full rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 py-4 text-lg font-semibold text-white shadow-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50"
+                className="mt-6 w-full rounded-lg bg-[#003d2e] py-4 text-lg font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c] disabled:opacity-50"
               >
                 Join as Selected Player
               </button>
@@ -234,7 +234,7 @@ function JoinTournamentByCodePage() {
               </p>
               <button
                 onClick={handleJoinAsViewer}
-                className="flex w-full items-center justify-center space-x-2 rounded-lg border-2 border-purple-600 py-4 text-lg font-semibold text-purple-600 hover:bg-purple-50"
+                className="flex w-full items-center justify-center space-x-2 rounded-lg border-2 border-[#003d2e] py-4 text-lg font-semibold text-[#003d2e] hover:bg-[#e8f5e9]"
               >
                 <Eye className="h-5 w-5" />
                 <span>Join as Viewer</span>
@@ -249,7 +249,7 @@ function JoinTournamentByCodePage() {
                   setJoinCode("");
                   setSelectedPlayerId(null);
                 }}
-                className="text-sm text-purple-600 hover:text-purple-700"
+                className="text-sm text-[#003d2e] hover:text-[#00261c]"
               >
                 ← Enter a different code
               </button>

@@ -38,12 +38,12 @@ function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-100">
+    <div className="min-h-screen bg-[#fff8e7]">
       <div className="flex min-h-screen items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
           {/* Logo/Header */}
           <div className="mb-8 text-center">
-            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-green-600 to-emerald-600 text-white shadow-lg">
+            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#003d2e] text-[#fff8e7] shadow-lg">
               <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
@@ -63,7 +63,7 @@ function SignupPage() {
                   id="name"
                   type="text"
                   {...register("name", { required: "Name is required" })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                   placeholder="John Doe"
                 />
                 {errors.name && (
@@ -79,7 +79,7 @@ function SignupPage() {
                   id="email"
                   type="email"
                   {...register("email", { required: "Email is required" })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                   placeholder="you@example.com"
                 />
                 {errors.email && (
@@ -98,7 +98,7 @@ function SignupPage() {
                     required: "Password is required",
                     minLength: { value: 6, message: "Password must be at least 6 characters" }
                   })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                   placeholder="••••••••"
                 />
                 {errors.password && (
@@ -109,7 +109,7 @@ function SignupPage() {
               <button
                 type="submit"
                 disabled={signupMutation.isPending}
-                className="w-full rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 py-3 font-semibold text-white shadow-lg transition-all hover:from-green-700 hover:to-emerald-700 hover:shadow-xl disabled:opacity-50"
+                className="w-full rounded-lg bg-[#003d2e] py-3 font-semibold text-[#fff8e7] shadow-lg transition-all hover:bg-[#00261c] hover:shadow-xl disabled:opacity-50"
               >
                 {signupMutation.isPending ? "Creating account..." : "Sign Up"}
               </button>
@@ -118,7 +118,7 @@ function SignupPage() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Already have an account?{" "}
-                <Link to="/auth/login" className="font-medium text-green-600 hover:text-green-700">
+                <Link to="/auth/login" className="font-medium text-[#003d2e] hover:text-[#00261c]">
                   Sign in
                 </Link>
               </p>

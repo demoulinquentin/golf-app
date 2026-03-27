@@ -222,7 +222,7 @@ function NewTournamentPage() {
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
         <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
           <div className="mb-6 text-center">
-            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#003d2e] text-[#ffd700]">
               <Check className="h-8 w-8" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900">Tournament Created!</h2>
@@ -236,11 +236,11 @@ function NewTournamentPage() {
                 type="text"
                 value={createdTournament.joinCode}
                 readOnly
-                className="flex-1 rounded-lg border-2 border-purple-300 bg-purple-50 px-4 py-3 text-center text-2xl font-bold tracking-wider text-purple-900"
+                className="flex-1 rounded-lg border-2 border-[#003d2e]/30 bg-[#e8f5e9] px-4 py-3 text-center text-2xl font-bold tracking-wider text-[#003d2e]"
               />
               <button
                 onClick={handleCopyJoinCode}
-                className="rounded-lg border-2 border-purple-300 p-3 text-purple-600 hover:bg-purple-50"
+                className="rounded-lg border-2 border-[#003d2e]/30 p-3 text-[#003d2e] hover:bg-[#e8f5e9]"
               >
                 {copiedJoinCode ? <Check className="h-6 w-6" /> : <Copy className="h-6 w-6" />}
               </button>
@@ -249,7 +249,7 @@ function NewTournamentPage() {
 
           <button
             onClick={handleGoToTournament}
-            className="w-full rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-purple-700 hover:to-pink-700"
+            className="w-full rounded-lg bg-[#003d2e] px-6 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c]"
           >
             Go to Tournament
           </button>
@@ -259,34 +259,34 @@ function NewTournamentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+    <div className="min-h-screen bg-[#fff8e7]">
       <div className="mx-auto max-w-5xl px-4 py-12">
         {/* Team Cup Option */}
-        <div className="mb-8 rounded-2xl border-2 border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 p-6 shadow-xl">
+        <div className="mb-8 rounded-2xl border-2 border-[#003d2e] bg-[#e8f5e9] p-6 shadow-xl">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <div className="mb-2 flex items-center space-x-3">
-                <Shield className="h-8 w-8 text-green-600" />
+                <Shield className="h-8 w-8 text-[#003d2e]" />
                 <h3 className="text-2xl font-bold text-gray-900">Team Cup Format</h3>
               </div>
               <p className="text-gray-700 mb-3">
                 Ryder Cup-style 3-day tournament with 2 teams of 3 players each
               </p>
               <div className="flex flex-wrap gap-2 text-sm">
-                <span className="rounded-full bg-green-100 px-3 py-1 font-medium text-green-800">
+                <span className="rounded-full bg-[#e8f5e9] px-3 py-1 font-medium text-[#003d2e]">
                   Day 1: Individual Net Leaderboard
                 </span>
-                <span className="rounded-full bg-green-100 px-3 py-1 font-medium text-green-800">
+                <span className="rounded-full bg-[#e8f5e9] px-3 py-1 font-medium text-[#003d2e]">
                   Day 2: 9 x 6-Hole Matchplay
                 </span>
-                <span className="rounded-full bg-green-100 px-3 py-1 font-medium text-green-800">
+                <span className="rounded-full bg-[#e8f5e9] px-3 py-1 font-medium text-[#003d2e]">
                   Day 3: Best Ball Team
                 </span>
               </div>
             </div>
             <Link
               to="/tournament/new-team-cup"
-              className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700"
+              className="flex items-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c]"
             >
               <Trophy className="h-5 w-5" />
               <span>Create Team Cup</span>
@@ -302,7 +302,7 @@ function NewTournamentPage() {
 
         {/* Header */}
         <div className="mb-8 text-center">
-          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white">
+          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#003d2e] text-[#ffd700]">
             <Trophy className="h-8 w-8" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900">Create Tournament</h1>
@@ -316,7 +316,7 @@ function NewTournamentPage() {
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold ${
                   step >= s
-                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                    ? "bg-[#003d2e] text-[#fff8e7]"
                     : "bg-white text-gray-400"
                 }`}
               >
@@ -324,7 +324,7 @@ function NewTournamentPage() {
               </div>
               {idx < arr.length - 1 && (
                 <div
-                  className={`mx-2 h-1 w-16 ${step > s ? "bg-purple-600" : "bg-gray-300"}`}
+                  className={`mx-2 h-1 w-16 ${step > s ? "bg-[#003d2e]" : "bg-gray-300"}`}
                 ></div>
               )}
             </div>
@@ -337,7 +337,7 @@ function NewTournamentPage() {
             {/* Step 1: Tournament Info */}
             {step === 1 && (
               <div className="space-y-6">
-                <div className="flex items-center space-x-3 text-purple-600">
+                <div className="flex items-center space-x-3 text-[#003d2e]">
                   <Trophy className="h-6 w-6" />
                   <h2 className="text-2xl font-bold text-gray-900">Tournament Details</h2>
                 </div>
@@ -349,7 +349,7 @@ function NewTournamentPage() {
                   <input
                     type="text"
                     {...register("name", { required: "Tournament name is required" })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                     placeholder="Summer Championship 2024"
                   />
                   {errors.name && (
@@ -365,7 +365,7 @@ function NewTournamentPage() {
                     <input
                       type="date"
                       {...register("startDate")}
-                      className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                      className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                     />
                   </div>
                   <div>
@@ -375,7 +375,7 @@ function NewTournamentPage() {
                     <input
                       type="date"
                       {...register("endDate")}
-                      className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                      className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                     />
                   </div>
                 </div>
@@ -384,7 +384,7 @@ function NewTournamentPage() {
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-purple-700 hover:to-pink-700"
+                    className="flex items-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c]"
                   >
                     <span>Next</span>
                     <ChevronRight className="h-5 w-5" />
@@ -396,7 +396,7 @@ function NewTournamentPage() {
             {/* Step 2: Players */}
             {step === 2 && (
               <div className="space-y-6">
-                <div className="flex items-center space-x-3 text-purple-600">
+                <div className="flex items-center space-x-3 text-[#003d2e]">
                   <Users className="h-6 w-6" />
                   <h2 className="text-2xl font-bold text-gray-900">Add Players</h2>
                 </div>
@@ -408,7 +408,7 @@ function NewTournamentPage() {
                         <input
                           type="text"
                           {...register(`players.${index}.name`)}
-                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                           placeholder={`Player ${index + 1} Name`}
                         />
                       </div>
@@ -417,7 +417,7 @@ function NewTournamentPage() {
                           type="number"
                           step="0.1"
                           {...register(`players.${index}.handicap`, { valueAsNumber: true })}
-                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                           placeholder="HCP"
                         />
                       </div>
@@ -437,7 +437,7 @@ function NewTournamentPage() {
                 <button
                   type="button"
                   onClick={() => appendPlayer({ name: "", handicap: 0 })}
-                  className="flex items-center space-x-2 text-purple-600 hover:text-purple-700"
+                  className="flex items-center space-x-2 text-[#003d2e] hover:text-[#00261c]"
                 >
                   <Plus className="h-5 w-5" />
                   <span>Add Player</span>
@@ -455,7 +455,7 @@ function NewTournamentPage() {
                   <button
                     type="button"
                     onClick={() => setStep(3)}
-                    className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-purple-700 hover:to-pink-700"
+                    className="flex items-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c]"
                   >
                     <span>Next</span>
                     <ChevronRight className="h-5 w-5" />
@@ -474,7 +474,7 @@ function NewTournamentPage() {
                   <input
                     type="checkbox"
                     {...register("useGlobalTeams")}
-                    className="h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    className="h-5 w-5 rounded border-gray-300 text-[#003d2e] focus:ring-[#003d2e]"
                   />
                   <label className="text-sm font-medium text-gray-700">
                     Enable Global Teams (players stay on same team across all rounds)
@@ -490,7 +490,7 @@ function NewTournamentPage() {
                             <input
                               type="text"
                               {...register(`globalTeams.${teamIndex}.name`)}
-                              className="rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                              className="rounded-lg border border-gray-300 px-4 py-2 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                               placeholder="Team Name"
                             />
                             <input
@@ -529,7 +529,7 @@ function NewTournamentPage() {
                                       setValue(`globalTeams.${teamIndex}.playerIndices`, currentIndices.filter(i => i !== playerIndex));
                                     }
                                   }}
-                                  className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                                  className="h-4 w-4 rounded border-gray-300 text-[#003d2e] focus:ring-[#003d2e]"
                                 />
                                 <span className="text-sm text-gray-900">{player.name} (HCP: {player.handicap})</span>
                               </label>
@@ -542,7 +542,7 @@ function NewTournamentPage() {
                     <button
                       type="button"
                       onClick={() => appendGlobalTeam({ name: `Team ${globalTeamFields.length + 1}`, color: "#6366f1", playerIndices: [] })}
-                      className="flex items-center space-x-2 text-purple-600 hover:text-purple-700"
+                      className="flex items-center space-x-2 text-[#003d2e] hover:text-[#00261c]"
                     >
                       <Plus className="h-5 w-5" />
                       <span>Add Team</span>
@@ -562,7 +562,7 @@ function NewTournamentPage() {
                   <button
                     type="button"
                     onClick={() => setStep(4)}
-                    className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-purple-700 hover:to-pink-700"
+                    className="flex items-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c]"
                   >
                     <span>Next</span>
                     <ChevronRight className="h-5 w-5" />
@@ -584,7 +584,7 @@ function NewTournamentPage() {
                     const holeSegments = generateSegmentsFromFormat(courseFormat);
                     
                     return (
-                      <div key={field.id} className="rounded-xl border-2 border-purple-200 bg-purple-50/30 p-6">
+                      <div key={field.id} className="rounded-xl border-2 border-[#003d2e]/20 bg-[#e8f5e9]/30 p-6">
                         <div className="mb-4 flex items-center justify-between">
                           <h3 className="text-lg font-bold text-gray-900">Round {roundIndex + 1}</h3>
                           {roundFields.length > 1 && (
@@ -607,7 +607,7 @@ function NewTournamentPage() {
                               <input
                                 type="text"
                                 {...register(`rounds.${roundIndex}.name`)}
-                                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                                 placeholder={`Round ${roundIndex + 1}`}
                               />
                             </div>
@@ -631,7 +631,7 @@ function NewTournamentPage() {
                               <label
                                 className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                                   courseFormat === CourseFormat.EIGHTEEN
-                                    ? "border-purple-600 bg-purple-50"
+                                    ? "border-[#003d2e] bg-[#e8f5e9]"
                                     : "border-gray-200 hover:border-gray-300"
                                 }`}
                               >
@@ -656,7 +656,7 @@ function NewTournamentPage() {
                               <label
                                 className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                                   courseFormat === CourseFormat.NINE_X_TWO
-                                    ? "border-purple-600 bg-purple-50"
+                                    ? "border-[#003d2e] bg-[#e8f5e9]"
                                     : "border-gray-200 hover:border-gray-300"
                                 }`}
                               >
@@ -681,7 +681,7 @@ function NewTournamentPage() {
                               <label
                                 className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
                                   courseFormat === CourseFormat.SIX_X_THREE
-                                    ? "border-purple-600 bg-purple-50"
+                                    ? "border-[#003d2e] bg-[#e8f5e9]"
                                     : "border-gray-200 hover:border-gray-300"
                                 }`}
                               >
@@ -749,15 +749,15 @@ function NewTournamentPage() {
                     useCustomTeams: false, 
                     customTeams: [] 
                   })}
-                  className="flex items-center space-x-2 text-purple-600 hover:text-purple-700"
+                  className="flex items-center space-x-2 text-[#003d2e] hover:text-[#00261c]"
                 >
                   <Plus className="h-5 w-5" />
                   <span>Add Round</span>
                 </button>
 
-                <div className="rounded-lg bg-purple-50 p-4">
-                  <p className="text-sm font-medium text-purple-900">Tournament Summary</p>
-                  <ul className="mt-2 space-y-1 text-sm text-purple-800">
+                <div className="rounded-lg bg-[#e8f5e9] p-4">
+                  <p className="text-sm font-medium text-[#003d2e]">Tournament Summary</p>
+                  <ul className="mt-2 space-y-1 text-sm text-[#003d2e]/80">
                     <li>• {validPlayers.length} players</li>
                     <li>• {roundFields.length} rounds</li>
                     {watch("useGlobalTeams") && (
@@ -778,7 +778,7 @@ function NewTournamentPage() {
                   <button
                     type="submit"
                     disabled={createTournamentMutation.isPending}
-                    className="rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-3 font-semibold text-white shadow-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50"
+                    className="rounded-lg bg-[#003d2e] px-8 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c] disabled:opacity-50"
                   >
                     {createTournamentMutation.isPending ? "Creating..." : "Create Tournament"}
                   </button>

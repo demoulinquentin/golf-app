@@ -77,9 +77,9 @@ function RoundLayout() {
 
   if (roundQuery.isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
+      <div className="flex h-screen items-center justify-center bg-[#fff8e7]">
         <div className="text-center">
-          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-green-600 border-t-transparent"></div>
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-[#003d2e] border-t-transparent"></div>
           <p className="text-lg font-medium text-gray-700">Loading round...</p>
         </div>
       </div>
@@ -88,10 +88,10 @@ function RoundLayout() {
 
   if (roundQuery.isError || !roundQuery.data) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
+      <div className="flex h-screen items-center justify-center bg-[#fff8e7]">
         <div className="text-center">
           <p className="text-lg font-medium text-red-600">Round not found</p>
-          <Link to="/" className="mt-4 text-green-600 hover:text-green-700">
+          <Link to="/" className="mt-4 text-[#003d2e] hover:text-[#00261c]">
             Go Home
           </Link>
         </div>
@@ -108,9 +108,9 @@ function RoundLayout() {
   const isCompleted = round.status === "completed";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-100">
+    <div className="min-h-screen bg-[#fff8e7]">
       {/* Header */}
-      <div className="border-b border-green-200/50 bg-white/80 backdrop-blur-sm">
+      <div className="border-b border-[#003d2e]/10 bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-6">
             <div className="flex items-center space-x-4">

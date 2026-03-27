@@ -213,9 +213,9 @@ function NewTeamCupPage() {
 
   if (createdTournament) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#fff8e7] flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center">
-          <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-600 to-emerald-600 text-white shadow-xl">
+          <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-[#003d2e] text-[#fff8e7] shadow-xl">
             <Check className="h-10 w-10" />
           </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Tournament Created!</h2>
@@ -224,13 +224,13 @@ function NewTeamCupPage() {
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <p className="text-sm text-gray-600 mb-2">Join Code</p>
             <div className="flex items-center justify-center space-x-2">
-              <code className="text-2xl font-bold text-green-600">{createdTournament.joinCode}</code>
+              <code className="text-2xl font-bold text-[#003d2e]">{createdTournament.joinCode}</code>
               <button
                 onClick={copyJoinCode}
                 className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
               >
                 {copiedJoinCode ? (
-                  <Check className="h-5 w-5 text-green-600" />
+                  <Check className="h-5 w-5 text-[#003d2e]" />
                 ) : (
                   <Copy className="h-5 w-5 text-gray-600" />
                 )}
@@ -243,7 +243,7 @@ function NewTeamCupPage() {
               to: "/tournament/$tournamentId/leaderboard", 
               params: { tournamentId: String(createdTournament.tournamentId) } 
             })}
-            className="w-full rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700"
+            className="w-full rounded-lg bg-[#003d2e] px-6 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c]"
           >
             Go to Tournament
           </button>
@@ -253,15 +253,15 @@ function NewTeamCupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+    <div className="min-h-screen bg-[#fff8e7]">
       <div className="mx-auto max-w-5xl px-4 py-12">
         <div className="mb-8 text-center">
-          <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-600 to-emerald-600 text-white shadow-xl">
+          <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-[#003d2e] text-[#fff8e7] shadow-xl">
             <Shield className="h-10 w-10" />
           </div>
           <h1 className="text-5xl font-bold text-gray-900">Create Team Cup</h1>
           <p className="mt-2 text-lg text-gray-600">Ryder Cup-style 3-day tournament</p>
-          <div className="mt-4 inline-flex items-center space-x-2 rounded-full bg-green-100 px-4 py-2 text-sm font-medium text-green-800">
+          <div className="mt-4 inline-flex items-center space-x-2 rounded-full bg-[#e8f5e9] px-4 py-2 text-sm font-medium text-[#003d2e]">
             <Trophy className="h-4 w-4" />
             <span>2 Teams • 3 Players Each • 3 Days • 39 Points Total</span>
           </div>
@@ -274,7 +274,7 @@ function NewTeamCupPage() {
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold ${
                   step >= s
-                    ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg"
+                    ? "bg-[#003d2e] text-[#fff8e7] shadow-lg"
                     : "bg-white text-gray-400"
                 }`}
               >
@@ -282,7 +282,7 @@ function NewTeamCupPage() {
               </div>
               {idx < arr.length - 1 && (
                 <div
-                  className={`mx-2 h-1 w-12 ${step > s ? "bg-green-600" : "bg-gray-300"}`}
+                  className={`mx-2 h-1 w-12 ${step > s ? "bg-[#003d2e]" : "bg-gray-300"}`}
                 ></div>
               )}
             </div>
@@ -304,7 +304,7 @@ function NewTeamCupPage() {
                   <input
                     type="text"
                     {...register("name", { required: true })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                     placeholder="Masters Team Cup 2024"
                   />
                   {errors.name && <p className="mt-1 text-sm text-red-600">Tournament name is required</p>}
@@ -318,7 +318,7 @@ function NewTeamCupPage() {
                     <input
                       type="date"
                       {...register("startDate")}
-                      className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                      className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                     />
                   </div>
                   <div>
@@ -328,7 +328,7 @@ function NewTeamCupPage() {
                     <input
                       type="date"
                       {...register("endDate")}
-                      className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                      className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                     />
                   </div>
                 </div>
@@ -337,7 +337,7 @@ function NewTeamCupPage() {
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700"
+                    className="flex items-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c]"
                   >
                     <span>Next: Teams</span>
                     <ChevronRight className="h-5 w-5" />
@@ -362,7 +362,7 @@ function NewTeamCupPage() {
                         <input
                           type="text"
                           {...register(`teams.${teamIdx}.name` as const)}
-                          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                         />
                       </div>
 
@@ -388,7 +388,7 @@ function NewTeamCupPage() {
                               type="text"
                               {...register(`teams.${teamIdx}.players.${playerIdx}.name` as const)}
                               placeholder={`Player ${playerIdx + 1} name`}
-                              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                             />
                             <input
                               type="number"
@@ -397,7 +397,7 @@ function NewTeamCupPage() {
                                 valueAsNumber: true,
                               })}
                               placeholder="HCP"
-                              className="w-20 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                              className="w-20 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                             />
                           </div>
                         ))}
@@ -418,7 +418,7 @@ function NewTeamCupPage() {
                   <button
                     type="button"
                     onClick={() => setStep(3)}
-                    className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700"
+                    className="flex items-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c]"
                   >
                     <span>Next: Courses</span>
                     <ChevronRight className="h-5 w-5" />
@@ -487,7 +487,7 @@ function NewTeamCupPage() {
                       }
                       setStep(4);
                     }}
-                    className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700"
+                    className="flex items-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c]"
                   >
                     <span>Next: Day 2 Matches</span>
                     <ChevronRight className="h-5 w-5" />
@@ -560,7 +560,7 @@ function NewTeamCupPage() {
                                     };
                                     setValue("day2.matches", updatedMatches);
                                   }}
-                                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                                 >
                                   {allPlayers.map((p) => (
                                     <option key={p.playerIndex} value={p.playerIndex}>{p.name}</option>
@@ -581,7 +581,7 @@ function NewTeamCupPage() {
                                     };
                                     setValue("day2.matches", updatedMatches);
                                   }}
-                                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                                 >
                                   {allPlayers.map((p) => (
                                     <option key={p.playerIndex} value={p.playerIndex}>{p.name}</option>
@@ -591,7 +591,7 @@ function NewTeamCupPage() {
 
                                 <span className={`w-12 text-center rounded-full px-2 py-0.5 text-xs font-medium ${
                                   match.type === "within-party"
-                                    ? "bg-green-100 text-green-700"
+                                    ? "bg-[#e8f5e9] text-green-700"
                                     : "bg-amber-100 text-amber-700"
                                 }`}>
                                   {match.type === "within-party" ? "Live" : "Blind"}
@@ -619,7 +619,7 @@ function NewTeamCupPage() {
                     <button
                       type="button"
                       onClick={() => setStep(5)}
-                      className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700"
+                      className="flex items-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c]"
                     >
                       <span>Next: Day 3 Parties</span>
                       <ChevronRight className="h-5 w-5" />
@@ -649,7 +649,7 @@ function NewTeamCupPage() {
                             {...register(`day3.party1.${idx}` as const, {
                               valueAsNumber: true,
                             })}
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                           >
                             {getAllPlayers().map((player) => (
                               <option key={player.playerIndex} value={player.playerIndex}>
@@ -675,7 +675,7 @@ function NewTeamCupPage() {
                             {...register(`day3.party2.${idx}` as const, {
                               valueAsNumber: true,
                             })}
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                           >
                             {getAllPlayers().map((player) => (
                               <option key={player.playerIndex} value={player.playerIndex}>
@@ -701,7 +701,7 @@ function NewTeamCupPage() {
                   <button
                     type="submit"
                     disabled={createTournamentMutation.isPending}
-                    className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50"
+                    className="flex items-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-3 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c] disabled:opacity-50"
                   >
                     <Trophy className="h-5 w-5" />
                     <span>

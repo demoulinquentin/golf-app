@@ -242,7 +242,7 @@ function ScoringPage() {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-center">
-          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-[#003d2e] border-t-transparent" />
           <p className="text-lg font-medium text-gray-700">
             {subscription.status === "connecting" ? "Connecting..." : "Loading round..."}
           </p>
@@ -291,7 +291,7 @@ function ScoringPage() {
             onClick={() => setActiveTab(tab.id)}
             className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all ${
               effectiveTab === tab.id
-                ? "bg-green-600 text-white shadow-md"
+                ? "bg-[#003d2e] text-[#fff8e7] shadow-md"
                 : "bg-white text-gray-700 hover:bg-gray-100"
             }`}
           >
@@ -761,7 +761,7 @@ function MatchplayLeaderboardTab({
                         <span className="text-sm font-semibold text-gray-900">
                           {mr.player1?.player.name || "TBD"}
                         </span>
-                        <span className="text-sm font-bold text-purple-600">
+                        <span className="text-sm font-bold text-[#003d2e]">
                           {formatNetScore(mr.player1Net)}
                         </span>
                       </div>
@@ -770,7 +770,7 @@ function MatchplayLeaderboardTab({
 
                       {/* Player 2 */}
                       <div className="flex items-center space-x-2">
-                        <span className="text-sm font-bold text-purple-600">
+                        <span className="text-sm font-bold text-[#003d2e]">
                           {formatNetScore(mr.player2Net)}
                         </span>
                         <span className="text-sm font-semibold text-gray-900">
@@ -1158,14 +1158,14 @@ function MiniScorecard({
             </tr>
 
             {/* Player 1 strokes received row */}
-            <tr className="border-b-2 border-gray-200 bg-purple-50/50">
-              <td className={`${nameCellClass} bg-purple-50/50 text-[10px] text-purple-600`}>
+            <tr className="border-b-2 border-gray-200 bg-[#e8f5e9]/50">
+              <td className={`${nameCellClass} bg-[#e8f5e9]/50 text-[10px] text-[#003d2e]`}>
                 Strokes
               </td>
               {holes.map((h) => {
                 const sr = getStrokesReceivedForHole(h, p1Handicap);
                 return (
-                  <td key={h} className={`${cellClass} text-[10px] text-purple-500`}>
+                  <td key={h} className={`${cellClass} text-[10px] text-[#003d2e]/70`}>
                     {sr > 0 ? sr : "0"}
                   </td>
                 );
@@ -1195,14 +1195,14 @@ function MiniScorecard({
             </tr>
 
             {/* Player 2 strokes received row */}
-            <tr className="border-b-2 border-gray-200 bg-purple-50/50">
-              <td className={`${nameCellClass} bg-purple-50/50 text-[10px] text-purple-600`}>
+            <tr className="border-b-2 border-gray-200 bg-[#e8f5e9]/50">
+              <td className={`${nameCellClass} bg-[#e8f5e9]/50 text-[10px] text-[#003d2e]`}>
                 Strokes
               </td>
               {holes.map((h) => {
                 const sr = getStrokesReceivedForHole(h, p2Handicap);
                 return (
-                  <td key={h} className={`${cellClass} text-[10px] text-purple-500`}>
+                  <td key={h} className={`${cellClass} text-[10px] text-[#003d2e]/70`}>
                     {sr > 0 ? sr : "0"}
                   </td>
                 );
@@ -1468,7 +1468,7 @@ function Day3LeaderboardTab({
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Best ball net</span>
-                <span className="font-bold text-purple-600">
+                <span className="font-bold text-[#003d2e]">
                   {stats.team1HasScores ? formatNet(stats.team1CumulativeNet) : "-"}
                 </span>
               </div>
@@ -1488,7 +1488,7 @@ function Day3LeaderboardTab({
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Best ball net</span>
-                <span className="font-bold text-purple-600">
+                <span className="font-bold text-[#003d2e]">
                   {stats.team2HasScores ? formatNet(stats.team2CumulativeNet) : "-"}
                 </span>
               </div>
@@ -2162,7 +2162,7 @@ function LeaderboardTab({
                   <td className="py-3 text-center font-semibold text-gray-900">
                     {s.holesPlayed > 0 ? (s.gross === 0 ? "E" : s.gross > 0 ? `+${s.gross}` : s.gross) : "-"}
                   </td>
-                  <td className="py-3 text-center font-semibold text-purple-600">
+                  <td className="py-3 text-center font-semibold text-[#003d2e]">
                     {s.holesPlayed > 0 ? (s.net === 0 ? "E" : s.net > 0 ? `+${s.net}` : s.net) : "-"}
                   </td>
                   <td className="py-3 text-center font-bold text-green-600">{s.pts}</td>
@@ -2478,14 +2478,14 @@ function PlayerScorecardRows({
       </tr>
 
       {/* Strokes received row */}
-      <tr className="border-b-2 border-gray-200 bg-purple-50/50">
-        <td className={`${nameCellClass} bg-purple-50/50 text-[10px] text-purple-600`}>
+      <tr className="border-b-2 border-gray-200 bg-[#e8f5e9]/50">
+        <td className={`${nameCellClass} bg-[#e8f5e9]/50 text-[10px] text-[#003d2e]`}>
           Strokes
         </td>
         {frontNine.map((h) => {
           const sr = getStrokesReceivedForHole(h, handicap);
           return (
-            <td key={h} className={`${cellClass} text-[10px] text-purple-500`}>
+            <td key={h} className={`${cellClass} text-[10px] text-[#003d2e]/70`}>
               {sr > 0 ? sr : "0"}
             </td>
           );
@@ -2494,7 +2494,7 @@ function PlayerScorecardRows({
         {backNine.map((h) => {
           const sr = getStrokesReceivedForHole(h, handicap);
           return (
-            <td key={h} className={`${cellClass} text-[10px] text-purple-500`}>
+            <td key={h} className={`${cellClass} text-[10px] text-[#003d2e]/70`}>
               {sr > 0 ? sr : "0"}
             </td>
           );
@@ -2549,8 +2549,8 @@ function ScoreEntryModal({
               disabled={isPending}
               className={`rounded-xl py-3 text-lg font-bold transition-all ${
                 currentScore === s
-                  ? "bg-green-600 text-white"
-                  : "bg-gray-100 text-gray-900 hover:bg-green-100 active:bg-green-200"
+                  ? "bg-[#003d2e] text-[#fff8e7]"
+                  : "bg-gray-100 text-gray-900 hover:bg-[#e8f5e9] active:bg-[#e8f5e9]/70"
               } disabled:opacity-50`}
             >
               {s}

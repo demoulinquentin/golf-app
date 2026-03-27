@@ -127,7 +127,7 @@ export function SegmentConfigForm({
   };
 
   return (
-    <div className="rounded-xl border-2 border-purple-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border-2 border-[#003d2e]/20 bg-white p-6 shadow-sm">
       <div className="mb-4">
         <h4 className="text-lg font-bold text-gray-900">
           Segment {segmentNumber} - Holes {holes[0]}-{holes[holes.length - 1]}
@@ -144,7 +144,7 @@ export function SegmentConfigForm({
           <label
             className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
               gameType === GameType.SCRAMBLE
-                ? "border-purple-600 bg-purple-50"
+                ? "border-[#003d2e] bg-[#e8f5e9]"
                 : "border-gray-200 hover:border-gray-300"
             }`}
           >
@@ -163,7 +163,7 @@ export function SegmentConfigForm({
           <label
             className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
               gameType === GameType.STROKE_PLAY
-                ? "border-purple-600 bg-purple-50"
+                ? "border-[#003d2e] bg-[#e8f5e9]"
                 : "border-gray-200 hover:border-gray-300"
             }`}
           >
@@ -182,7 +182,7 @@ export function SegmentConfigForm({
           <label
             className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
               gameType === GameType.STABLEFORD
-                ? "border-purple-600 bg-purple-50"
+                ? "border-[#003d2e] bg-[#e8f5e9]"
                 : "border-gray-200 hover:border-gray-300"
             }`}
           >
@@ -217,7 +217,7 @@ export function SegmentConfigForm({
             }}
             className={`rounded-xl border-2 p-4 text-left transition-all ${
               matchupFormat?.type === "flexible" && matchupFormat.playerMatchup?.format === MatchFormat.FOURSOMES
-                ? "border-purple-600 bg-purple-50"
+                ? "border-[#003d2e] bg-[#e8f5e9]"
                 : "border-gray-200 hover:border-gray-300"
             }`}
           >
@@ -235,7 +235,7 @@ export function SegmentConfigForm({
             }}
             className={`rounded-xl border-2 p-4 text-left transition-all ${
               matchupFormat?.type === "flexible" && matchupFormat.playerMatchup?.format === MatchFormat.FOURBALL
-                ? "border-purple-600 bg-purple-50"
+                ? "border-[#003d2e] bg-[#e8f5e9]"
                 : "border-gray-200 hover:border-gray-300"
             }`}
           >
@@ -253,7 +253,7 @@ export function SegmentConfigForm({
             }}
             className={`rounded-xl border-2 p-4 text-left transition-all ${
               matchupFormat?.type === "flexible" && matchupFormat.playerMatchup?.format === MatchFormat.SINGLES
-                ? "border-purple-600 bg-purple-50"
+                ? "border-[#003d2e] bg-[#e8f5e9]"
                 : "border-gray-200 hover:border-gray-300"
             }`}
           >
@@ -272,7 +272,7 @@ export function SegmentConfigForm({
             className={`rounded-xl border-2 p-4 text-left transition-all ${
               matchupFormat?.type === "individual" || 
               (matchupFormat?.type === "flexible" && matchupFormat.playerMatchup?.format === MatchFormat.INDIVIDUAL)
-                ? "border-purple-600 bg-purple-50"
+                ? "border-[#003d2e] bg-[#e8f5e9]"
                 : "border-gray-200 hover:border-gray-300"
             }`}
           >
@@ -294,7 +294,7 @@ export function SegmentConfigForm({
               }}
               className={`rounded-xl border-2 p-4 text-left transition-all ${
                 matchupFormat?.type === "2v2"
-                  ? "border-purple-600 bg-purple-50"
+                  ? "border-[#003d2e] bg-[#e8f5e9]"
                   : "border-gray-200 hover:border-gray-300"
               }`}
             >
@@ -317,7 +317,7 @@ export function SegmentConfigForm({
               }}
               className={`rounded-xl border-2 p-4 text-left transition-all ${
                 matchupFormat?.type === "1v1+1v1"
-                  ? "border-purple-600 bg-purple-50"
+                  ? "border-[#003d2e] bg-[#e8f5e9]"
                   : "border-gray-200 hover:border-gray-300"
               }`}
             >
