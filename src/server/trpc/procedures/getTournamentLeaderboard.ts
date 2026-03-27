@@ -43,10 +43,14 @@ export const getTournamentLeaderboard = baseProcedure
     }
 
     // Build round info for column headers
-    const rounds = tournament.rounds.map((r) => ({
-      roundId: r.id,
-      roundName: r.name,
-    }));
+    const rounds = tournament.rounds.map((r) => {
+      const rj = r.ruleSet?.rulesJson as any;
+      return {
+        roundId: r.id,
+        roundName: r.name,
+        isDay3: !!rj?.day3Config,
+      };
+    });
 
     // Build player map from all rounds
     const playerScores: {
@@ -64,6 +68,8 @@ export const getTournamentLeaderboard = baseProcedure
           grossScore: number | null;
           netScore: number | null;
           points: number;
+          bbCount?: number; // Day 3: holes where player had best net AND team won
+          isDay3?: boolean;
         }[];
       };
     } = {};
@@ -235,10 +241,9 @@ export const getTournamentLeaderboard = baseProcedure
         }
       } else if (day3Config) {
         // ── Day 3: Best Ball Team Matchplay + Score Bonus ─────────────
-        // Two point sources:
-        // 1. Matchplay (6 pts): Compare best ball net per hole. Team with more holes won gets 6 pts.
-        // 2. Score bonus (3 pts): Team with lower cumulative best ball net gets 3 pts.
-        // Total: max 9 pts, split equally among 3 team members.
+        // Team points: matchplay (6 pts) + score bonus (3 pts) = max 9
+        // Individual: BB count (holes where player had best net AND team won)
+        // Team points assigned directly to team (not split among players).
 
         const playersByPosition = round.players
           .slice()
@@ -254,6 +259,12 @@ export const getTournamentLeaderboard = baseProcedure
           .map((idx: number) => playersByPosition[idx])
           .filter(Boolean);
 
+        // Initialize BB counts per player
+        const bbCounts: { [playerId: number]: number } = {};
+        for (const rp of [...team1Players, ...team2Players]) {
+          bbCounts[rp.player.id] = 0;
+        }
+
         if (team1Players.length > 0 && team2Players.length > 0) {
           const allHoles = Array.from({ length: 18 }, (_, i) => i + 1);
 
@@ -268,8 +279,9 @@ export const getTournamentLeaderboard = baseProcedure
           for (const h of allHoles) {
             const hole = holeData?.find((hd) => hd.hole === h);
 
-            // Find best (lowest) net score for Team 1
+            // Find best (lowest) net score for Team 1 and track which players achieved it
             let team1BestNet: number | null = null;
+            const team1BestPlayerIds: number[] = [];
             for (const rp of team1Players) {
               const score = round.scores.find(
                 (s) => s.playerId === rp.player.id && s.holeNumber === h
@@ -281,12 +293,17 @@ export const getTournamentLeaderboard = baseProcedure
                 const net = score.strokes - sr;
                 if (team1BestNet === null || net < team1BestNet) {
                   team1BestNet = net;
+                  team1BestPlayerIds.length = 0;
+                  team1BestPlayerIds.push(rp.player.id);
+                } else if (net === team1BestNet) {
+                  team1BestPlayerIds.push(rp.player.id);
                 }
               }
             }
 
-            // Find best (lowest) net score for Team 2
+            // Find best (lowest) net score for Team 2 and track which players achieved it
             let team2BestNet: number | null = null;
+            const team2BestPlayerIds: number[] = [];
             for (const rp of team2Players) {
               const score = round.scores.find(
                 (s) => s.playerId === rp.player.id && s.holeNumber === h
@@ -298,6 +315,10 @@ export const getTournamentLeaderboard = baseProcedure
                 const net = score.strokes - sr;
                 if (team2BestNet === null || net < team2BestNet) {
                   team2BestNet = net;
+                  team2BestPlayerIds.length = 0;
+                  team2BestPlayerIds.push(rp.player.id);
+                } else if (net === team2BestNet) {
+                  team2BestPlayerIds.push(rp.player.id);
                 }
               }
             }
@@ -315,8 +336,15 @@ export const getTournamentLeaderboard = baseProcedure
             // Compare hole winner (only when both teams have a score)
             if (team1BestNet !== null && team2BestNet !== null) {
               holesCompared++;
-              if (team1BestNet < team2BestNet) team1HolesWon++;
-              else if (team2BestNet < team1BestNet) team2HolesWon++;
+              if (team1BestNet < team2BestNet) {
+                team1HolesWon++;
+                // Credit BB to team 1 players with best net
+                for (const pid of team1BestPlayerIds) bbCounts[pid]++;
+              } else if (team2BestNet < team1BestNet) {
+                team2HolesWon++;
+                // Credit BB to team 2 players with best net
+                for (const pid of team2BestPlayerIds) bbCounts[pid]++;
+              }
             }
           }
 
@@ -326,9 +354,7 @@ export const getTournamentLeaderboard = baseProcedure
           if (holesCompared > 0) {
             if (team1HolesWon > team2HolesWon) {
               team1MatchPts = 6;
-              team2MatchPts = 0;
             } else if (team2HolesWon > team1HolesWon) {
-              team1MatchPts = 0;
               team2MatchPts = 6;
             } else {
               team1MatchPts = 3;
@@ -342,9 +368,7 @@ export const getTournamentLeaderboard = baseProcedure
           if (team1HasScores && team2HasScores) {
             if (team1CumulativeNet < team2CumulativeNet) {
               team1ScorePts = 3;
-              team2ScorePts = 0;
             } else if (team2CumulativeNet < team1CumulativeNet) {
-              team1ScorePts = 0;
               team2ScorePts = 3;
             } else {
               team1ScorePts = 1.5;
@@ -352,30 +376,24 @@ export const getTournamentLeaderboard = baseProcedure
             }
           }
 
-          const team1Total = team1MatchPts + team1ScorePts;
-          const team2Total = team2MatchPts + team2ScorePts;
+          // Store team points directly (will be used in team aggregation)
+          // Tag this round as Day 3 so team aggregation uses direct points
+          (round as any)._day3TeamPoints = {
+            team1Total: team1MatchPts + team1ScorePts,
+            team2Total: team2MatchPts + team2ScorePts,
+            team1Players: team1Players.map((rp) => rp.player.id),
+            team2Players: team2Players.map((rp) => rp.player.id),
+          };
 
-          // Split team points equally among team members
-          const team1PerPlayer =
-            team1Players.length > 0 ? team1Total / team1Players.length : 0;
-          const team2PerPlayer =
-            team2Players.length > 0 ? team2Total / team2Players.length : 0;
-
-          for (const rp of team1Players) {
+          // Set BB counts on individual roundScores (points stays 0 for individuals)
+          for (const rp of [...team1Players, ...team2Players]) {
             const ps = playerScores[rp.player.id];
             if (ps) {
               const rs = ps.roundScores.find((r) => r.roundId === round.id);
-              if (rs) rs.points += team1PerPlayer;
-              ps.totalPoints += team1PerPlayer;
-            }
-          }
-
-          for (const rp of team2Players) {
-            const ps = playerScores[rp.player.id];
-            if (ps) {
-              const rs = ps.roundScores.find((r) => r.roundId === round.id);
-              if (rs) rs.points += team2PerPlayer;
-              ps.totalPoints += team2PerPlayer;
+              if (rs) {
+                rs.bbCount = bbCounts[rp.player.id];
+                rs.isDay3 = true;
+              }
             }
           }
         }
@@ -456,17 +474,50 @@ export const getTournamentLeaderboard = baseProcedure
       };
     }
 
+    // Track which team players have been counted
+    const countedTeamPlayers = new Set<string>();
+
     for (const playerScore of Object.values(playerScores)) {
       if (playerScore.teamId && teamScores[playerScore.teamId]) {
-        teamScores[playerScore.teamId].totalPoints += playerScore.totalPoints;
-        teamScores[playerScore.teamId].playerCount += 1;
-
-        for (const rs of playerScore.roundScores) {
-          const teamRound = teamScores[playerScore.teamId].roundPoints.find(
-            (rp) => rp.roundId === rs.roundId
-          );
-          if (teamRound) teamRound.points += rs.points;
+        const teamKey = `${playerScore.teamId}`;
+        if (!countedTeamPlayers.has(`${teamKey}-${playerScore.player.id}`)) {
+          teamScores[playerScore.teamId].playerCount += 1;
+          countedTeamPlayers.add(`${teamKey}-${playerScore.player.id}`);
         }
+
+        // Add non-Day3 individual points
+        for (const rs of playerScore.roundScores) {
+          if (!rs.isDay3) {
+            teamScores[playerScore.teamId].totalPoints += rs.points;
+            const teamRound = teamScores[playerScore.teamId].roundPoints.find(
+              (rp) => rp.roundId === rs.roundId
+            );
+            if (teamRound) teamRound.points += rs.points;
+          }
+        }
+      }
+    }
+
+    // Add Day 3 team points directly (not from individual splits)
+    for (const round of tournament.rounds) {
+      const d3pts = (round as any)._day3TeamPoints;
+      if (!d3pts) continue;
+
+      // Find team IDs for team1 and team2 players
+      const team1PlayerId = d3pts.team1Players[0];
+      const team2PlayerId = d3pts.team2Players[0];
+      const team1Id = team1PlayerId ? playerScores[team1PlayerId]?.teamId : undefined;
+      const team2Id = team2PlayerId ? playerScores[team2PlayerId]?.teamId : undefined;
+
+      if (team1Id && teamScores[team1Id]) {
+        teamScores[team1Id].totalPoints += d3pts.team1Total;
+        const tr = teamScores[team1Id].roundPoints.find((rp) => rp.roundId === round.id);
+        if (tr) tr.points += d3pts.team1Total;
+      }
+      if (team2Id && teamScores[team2Id]) {
+        teamScores[team2Id].totalPoints += d3pts.team2Total;
+        const tr = teamScores[team2Id].roundPoints.find((rp) => rp.roundId === round.id);
+        if (tr) tr.points += d3pts.team2Total;
       }
     }
 

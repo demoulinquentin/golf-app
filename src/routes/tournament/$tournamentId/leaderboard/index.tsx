@@ -268,7 +268,7 @@ function TournamentLeaderboardPage() {
                         <React.Fragment key={r.roundId}>
                           <th className="px-1 py-1 text-center">Gross</th>
                           <th className="px-1 py-1 text-center">Net</th>
-                          <th className="px-1 py-1 text-center">Pts</th>
+                          <th className="px-1 py-1 text-center">{r.isDay3 ? "BB" : "Pts"}</th>
                         </React.Fragment>
                       ))}
                       <th className="px-1 py-1 text-center">Gross</th>
@@ -310,7 +310,9 @@ function TournamentLeaderboardPage() {
                             <React.Fragment key={r.roundId}>
                               <td className="px-1 py-3 text-center text-gray-700">{formatScore(rs?.grossScore)}</td>
                               <td className="px-1 py-3 text-center text-gray-700">{formatScore(rs?.netScore)}</td>
-                              <td className="px-1 py-3 text-center font-medium text-purple-600">{rs?.points || "–"}</td>
+                              <td className="px-1 py-3 text-center font-medium text-purple-600">
+                                {rs?.isDay3 ? (rs?.bbCount ?? "–") : (rs?.points || "–")}
+                              </td>
                             </React.Fragment>
                           );
                         })}
