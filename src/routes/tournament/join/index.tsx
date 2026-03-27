@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useTRPC } from "~/trpc/react";
+import { useTRPCClient } from "~/trpc/react";
 import { useMutation } from "@tanstack/react-query";
 import { useTournamentAccessStore } from "~/stores/tournamentAccessStore";
 import { useState } from "react";
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/tournament/join/")({
 
 function JoinTournamentByCodePage() {
   const navigate = useNavigate();
-  const trpc = useTRPC();
+  const trpcClient = useTRPCClient();
   const { setPlayerIdentity, getTournamentAccess } = useTournamentAccessStore();
   const [joinCode, setJoinCode] = useState("");
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
@@ -27,8 +27,8 @@ function JoinTournamentByCodePage() {
 
     setIsLoading(true);
     try {
-      const data = await trpc.joinTournamentByCode.query({ 
-        joinCode: joinCode.trim().toUpperCase() 
+      const data = await trpcClient.joinTournamentByCode.query({
+        joinCode: joinCode.trim().toUpperCase()
       });
       setTournamentData(data);
       
