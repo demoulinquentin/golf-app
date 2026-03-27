@@ -152,6 +152,7 @@ export const getTournamentLeaderboard = baseProcedure
     for (const round of tournament.rounds) {
       const rulesJson = round.ruleSet?.rulesJson as any;
       const day2Config = rulesJson?.day2Config;
+      const day3Config = rulesJson?.day3Config;
       const holeData = round.holeData as
         | { hole: number; par: number; strokeIndex: number }[]
         | null;
@@ -232,8 +233,154 @@ export const getTournamentLeaderboard = baseProcedure
             ps2.totalPoints += p2Pts;
           }
         }
+      } else if (day3Config) {
+        // ── Day 3: Best Ball Team Matchplay + Score Bonus ─────────────
+        // Two point sources:
+        // 1. Matchplay (6 pts): Compare best ball net per hole. Team with more holes won gets 6 pts.
+        // 2. Score bonus (3 pts): Team with lower cumulative best ball net gets 3 pts.
+        // Total: max 9 pts, split equally among 3 team members.
+
+        const playersByPosition = round.players
+          .slice()
+          .sort((a, b) => a.position - b.position);
+
+        const team1Indices = (day3Config.party1PlayerIndices as number[]) || [];
+        const team2Indices = (day3Config.party2PlayerIndices as number[]) || [];
+
+        const team1Players = team1Indices
+          .map((idx: number) => playersByPosition[idx])
+          .filter(Boolean);
+        const team2Players = team2Indices
+          .map((idx: number) => playersByPosition[idx])
+          .filter(Boolean);
+
+        if (team1Players.length > 0 && team2Players.length > 0) {
+          const allHoles = Array.from({ length: 18 }, (_, i) => i + 1);
+
+          let team1HolesWon = 0;
+          let team2HolesWon = 0;
+          let holesCompared = 0;
+          let team1CumulativeNet = 0;
+          let team2CumulativeNet = 0;
+          let team1HasScores = false;
+          let team2HasScores = false;
+
+          for (const h of allHoles) {
+            const hole = holeData?.find((hd) => hd.hole === h);
+
+            // Find best (lowest) net score for Team 1
+            let team1BestNet: number | null = null;
+            for (const rp of team1Players) {
+              const score = round.scores.find(
+                (s) => s.playerId === rp.player.id && s.holeNumber === h
+              );
+              if (score) {
+                const sr = hole
+                  ? calculateStrokesReceived(rp.player.handicap, hole.strokeIndex)
+                  : 0;
+                const net = score.strokes - sr;
+                if (team1BestNet === null || net < team1BestNet) {
+                  team1BestNet = net;
+                }
+              }
+            }
+
+            // Find best (lowest) net score for Team 2
+            let team2BestNet: number | null = null;
+            for (const rp of team2Players) {
+              const score = round.scores.find(
+                (s) => s.playerId === rp.player.id && s.holeNumber === h
+              );
+              if (score) {
+                const sr = hole
+                  ? calculateStrokesReceived(rp.player.handicap, hole.strokeIndex)
+                  : 0;
+                const net = score.strokes - sr;
+                if (team2BestNet === null || net < team2BestNet) {
+                  team2BestNet = net;
+                }
+              }
+            }
+
+            // Accumulate cumulative net scores
+            if (team1BestNet !== null) {
+              team1CumulativeNet += team1BestNet;
+              team1HasScores = true;
+            }
+            if (team2BestNet !== null) {
+              team2CumulativeNet += team2BestNet;
+              team2HasScores = true;
+            }
+
+            // Compare hole winner (only when both teams have a score)
+            if (team1BestNet !== null && team2BestNet !== null) {
+              holesCompared++;
+              if (team1BestNet < team2BestNet) team1HolesWon++;
+              else if (team2BestNet < team1BestNet) team2HolesWon++;
+            }
+          }
+
+          // Calculate matchplay points (6 total)
+          let team1MatchPts = 0;
+          let team2MatchPts = 0;
+          if (holesCompared > 0) {
+            if (team1HolesWon > team2HolesWon) {
+              team1MatchPts = 6;
+              team2MatchPts = 0;
+            } else if (team2HolesWon > team1HolesWon) {
+              team1MatchPts = 0;
+              team2MatchPts = 6;
+            } else {
+              team1MatchPts = 3;
+              team2MatchPts = 3;
+            }
+          }
+
+          // Calculate score bonus points (3 total)
+          let team1ScorePts = 0;
+          let team2ScorePts = 0;
+          if (team1HasScores && team2HasScores) {
+            if (team1CumulativeNet < team2CumulativeNet) {
+              team1ScorePts = 3;
+              team2ScorePts = 0;
+            } else if (team2CumulativeNet < team1CumulativeNet) {
+              team1ScorePts = 0;
+              team2ScorePts = 3;
+            } else {
+              team1ScorePts = 1.5;
+              team2ScorePts = 1.5;
+            }
+          }
+
+          const team1Total = team1MatchPts + team1ScorePts;
+          const team2Total = team2MatchPts + team2ScorePts;
+
+          // Split team points equally among team members
+          const team1PerPlayer =
+            team1Players.length > 0 ? team1Total / team1Players.length : 0;
+          const team2PerPlayer =
+            team2Players.length > 0 ? team2Total / team2Players.length : 0;
+
+          for (const rp of team1Players) {
+            const ps = playerScores[rp.player.id];
+            if (ps) {
+              const rs = ps.roundScores.find((r) => r.roundId === round.id);
+              if (rs) rs.points += team1PerPlayer;
+              ps.totalPoints += team1PerPlayer;
+            }
+          }
+
+          for (const rp of team2Players) {
+            const ps = playerScores[rp.player.id];
+            if (ps) {
+              const rs = ps.roundScores.find((r) => r.roundId === round.id);
+              if (rs) rs.points += team2PerPlayer;
+              ps.totalPoints += team2PerPlayer;
+            }
+          }
+        }
       } else {
-        // ── Day 1 / Day 3: Position-based scoring (6,5,4,3,2,1) ──────
+        // ── Day 1: Position-based scoring (6,5,4,3,2,1) ──────────────
         const playersWithScores = Object.values(playerScores)
           .map((ps) => {
             const rs = ps.roundScores.find((r) => r.roundId === round.id);
