@@ -1,5 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Plus, Trophy, Users, Target } from "lucide-react";
+import { Plus, Trophy, Users, Target, ChevronRight } from "lucide-react";
+import { useTournamentAccessStore } from "~/stores/tournamentAccessStore";
+import { useTRPC } from "~/trpc/react";
+import { useQueries } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -7,6 +10,25 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const navigate = useNavigate();
+  const trpc = useTRPC();
+  const { tournaments } = useTournamentAccessStore();
+
+  const tournamentIds = Object.keys(tournaments).map(Number).filter(Boolean);
+
+  const tournamentQueries = useQueries({
+    queries: tournamentIds.map((id) =>
+      trpc.getTournament.queryOptions({ tournamentId: id })
+    ),
+  });
+
+  const yourTournaments = tournamentIds
+    .map((id, idx) => {
+      const query = tournamentQueries[idx];
+      const access = tournaments[id];
+      if (!query?.data || !access) return null;
+      return { id, data: query.data, access };
+    })
+    .filter(Boolean) as { id: number; data: any; access: any }[];
 
   return (
     <div className="min-h-screen bg-[#fff8e7]">
@@ -62,6 +84,60 @@ function Home() {
               </button>
             </div>
           </div>
+
+          {/* Your Tournaments */}
+          {yourTournaments.length > 0 && (
+            <div className="mt-12">
+              <h2 className="mb-4 text-center text-2xl font-bold text-gray-900">Your Tournaments</h2>
+              <div className="mx-auto max-w-2xl space-y-3">
+                {yourTournaments.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() =>
+                      void navigate({
+                        to: "/tournament/$tournamentId/leaderboard",
+                        params: { tournamentId: String(t.id) },
+                      })
+                    }
+                    className="flex w-full items-center justify-between rounded-xl bg-white p-4 shadow-md transition-all hover:shadow-lg"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#003d2e] text-[#ffd700]">
+                        <Trophy className="h-5 w-5" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-bold text-gray-900">{t.data.name}</p>
+                        <div className="flex items-center space-x-2 text-sm text-gray-500">
+                          <span>Playing as <span className="font-medium text-gray-700">{t.access.playerName}</span></span>
+                          {t.access.isAdmin && (
+                            <span className="rounded-full bg-[#ffd700]/20 px-2 py-0.5 text-xs font-semibold text-[#003d2e]">Admin</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          t.data.status === "completed"
+                            ? "bg-blue-100 text-blue-700"
+                            : t.data.status === "in_progress"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {t.data.status === "completed"
+                          ? "Completed"
+                          : t.data.status === "in_progress"
+                          ? "In Progress"
+                          : "Not Started"}
+                      </span>
+                      <ChevronRight className="h-5 w-5 text-gray-400" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Features */}
           <div className="mt-24 grid gap-8 sm:grid-cols-3">
