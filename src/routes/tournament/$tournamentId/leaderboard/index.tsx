@@ -189,7 +189,7 @@ function TournamentLeaderboardPage() {
         <div className="space-y-8">
           {/* Team Leaderboard */}
           {teamLeaderboard.length > 0 && (
-            <div className="rounded-2xl bg-white p-8 shadow-xl">
+            <div className="rounded-2xl bg-white p-4 sm:p-8 shadow-xl">
               <div className="mb-6 flex items-center space-x-3">
                 <Trophy className="h-6 w-6 text-[#ffd700]" />
                 <h2 className="text-2xl font-bold text-gray-900">Team Standings</h2>
@@ -199,18 +199,18 @@ function TournamentLeaderboardPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b-2 border-gray-200 text-xs text-gray-500">
-                      <th className="px-3 py-3 text-left font-medium">#</th>
-                      <th className="px-3 py-3 text-left font-medium">Team</th>
+                      <th className="px-1 py-2 sm:py-3 text-left font-medium sticky left-0 z-10 bg-white">#</th>
+                      <th className="px-1 py-2 sm:py-3 text-left font-medium sticky left-7 z-10 bg-white">Team</th>
                       {rounds.map((r: any) => (
-                        <th key={r.roundId} className="px-3 py-3 text-center font-medium">{r.roundName}</th>
+                        <th key={r.roundId} className="px-1 py-2 sm:py-3 text-center font-medium">{r.roundName}</th>
                       ))}
-                      <th className="px-3 py-3 text-center font-medium">Total</th>
+                      <th className="px-1 py-2 sm:py-3 text-center font-medium">Total</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {teamLeaderboard.map((entry) => (
                       <tr key={entry.team.id} className="hover:bg-gray-50">
-                        <td className="px-3 py-3">
+                        <td className="px-1 py-2 sm:py-3 sticky left-0 z-10 bg-white">
                           <span
                             className="inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white"
                             style={{ backgroundColor: entry.team.color }}
@@ -218,16 +218,16 @@ function TournamentLeaderboardPage() {
                             {entry.position}
                           </span>
                         </td>
-                        <td className="px-3 py-3 font-semibold text-gray-900">{entry.team.name}</td>
+                        <td className="px-1 py-2 sm:py-3 font-semibold text-gray-900 sticky left-7 z-10 bg-white">{entry.team.name}</td>
                         {rounds.map((r: any) => {
                           const rp = entry.roundPoints?.find((p: any) => p.roundId === r.roundId);
                           return (
-                            <td key={r.roundId} className="px-3 py-3 text-center font-medium text-[#003d2e]">
+                            <td key={r.roundId} className="px-1 py-2 sm:py-3 text-center font-medium text-[#003d2e]">
                               {rp?.points || "–"}
                             </td>
                           );
                         })}
-                        <td className="px-3 py-3 text-center font-bold text-[#003d2e]">{entry.totalPoints}</td>
+                        <td className="px-1 py-2 sm:py-3 text-center font-bold text-[#003d2e]">{entry.totalPoints}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -237,7 +237,7 @@ function TournamentLeaderboardPage() {
           )}
 
           {/* Individual Leaderboard */}
-          <div className="rounded-2xl bg-white p-8 shadow-xl">
+          <div className="rounded-2xl bg-white p-4 sm:p-8 shadow-xl">
             <div className="mb-6 flex items-center space-x-3">
               <Users className="h-6 w-6 text-[#003d2e]" />
               <h2 className="text-2xl font-bold text-gray-900">Individual Standings</h2>
@@ -248,38 +248,38 @@ function TournamentLeaderboardPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b-2 border-gray-200 text-xs text-gray-500">
-                      <th className="px-3 py-3 text-left font-medium">#</th>
-                      <th className="px-3 py-3 text-left font-medium">Player</th>
-                      <th className="px-3 py-3 text-left font-medium">Team</th>
-                      <th className="px-3 py-3 text-center font-medium">HCP</th>
+                      <th className="px-1 py-2 sm:py-3 text-left font-medium sticky left-0 z-10 bg-white">#</th>
+                      <th className="px-1 py-2 sm:py-3 text-left font-medium sticky left-7 z-10 bg-white">Player</th>
+                      <th className="px-1 py-2 sm:py-3 text-left font-medium">Team</th>
+                      <th className="px-1 py-2 sm:py-3 text-center font-medium">HCP</th>
                       {rounds.map((r: any) => (
-                        <th key={r.roundId} className="px-2 py-3 text-center font-medium" colSpan={3}>
+                        <th key={r.roundId} className="px-1 py-2 sm:py-3 text-center font-medium" colSpan={3}>
                           {r.roundName}
                         </th>
                       ))}
-                      <th className="px-2 py-3 text-center font-medium" colSpan={3}>Total</th>
+                      <th className="px-1 py-2 sm:py-3 text-center font-medium" colSpan={3}>Total</th>
                     </tr>
                     <tr className="border-b border-gray-100 text-xs text-gray-400">
-                      <th></th>
-                      <th></th>
+                      <th className="sticky left-0 z-10 bg-white"></th>
+                      <th className="sticky left-7 z-10 bg-white"></th>
                       <th></th>
                       <th></th>
                       {rounds.map((r: any) => (
                         <React.Fragment key={r.roundId}>
-                          <th className="px-1 py-1 text-center">Gross</th>
-                          <th className="px-1 py-1 text-center">Net</th>
-                          <th className="px-1 py-1 text-center">{r.isDay3 ? "BB" : "Pts"}</th>
+                          <th className="px-1 py-1 text-center"><span className="sm:hidden">G</span><span className="hidden sm:inline">Gross</span></th>
+                          <th className="px-1 py-1 text-center"><span className="sm:hidden">N</span><span className="hidden sm:inline">Net</span></th>
+                          <th className="px-1 py-1 text-center">{r.isDay3 ? "BB" : (<><span className="sm:hidden">P</span><span className="hidden sm:inline">Pts</span></>)}</th>
                         </React.Fragment>
                       ))}
-                      <th className="px-1 py-1 text-center">Gross</th>
-                      <th className="px-1 py-1 text-center">Net</th>
-                      <th className="px-1 py-1 text-center">Pts</th>
+                      <th className="px-1 py-1 text-center"><span className="sm:hidden">G</span><span className="hidden sm:inline">Gross</span></th>
+                      <th className="px-1 py-1 text-center"><span className="sm:hidden">N</span><span className="hidden sm:inline">Net</span></th>
+                      <th className="px-1 py-1 text-center"><span className="sm:hidden">P</span><span className="hidden sm:inline">Pts</span></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {individualLeaderboard.map((entry) => (
                       <tr key={entry.player.id} className="hover:bg-gray-50">
-                        <td className="px-3 py-3">
+                        <td className="px-1 py-2 sm:py-3 sticky left-0 z-10 bg-white">
                           <span
                             className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
                               entry.position === 1
@@ -294,8 +294,8 @@ function TournamentLeaderboardPage() {
                             {entry.position}
                           </span>
                         </td>
-                        <td className="px-3 py-3 font-medium text-gray-900">{entry.player.name}</td>
-                        <td className="px-3 py-3">
+                        <td className="px-1 py-2 sm:py-3 font-medium text-gray-900 sticky left-7 z-10 bg-white">{entry.player.name}</td>
+                        <td className="px-1 py-2 sm:py-3">
                           {entry.teamColor && (
                             <span className="flex items-center gap-1.5">
                               <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: entry.teamColor }} />
@@ -303,22 +303,22 @@ function TournamentLeaderboardPage() {
                             </span>
                           )}
                         </td>
-                        <td className="px-3 py-3 text-center text-gray-600">{entry.player.handicap}</td>
+                        <td className="px-1 py-2 sm:py-3 text-center text-gray-600">{entry.player.handicap}</td>
                         {rounds.map((r: any) => {
                           const rs = entry.roundScores?.find((s: any) => s.roundId === r.roundId);
                           return (
                             <React.Fragment key={r.roundId}>
-                              <td className="px-1 py-3 text-center text-gray-700">{formatScore(rs?.grossScore)}</td>
-                              <td className="px-1 py-3 text-center text-gray-700">{formatScore(rs?.netScore)}</td>
-                              <td className="px-1 py-3 text-center font-medium text-[#003d2e]">
+                              <td className="px-1 py-2 sm:py-3 text-center text-gray-700">{formatScore(rs?.grossScore)}</td>
+                              <td className="px-1 py-2 sm:py-3 text-center text-gray-700">{formatScore(rs?.netScore)}</td>
+                              <td className="px-1 py-2 sm:py-3 text-center font-medium text-[#003d2e]">
                                 {rs?.isDay3 ? (rs?.bbCount ?? "–") : (rs?.points || "–")}
                               </td>
                             </React.Fragment>
                           );
                         })}
-                        <td className="px-1 py-3 text-center font-semibold text-gray-900">{formatScore(entry.totalGrossScore)}</td>
-                        <td className="px-1 py-3 text-center font-semibold text-gray-900">{formatScore(entry.totalNetScore)}</td>
-                        <td className="px-1 py-3 text-center font-bold text-[#003d2e]">{entry.totalPoints || "–"}</td>
+                        <td className="px-1 py-2 sm:py-3 text-center font-semibold text-gray-900">{formatScore(entry.totalGrossScore)}</td>
+                        <td className="px-1 py-2 sm:py-3 text-center font-semibold text-gray-900">{formatScore(entry.totalNetScore)}</td>
+                        <td className="px-1 py-2 sm:py-3 text-center font-bold text-[#003d2e]">{entry.totalPoints || "–"}</td>
                       </tr>
                     ))}
                   </tbody>

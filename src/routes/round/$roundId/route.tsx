@@ -112,7 +112,7 @@ function RoundLayout() {
       {/* Header */}
       <div className="border-b border-[#003d2e]/10 bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-6">
+          <div className="flex items-center justify-between py-3 sm:py-6">
             <div className="flex items-center space-x-4">
               <Link
                 to={round.tournamentId ? "/tournament/$tournamentId/leaderboard" : "/"}
@@ -120,13 +120,13 @@ function RoundLayout() {
                 className="inline-flex items-center space-x-2 text-sm font-medium text-gray-600 hover:text-gray-900"
               >
                 <Home className="h-4 w-4" />
-                <span>{round.tournamentId ? "Back to Leaderboard" : "Back to Menu"}</span>
+                <span className="hidden sm:inline">{round.tournamentId ? "Back to Leaderboard" : "Back to Menu"}</span>
               </Link>
             </div>
-            
+
             <div className="flex-1 text-center">
-              <h1 className="text-3xl font-bold text-gray-900">{round.name}</h1>
-              <p className="text-gray-600">{round.courseName}</p>
+              <h1 className="text-xl sm:text-3xl font-bold text-gray-900">{round.name}</h1>
+              <p className="hidden sm:block text-gray-600">{round.courseName}</p>
               {isCompleted && (
                 <span className="mt-1 inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
                   Completed
@@ -139,7 +139,7 @@ function RoundLayout() {
                 <button
                   onClick={handleCompleteRound}
                   disabled={completeRoundMutation.isPending}
-                  className="inline-flex items-center space-x-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2 text-sm font-medium text-white shadow-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50"
+                  className="inline-flex items-center space-x-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-medium text-white shadow-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50"
                 >
                   <CheckCircle className="h-4 w-4" />
                   <span>Complete Round</span>

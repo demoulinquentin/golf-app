@@ -284,12 +284,12 @@ function ScoringPage() {
       )}
 
       {/* Tab bar */}
-      <div className="mb-4 flex space-x-2 overflow-x-auto">
+      <div className="mb-4 flex gap-1.5 overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+            className={`flex-1 whitespace-nowrap rounded-full px-4 py-2.5 sm:py-2 text-sm font-semibold transition-all ${
               effectiveTab === tab.id
                 ? "bg-[#003d2e] text-[#fff8e7] shadow-md"
                 : "bg-white text-gray-700 hover:bg-gray-100"
@@ -435,6 +435,7 @@ function ScoringPage() {
         <ScoreEntryModal
           playerName={scoreModal.playerName}
           holeNumber={scoreModal.holeNumber}
+          holePar={getHoleData(scoreModal.holeNumber)?.par}
           currentScore={getPlayerScore(scoreModal.playerId, scoreModal.holeNumber)}
           isPending={enterScoreMutation.isPending}
           onSelect={(strokes) => {
@@ -990,11 +991,11 @@ function MiniScorecard({
   const p1Total = computeSum(p1.id);
   const p2Total = computeSum(p2.id);
 
-  const cellClass = "min-w-[40px] px-1 py-1 text-center text-xs";
-  const headerCellClass = "min-w-[40px] px-1 py-1 text-center text-xs font-semibold";
+  const cellClass = "min-w-[40px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs";
+  const headerCellClass = "min-w-[40px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs font-semibold";
   const nameCellClass =
-    "sticky left-0 z-10 bg-white min-w-[100px] max-w-[130px] px-2 py-1 text-xs font-semibold whitespace-nowrap";
-  const sumCellClass = "min-w-[44px] px-1 py-1 text-center text-xs font-bold";
+    "sticky left-0 z-10 bg-white min-w-[100px] max-w-[130px] px-2 py-2 sm:py-1 text-sm sm:text-xs font-semibold whitespace-nowrap truncate";
+  const sumCellClass = "min-w-[44px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs font-bold";
 
   /** Render a score cell, respecting blind visibility */
   const renderScoreCell = (
@@ -1067,7 +1068,7 @@ function MiniScorecard({
   return (
     <div className="rounded-2xl bg-white shadow-lg overflow-hidden">
       {/* Match header */}
-      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-3 py-2 sm:px-4 sm:py-3">
         <div className="flex items-center space-x-2">
           {team1Info && (
             <div className="h-3 w-3 rounded-full" style={{ backgroundColor: team1Info.teamColor }} />
@@ -1690,11 +1691,11 @@ function Day3ScorecardTab({
   const team1BestBall = useMemo(() => getBestBallForTeam(team1, holes), [team1, holes, getPlayerScore, getStrokesReceivedForHole]);
   const team2BestBall = useMemo(() => getBestBallForTeam(team2, holes), [team2, holes, getPlayerScore, getStrokesReceivedForHole]);
 
-  const cellClass = "min-w-[36px] px-1 py-1 text-center text-xs";
-  const headerCellClass = "min-w-[36px] px-1 py-1 text-center text-xs font-semibold";
+  const cellClass = "min-w-[36px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs";
+  const headerCellClass = "min-w-[36px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs font-semibold";
   const nameCellClass =
-    "sticky left-0 z-10 bg-white min-w-[90px] max-w-[120px] px-2 py-1 text-xs font-semibold whitespace-nowrap";
-  const sumCellClass = "min-w-[40px] px-1 py-1 text-center text-xs font-bold";
+    "sticky left-0 z-10 bg-white min-w-[90px] max-w-[120px] px-2 py-2 sm:py-1 text-sm sm:text-xs font-semibold whitespace-nowrap truncate";
+  const sumCellClass = "min-w-[40px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs font-bold";
 
   /** Render best ball row for a team */
   const renderBestBallRow = (
@@ -1858,7 +1859,7 @@ function Day3ScorecardTab({
 
             {/* Separator */}
             <tr>
-              <td colSpan={22} className="h-2 bg-gray-200" />
+              <td colSpan={22} className="h-3 bg-gray-300 sm:h-2 sm:bg-gray-200" />
             </tr>
 
             {/* ── Team 2 Section ── */}
@@ -2228,11 +2229,11 @@ function ScorecardTab({
   };
 
   // Minimum cell width for holes
-  const cellClass = "min-w-[36px] px-1 py-1 text-center text-xs";
-  const headerCellClass = "min-w-[36px] px-1 py-1 text-center text-xs font-semibold";
+  const cellClass = "min-w-[36px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs";
+  const headerCellClass = "min-w-[36px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs font-semibold";
   const nameCellClass =
-    "sticky left-0 z-10 bg-white min-w-[90px] max-w-[120px] px-2 py-1 text-xs font-semibold whitespace-nowrap";
-  const sumCellClass = "min-w-[40px] px-1 py-1 text-center text-xs font-bold";
+    "sticky left-0 z-10 bg-white min-w-[90px] max-w-[120px] px-2 py-2 sm:py-1 text-sm sm:text-xs font-semibold whitespace-nowrap truncate";
+  const sumCellClass = "min-w-[40px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs font-bold";
 
   return (
     <div className="rounded-2xl bg-white shadow-lg">
@@ -2511,6 +2512,7 @@ function PlayerScorecardRows({
 function ScoreEntryModal({
   playerName,
   holeNumber,
+  holePar,
   currentScore,
   isPending,
   onSelect,
@@ -2518,6 +2520,7 @@ function ScoreEntryModal({
 }: {
   playerName: string;
   holeNumber: number;
+  holePar?: number;
   currentScore: number | undefined;
   isPending: boolean;
   onSelect: (strokes: number) => void;
@@ -2535,7 +2538,9 @@ function ScoreEntryModal({
       <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
         <div className="mb-4 text-center">
           <h3 className="text-lg font-bold text-gray-900">{playerName}</h3>
-          <p className="text-sm text-gray-600">Hole {holeNumber}</p>
+          <p className="text-sm text-gray-600">
+            Hole {holeNumber}{holePar !== undefined && ` — Par ${holePar}`}
+          </p>
           {currentScore !== undefined && (
             <p className="mt-1 text-xs text-gray-500">Current: {currentScore}</p>
           )}
@@ -2547,7 +2552,7 @@ function ScoreEntryModal({
               key={s}
               onClick={() => onSelect(s)}
               disabled={isPending}
-              className={`rounded-xl py-3 text-lg font-bold transition-all ${
+              className={`rounded-xl py-4 sm:py-3 text-lg font-bold transition-all ${
                 currentScore === s
                   ? "bg-[#003d2e] text-[#fff8e7]"
                   : "bg-gray-100 text-gray-900 hover:bg-[#e8f5e9] active:bg-[#e8f5e9]/70"

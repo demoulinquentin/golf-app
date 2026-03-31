@@ -115,7 +115,7 @@ function JoinTournamentByCodePage() {
               <label className="mb-3 block text-sm font-medium text-gray-700">
                 Tournament Code
               </label>
-              <div className="flex items-center space-x-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="relative flex-1">
                   <KeyRound className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                   <input
@@ -130,12 +130,13 @@ function JoinTournamentByCodePage() {
                     placeholder="e.g., GOLF123"
                     className="w-full rounded-lg border border-gray-300 py-4 pl-12 pr-4 text-lg font-mono uppercase tracking-wider focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
                     maxLength={10}
+                    autoFocus
                   />
                 </div>
                 <button
                   onClick={() => void lookupTournament()}
                   disabled={isLoading || !joinCode.trim()}
-                  className="flex items-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-4 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c] disabled:opacity-50"
+                  className="flex w-full sm:w-auto items-center justify-center space-x-2 rounded-lg bg-[#003d2e] px-6 py-4 font-semibold text-[#fff8e7] shadow-lg hover:bg-[#00261c] disabled:opacity-50"
                 >
                   <span>{isLoading ? "Looking up..." : "Continue"}</span>
                   <ArrowRight className="h-5 w-5" />
@@ -191,7 +192,7 @@ function JoinTournamentByCodePage() {
               <h3 className="mb-6 text-xl font-bold text-gray-900">Who are you?</h3>
               <p className="mb-6 text-gray-600">Select your name from the list below:</p>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {tournamentData.players.map((player: any) => (
                   <button
                     key={player.id}
