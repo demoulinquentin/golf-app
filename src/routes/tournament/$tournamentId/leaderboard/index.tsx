@@ -182,6 +182,17 @@ function TournamentLeaderboardPage() {
                   </p>
                 </div>
               </div>
+              {(() => {
+                const playerEntry = individualLeaderboard.find(
+                  (e: any) => e.player.id === tournamentAccess.playerId
+                );
+                return playerEntry ? (
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500">Handicap</p>
+                    <p className="text-lg font-bold text-[#003d2e]">{playerEntry.player.handicap}</p>
+                  </div>
+                ) : null;
+              })()}
             </div>
           </div>
         )}
