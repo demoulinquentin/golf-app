@@ -999,7 +999,7 @@ function MiniScorecard({
   const cellClass = "min-w-[40px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs";
   const headerCellClass = "min-w-[40px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs font-semibold";
   const nameCellClass =
-    "sticky left-0 z-10 bg-white min-w-[100px] max-w-[130px] px-2 py-2 sm:py-1 text-sm sm:text-xs font-semibold whitespace-nowrap truncate";
+    "sticky left-0 z-10 bg-white w-[110px] min-w-[110px] max-w-[110px] px-2 py-2 sm:py-1 text-sm sm:text-xs font-semibold whitespace-nowrap overflow-hidden";
   const sumCellClass = "min-w-[44px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs font-bold";
 
   /** Render a score cell, respecting blind visibility */
@@ -1100,7 +1100,7 @@ function MiniScorecard({
           <thead>
             {/* Hole number row */}
             <tr className="border-b border-gray-300 bg-gray-50">
-              <th className={`${nameCellClass} bg-gray-50`}>Hole</th>
+              <th className={`${nameCellClass} bg-gray-50 !font-bold text-gray-900 text-left`}>Hole</th>
               {holes.map((h) => (
                 <th key={h} className={`${headerCellClass} text-gray-700`}>
                   {h}
@@ -1150,9 +1150,9 @@ function MiniScorecard({
                     {team1Info && (
                       <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: team1Info.teamColor }} />
                     )}
-                    <span className="truncate">{p1.name}</span>
+                    <span className="truncate text-gray-900">{p1.name}</span>
                   </div>
-                  <div className="text-[10px] text-gray-500">HCP {p1Handicap}</div>
+                  <div className="text-[10px] text-gray-400">HCP {p1Handicap}</div>
                 </div>
               </td>
               {holes.map((h, idx) =>
@@ -1164,8 +1164,8 @@ function MiniScorecard({
             </tr>
 
             {/* Player 1 strokes received row */}
-            <tr className="border-b-2 border-gray-200 bg-[#e8f5e9]/50">
-              <td className={`${nameCellClass} bg-[#e8f5e9]/50 text-[10px] text-[#003d2e]`}>
+            <tr className="border-b-2 border-gray-200 bg-[#e8f5e9]">
+              <td className={`${nameCellClass} bg-[#e8f5e9] text-[10px] text-[#003d2e]`}>
                 Strokes
               </td>
               {holes.map((h) => {
@@ -1187,9 +1187,9 @@ function MiniScorecard({
                     {team2Info && (
                       <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: team2Info.teamColor }} />
                     )}
-                    <span className="truncate">{p2.name}</span>
+                    <span className="truncate text-gray-900">{p2.name}</span>
                   </div>
-                  <div className="text-[10px] text-gray-500">HCP {p2Handicap}</div>
+                  <div className="text-[10px] text-gray-400">HCP {p2Handicap}</div>
                 </div>
               </td>
               {holes.map((h, idx) =>
@@ -1201,8 +1201,8 @@ function MiniScorecard({
             </tr>
 
             {/* Player 2 strokes received row */}
-            <tr className="border-b-2 border-gray-200 bg-[#e8f5e9]/50">
-              <td className={`${nameCellClass} bg-[#e8f5e9]/50 text-[10px] text-[#003d2e]`}>
+            <tr className="border-b-2 border-gray-200 bg-[#e8f5e9]">
+              <td className={`${nameCellClass} bg-[#e8f5e9] text-[10px] text-[#003d2e]`}>
                 Strokes
               </td>
               {holes.map((h) => {
@@ -1217,8 +1217,8 @@ function MiniScorecard({
             </tr>
 
             {/* Winner row */}
-            <tr className="bg-green-50/50">
-              <td className={`${nameCellClass} bg-green-50/50 text-[10px] text-green-700 font-semibold`}>
+            <tr className="bg-green-50">
+              <td className={`${nameCellClass} bg-green-50 text-[10px] text-green-700 font-semibold`}>
                 Winner
               </td>
               {holes.map((h, idx) => {
@@ -1551,7 +1551,7 @@ function Day3LeaderboardTab({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b-2 border-gray-200">
-                <th className="py-2 pr-2 text-left font-semibold text-gray-700">Hole</th>
+                <th className="py-2 pr-2 text-left font-bold text-gray-900">Hole</th>
                 <th className="py-2 text-center font-semibold text-gray-700">Par</th>
                 <th className="py-2 text-center font-semibold" style={{ color: team1Color }}>
                   {team1Name}
@@ -1722,8 +1722,8 @@ function Day3ScorecardTab({
     return (
       <tr className="border-b-2 border-gray-300" style={{ backgroundColor: `${teamColor}15` }}>
         <td
-          className={`sticky left-0 z-10 min-w-[90px] max-w-[120px] px-2 py-1 text-xs font-bold whitespace-nowrap`}
-          style={{ backgroundColor: `${teamColor}20`, color: teamColor }}
+          className={`sticky left-0 z-10 min-w-[90px] max-w-[120px] px-2 py-1 text-xs font-bold whitespace-nowrap bg-gray-100`}
+          style={{ color: teamColor }}
         >
           Best Ball
         </td>
@@ -1752,12 +1752,12 @@ function Day3ScorecardTab({
 
   return (
     <div className="rounded-2xl bg-white shadow-lg overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto overflow-y-auto max-h-[70vh]">
         <table className="w-max border-collapse">
           <thead className="sticky top-0 z-20">
             {/* Hole number row */}
             <tr className="border-b border-gray-300 bg-gray-50">
-              <th className={`${nameCellClass} bg-gray-50`}>Hole</th>
+              <th className={`${nameCellClass} bg-gray-50 !font-bold text-gray-900 text-left`}>Hole</th>
               {frontNine.map((h) => (
                 <th key={h} className={`${headerCellClass} bg-gray-50 text-gray-700`}>{h}</th>
               ))}
@@ -1811,8 +1811,8 @@ function Day3ScorecardTab({
             {/* Team 1 header */}
             <tr style={{ backgroundColor: `${team1Color}10` }}>
               <td
-                className="sticky left-0 z-10 px-2 py-1.5 text-xs font-bold whitespace-nowrap"
-                style={{ color: team1Color, backgroundColor: `${team1Color}10` }}
+                className="sticky left-0 z-10 px-2 py-1.5 text-xs font-bold whitespace-nowrap bg-gray-50"
+                style={{ color: team1Color }}
               >
                 <div className="flex items-center space-x-2">
                   <div className="h-3 w-3 rounded-full" style={{ backgroundColor: team1Color }} />
@@ -1870,8 +1870,8 @@ function Day3ScorecardTab({
             {/* Team 2 header */}
             <tr style={{ backgroundColor: `${team2Color}10` }}>
               <td
-                className="sticky left-0 z-10 px-2 py-1.5 text-xs font-bold whitespace-nowrap"
-                style={{ color: team2Color, backgroundColor: `${team2Color}10` }}
+                className="sticky left-0 z-10 px-2 py-1.5 text-xs font-bold whitespace-nowrap bg-gray-50"
+                style={{ color: team2Color }}
               >
                 <div className="flex items-center space-x-2">
                   <div className="h-3 w-3 rounded-full" style={{ backgroundColor: team2Color }} />
@@ -1921,8 +1921,8 @@ function Day3ScorecardTab({
             {renderBestBallRow(team2, team2BestBall, team2Name, team2Color)}
 
             {/* Winner row */}
-            <tr className="bg-green-50/50">
-              <td className={`sticky left-0 z-10 bg-green-50/50 min-w-[90px] max-w-[120px] px-2 py-1 text-[10px] text-green-700 font-semibold whitespace-nowrap`}>
+            <tr className="bg-green-50">
+              <td className={`sticky left-0 z-10 bg-green-50 min-w-[90px] max-w-[120px] px-2 py-1 text-[10px] text-green-700 font-semibold whitespace-nowrap`}>
                 Winner
               </td>
               {frontNine.map((h) => {
@@ -2025,6 +2025,7 @@ function LeaderboardTab({
           playerId: player.id,
           playerName: player.name,
           teamName: (rp as any).team?.name || "",
+          teamColor: (rp as any).team?.color || "",
           teamId: rp.teamId,
           handicap,
           lastHole,
@@ -2144,7 +2145,6 @@ function LeaderboardTab({
               <tr className="border-b-2 border-gray-200">
                 <th className="py-2 pr-2 text-left font-semibold text-gray-700">#</th>
                 <th className="py-2 pr-2 text-left font-semibold text-gray-700">Player</th>
-                <th className="py-2 pr-2 text-left font-semibold text-gray-700">Team</th>
                 <th className="py-2 text-center font-semibold text-gray-700">HCP</th>
                 <th className="py-2 text-center font-semibold text-gray-700">Hole</th>
                 <th className="py-2 text-center font-semibold text-gray-700">Gross</th>
@@ -2157,9 +2157,11 @@ function LeaderboardTab({
                 <tr key={s.playerId} className="border-b border-gray-100">
                   <td className="py-3 pr-2 font-bold text-gray-900">{s.rank}</td>
                   <td className="py-3 pr-2 font-semibold text-gray-900 whitespace-nowrap">
-                    {s.playerName}
+                    <span className="flex items-center gap-1.5">
+                      {s.teamColor && <span className="inline-block h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: s.teamColor }} />}
+                      <span>{s.playerName}</span>
+                    </span>
                   </td>
-                  <td className="py-3 pr-2 text-gray-600 whitespace-nowrap">{s.teamName}</td>
                   <td className="py-3 text-center text-gray-600">{s.handicap}</td>
                   <td className="py-3 text-center text-gray-600">
                     {s.lastHole > 0 ? s.lastHole : "-"}
@@ -2246,7 +2248,7 @@ function ScorecardTab({
           <thead>
             {/* Hole number row */}
             <tr className="border-b border-gray-300 bg-gray-50">
-              <th className={`${nameCellClass} bg-gray-50`}>Hole</th>
+              <th className={`${nameCellClass} bg-gray-50 !font-bold text-gray-900 text-left`}>Hole</th>
               {frontNine.map((h) => (
                 <th key={h} className={`${headerCellClass} text-gray-700`}>
                   {h}
@@ -2415,8 +2417,8 @@ function PlayerScorecardRows({
       <tr className="border-b border-gray-100">
         <td className={`${nameCellClass} truncate`}>
           <div className="leading-tight">
-            <div className="truncate">{player.name}</div>
-            <div className="text-[10px] text-gray-500">HCP {handicap}</div>
+            <div className="truncate text-gray-900 font-semibold">{player.name}</div>
+            <div className="text-[10px] text-gray-400">HCP {handicap}</div>
           </div>
         </td>
         {frontNine.map((h) => {
@@ -2483,8 +2485,8 @@ function PlayerScorecardRows({
       </tr>
 
       {/* Strokes received row */}
-      <tr className="border-b-2 border-gray-200 bg-[#e8f5e9]/50">
-        <td className={`${nameCellClass} bg-[#e8f5e9]/50 text-[10px] text-[#003d2e]`}>
+      <tr className="border-b-2 border-gray-200 bg-[#e8f5e9]">
+        <td className={`${nameCellClass} bg-[#e8f5e9] text-[10px] text-[#003d2e]`}>
           Strokes
         </td>
         {frontNine.map((h) => {
