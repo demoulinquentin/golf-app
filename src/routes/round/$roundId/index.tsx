@@ -788,9 +788,9 @@ function MatchplayLeaderboardTab({
                       {team1Info && (
                         <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: team1Info.teamColor }} />
                       )}
-                      <span className="font-medium truncate">{player1Name}</span>
+                      <span className="font-semibold text-gray-900 truncate">{player1Name}</span>
                       <span className="text-gray-400 text-xs flex-shrink-0">vs</span>
-                      <span className="font-medium truncate">{player2Name}</span>
+                      <span className="font-semibold text-gray-900 truncate">{player2Name}</span>
                       {team2Info && (
                         <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: team2Info.teamColor }} />
                       )}
@@ -997,7 +997,7 @@ function MiniScorecard({
   const cellClass = "min-w-[40px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs";
   const headerCellClass = "min-w-[40px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs font-semibold";
   const nameCellClass =
-    "sticky left-0 z-10 bg-white w-[110px] min-w-[110px] max-w-[110px] px-2 py-2 sm:py-1 text-sm sm:text-xs font-semibold whitespace-nowrap overflow-hidden";
+    "sticky left-0 z-10 bg-white w-[85px] min-w-[85px] max-w-[85px] px-2 py-2 sm:py-1 text-sm sm:text-xs font-semibold whitespace-nowrap overflow-hidden";
   const sumCellClass = "min-w-[44px] px-1 py-2 sm:py-1 text-center text-sm sm:text-xs font-bold";
 
   /** Render a score cell, respecting blind visibility */
@@ -1249,17 +1249,55 @@ function MiniScorecard({
                 );
               })}
               <td className={`${sumCellClass} bg-gray-100`}>
-                {matchSummary.bothComplete ? (
-                  matchSummary.p1Stats.netScore < matchSummary.p2Stats.netScore ? (
-                    <span className="text-xs font-bold text-green-700">{p1.name.split(" ")[0]}</span>
-                  ) : matchSummary.p2Stats.netScore < matchSummary.p1Stats.netScore ? (
-                    <span className="text-xs font-bold text-green-700">{p2.name.split(" ")[0]}</span>
-                  ) : (
-                    <span className="text-xs font-bold text-amber-600">Tie</span>
-                  )
-                ) : (
-                  <span className="text-gray-400">-</span>
-                )}
+                {(() => {
+                  const p1Wins = holeWinners.filter((w) => w === "p1").length;
+                  const p2Wins = holeWinners.filter((w) => w === "p2").length;
+                  const holesCompared = holeWinners.filter((w) => w !== null).length;
+                  const holesRemaining = holes.length - holesCompared;
+
+                  if (holesCompared === 0) {
+                    return <span className="text-gray-400">-</span>;
+                  }
+
+                  if (p1Wins === p2Wins) {
+                    return holesRemaining === 0
+                      ? <span className="text-xs font-bold text-amber-600">Tie</span>
+                      : <span className="text-xs font-bold text-amber-600">AS</span>;
+                  }
+
+                  const leaderId = p1Wins > p2Wins ? "p1" : "p2";
+                  const leaderName = (leaderId === "p1" ? p1.name : p2.name).split(" ")[0];
+                  const margin = Math.abs(p1Wins - p2Wins);
+                  const isComplete = holesRemaining === 0 || margin > holesRemaining;
+
+                  if (!isComplete) {
+                    return <span className="text-xs font-bold text-green-700">{leaderName} {margin} UP</span>;
+                  }
+
+                  // Find clinch hole
+                  let running = 0;
+                  let clinchHole = -1;
+                  for (let i = 0; i < holes.length; i++) {
+                    const w = holeWinners[i];
+                    if (w === "p1") running++;
+                    else if (w === "p2") running--;
+                    else if (w === null) continue;
+
+                    const holesLeft = holes.length - (i + 1);
+                    if (Math.abs(running) > holesLeft) {
+                      clinchHole = i;
+                      break;
+                    }
+                  }
+
+                  if (clinchHole >= 0 && clinchHole < holes.length - 1) {
+                    const marginAtClinch = Math.abs(running);
+                    const remainingAtClinch = holes.length - (clinchHole + 1);
+                    return <span className="text-xs font-bold text-green-700">{leaderName} {marginAtClinch}&amp;{remainingAtClinch}</span>;
+                  }
+
+                  return <span className="text-xs font-bold text-green-700">{leaderName} 1 UP</span>;
+                })()}
               </td>
             </tr>
           </tbody>
@@ -1355,6 +1393,8 @@ function Day3LeaderboardTab({
     let holesPlayed = 0;
     let team1CumulativeNet = 0;
     let team2CumulativeNet = 0;
+    let team1CumulativePar = 0;
+    let team2CumulativePar = 0;
     let team1HasScores = false;
     let team2HasScores = false;
 
@@ -1366,10 +1406,12 @@ function Day3LeaderboardTab({
       }
       if (hr.team1BestNet !== null) {
         team1CumulativeNet += hr.team1BestNet;
+        team1CumulativePar += hr.par;
         team1HasScores = true;
       }
       if (hr.team2BestNet !== null) {
         team2CumulativeNet += hr.team2BestNet;
+        team2CumulativePar += hr.par;
         team2HasScores = true;
       }
     }
@@ -1441,6 +1483,8 @@ function Day3LeaderboardTab({
       team2Total: team2MatchPts + team2ScorePts,
       team1CumulativeNet,
       team2CumulativeNet,
+      team1CumulativePar,
+      team2CumulativePar,
       team1HasScores,
       team2HasScores,
     };
@@ -1468,12 +1512,12 @@ function Day3LeaderboardTab({
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Holes won</span>
-                <span className="font-bold">{stats.team1HolesWon}</span>
+                <span className="text-gray-900 font-bold">{stats.team1HolesWon}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Best ball net</span>
                 <span className="font-bold text-[#003d2e]">
-                  {stats.team1HasScores ? formatNet(stats.team1CumulativeNet) : "-"}
+                  {stats.team1HasScores ? formatNet(stats.team1CumulativeNet - stats.team1CumulativePar) : "-"}
                 </span>
               </div>
             </div>
@@ -1488,12 +1532,12 @@ function Day3LeaderboardTab({
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Holes won</span>
-                <span className="font-bold">{stats.team2HolesWon}</span>
+                <span className="text-gray-900 font-bold">{stats.team2HolesWon}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Best ball net</span>
                 <span className="font-bold text-[#003d2e]">
-                  {stats.team2HasScores ? formatNet(stats.team2CumulativeNet) : "-"}
+                  {stats.team2HasScores ? formatNet(stats.team2CumulativeNet - stats.team2CumulativePar) : "-"}
                 </span>
               </div>
             </div>
@@ -1520,13 +1564,13 @@ function Day3LeaderboardTab({
             <tbody>
               <tr className="border-b border-gray-100">
                 <td className="py-3 pr-4 text-gray-700">Matchplay (6 pts)</td>
-                <td className="py-3 text-center font-bold">{stats.team1MatchPts}</td>
-                <td className="py-3 text-center font-bold">{stats.team2MatchPts}</td>
+                <td className="py-3 text-center text-gray-900 font-bold">{stats.team1MatchPts}</td>
+                <td className="py-3 text-center text-gray-900 font-bold">{stats.team2MatchPts}</td>
               </tr>
               <tr className="border-b border-gray-100">
                 <td className="py-3 pr-4 text-gray-700">Score bonus (3 pts)</td>
-                <td className="py-3 text-center font-bold">{stats.team1ScorePts}</td>
-                <td className="py-3 text-center font-bold">{stats.team2ScorePts}</td>
+                <td className="py-3 text-center text-gray-900 font-bold">{stats.team1ScorePts}</td>
+                <td className="py-3 text-center text-gray-900 font-bold">{stats.team2ScorePts}</td>
               </tr>
               <tr className="border-b-2 border-gray-300 bg-gray-50">
                 <td className="py-3 pr-4 font-bold text-gray-900">Total</td>
