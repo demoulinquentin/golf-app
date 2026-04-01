@@ -1071,20 +1071,20 @@ function MiniScorecard({
   return (
     <div className="rounded-2xl bg-white shadow-lg overflow-hidden">
       {/* Match header */}
-      <div className="grid grid-cols-[1fr_3rem] items-center border-b border-gray-200 bg-gray-50 px-3 py-2 sm:px-4 sm:py-3">
+      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-3 py-2 sm:px-4 sm:py-3">
         <div className="flex items-center space-x-2">
           {team1Info && (
-            <div className="h-3 w-3 rounded-full flex-shrink-0" style={{ backgroundColor: team1Info.teamColor }} />
+            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: team1Info.teamColor }} />
           )}
           <span className="text-sm font-bold text-gray-900">{p1.name}</span>
           <span className="text-xs text-gray-400">vs</span>
           <span className="text-sm font-bold text-gray-900">{p2.name}</span>
           {team2Info && (
-            <div className="h-3 w-3 rounded-full flex-shrink-0" style={{ backgroundColor: team2Info.teamColor }} />
+            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: team2Info.teamColor }} />
           )}
         </div>
         <span
-          className={`text-center rounded-full px-1 py-0.5 text-[10px] font-semibold ${
+          className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
             isBlind ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"
           }`}
         >
