@@ -250,7 +250,6 @@ function TournamentLeaderboardPage() {
                     <tr className="border-b-2 border-gray-200 text-xs text-gray-500">
                       <th className="px-1 py-2 sm:py-3 text-left font-medium sticky left-0 z-10 bg-white">#</th>
                       <th className="px-1 py-2 sm:py-3 text-left font-medium sticky left-7 z-10 bg-white">Player</th>
-                      <th className="px-1 py-2 sm:py-3 text-left font-medium">Team</th>
                       <th className="px-1 py-2 sm:py-3 text-center font-medium">HCP</th>
                       {rounds.map((r: any) => (
                         <th key={r.roundId} className="px-1 py-2 sm:py-3 text-center font-medium" colSpan={3}>
@@ -262,7 +261,6 @@ function TournamentLeaderboardPage() {
                     <tr className="border-b border-gray-100 text-xs text-gray-400">
                       <th className="sticky left-0 z-10 bg-white"></th>
                       <th className="sticky left-7 z-10 bg-white"></th>
-                      <th></th>
                       <th></th>
                       {rounds.map((r: any) => (
                         <React.Fragment key={r.roundId}>
@@ -294,14 +292,11 @@ function TournamentLeaderboardPage() {
                             {entry.position}
                           </span>
                         </td>
-                        <td className="px-1 py-2 sm:py-3 font-medium text-gray-900 sticky left-7 z-10 bg-white">{entry.player.name}</td>
-                        <td className="px-1 py-2 sm:py-3">
-                          {entry.teamColor && (
-                            <span className="flex items-center gap-1.5">
-                              <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: entry.teamColor }} />
-                              <span className="text-gray-600">{entry.teamName}</span>
-                            </span>
-                          )}
+                        <td className="px-1 py-2 sm:py-3 font-medium text-gray-900 sticky left-7 z-10 bg-white">
+                          <span className="flex items-center gap-1.5">
+                            {entry.teamColor && <span className="inline-block h-3 w-3 rounded-full flex-shrink-0" style={{ backgroundColor: entry.teamColor }} />}
+                            <span>{entry.player.name}</span>
+                          </span>
                         </td>
                         <td className="px-1 py-2 sm:py-3 text-center text-gray-600">{entry.player.handicap}</td>
                         {rounds.map((r: any) => {

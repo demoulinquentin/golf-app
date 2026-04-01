@@ -534,7 +534,7 @@ function MatchplayLeaderboardTab({
     3: [13, 14, 15, 16, 17, 18],
   };
 
-  // Calculate match results
+  // Calculate match results with hole-by-hole matchplay
   const matchResults = useMemo(() => {
     return day2Config.matches.map((match) => {
       const holes = segmentHoles[match.segmentNumber] || [];
@@ -550,6 +550,7 @@ function MatchplayLeaderboardTab({
           player2Net: null,
           status: "not-started" as const,
           result: null,
+          statusText: "Not started",
         };
       }
 
@@ -579,11 +580,77 @@ function MatchplayLeaderboardTab({
       // For blind matches, hide net scores until both players have entered all holes
       const showScores = !isBlind || bothComplete;
 
+      // Hole-by-hole matchplay calculation
+      let p1HolesWon = 0;
+      let p2HolesWon = 0;
+      let holesCompared = 0;
+      let clinchHole: number | null = null;
+      let clinchMargin = 0;
+      let clinchRemaining = 0;
+
+      for (let i = 0; i < holes.length; i++) {
+        const h = holes[i]!;
+        const p1Score = getPlayerScore(p1.id, h);
+        const p2Score = getPlayerScore(p2.id, h);
+        if (p1Score === undefined || p2Score === undefined) continue;
+
+        const hd = getHoleData(h);
+        const p1Sr = getStrokesReceivedForHole(h, p1.handicap || 0);
+        const p2Sr = getStrokesReceivedForHole(h, p2.handicap || 0);
+        const p1Net = p1Score - p1Sr;
+        const p2Net = p2Score - p2Sr;
+
+        holesCompared++;
+        if (p1Net < p2Net) p1HolesWon++;
+        else if (p2Net < p1Net) p2HolesWon++;
+
+        // Check if match is clinched
+        const margin = Math.abs(p1HolesWon - p2HolesWon);
+        const holesLeft = holes.length - holesCompared;
+        if (clinchHole === null && margin > holesLeft) {
+          clinchHole = holesCompared;
+          clinchMargin = margin;
+          clinchRemaining = holesLeft;
+        }
+      }
+
+      // Build status text
+      let statusText = "Not started";
+      if (!eitherStarted) {
+        statusText = "Not started";
+      } else if (isBlind && !bothComplete) {
+        // For blind matches, don't reveal who's ahead
+        statusText = "In progress";
+      } else if (bothComplete || (holesCompared === holes.length)) {
+        // Match complete
+        const margin = Math.abs(p1HolesWon - p2HolesWon);
+        if (margin === 0) {
+          statusText = "Tie";
+        } else {
+          const winnerName = p1HolesWon > p2HolesWon ? p1.name : p2.name;
+          if (clinchHole !== null && clinchRemaining > 0) {
+            statusText = `${winnerName} wins ${clinchMargin}&${clinchRemaining}`;
+          } else {
+            statusText = `${winnerName} wins 1 UP`;
+          }
+        }
+      } else {
+        // In progress
+        const margin = Math.abs(p1HolesWon - p2HolesWon);
+        const holesLeft = holes.length - holesCompared;
+        if (margin === 0) {
+          statusText = `All Square (${holesLeft} left)`;
+        } else {
+          const leaderName = p1HolesWon > p2HolesWon ? p1.name : p2.name;
+          statusText = `${leaderName} ${margin} UP (${holesLeft} left)`;
+        }
+      }
+
       let result: { player1Points: number; player2Points: number } | null = null;
       if (bothComplete) {
-        if (p1Stats.netScore < p2Stats.netScore) {
+        if (p1HolesWon > p2HolesWon) {
           result = { player1Points: 1, player2Points: 0 };
-        } else if (p2Stats.netScore < p1Stats.netScore) {
+        } else if (p2HolesWon > p1HolesWon) {
           result = { player1Points: 0, player2Points: 1 };
         } else {
           result = { player1Points: 0.5, player2Points: 0.5 };
@@ -598,6 +665,7 @@ function MatchplayLeaderboardTab({
         player2Net: showScores ? p2Stats.netScore : null,
         status,
         result,
+        statusText,
       };
     });
   }, [round, day2Config, getPlayerScore, getHoleData, getStrokesReceivedForHole]);
@@ -655,12 +723,6 @@ function MatchplayLeaderboardTab({
     return grouped;
   }, [matchResults]);
 
-  const formatNetScore = (net: number | null): string => {
-    if (net === null) return "?";
-    if (net === 0) return "E";
-    return net > 0 ? `+${net}` : `${net}`;
-  };
-
   return (
     <div className="space-y-6">
       {/* Team Standings */}
@@ -709,21 +771,32 @@ function MatchplayLeaderboardTab({
         const segMatches = matchesBySegment[seg] || [];
         const holeRange = segmentHoles[seg] || [];
         return (
-          <div key={seg} className="rounded-2xl bg-white p-4 shadow-lg sm:p-6">
-            <h2 className="mb-4 text-lg font-bold text-gray-900">
+          <div key={seg} className="rounded-2xl bg-white shadow-lg sm:p-2 overflow-hidden">
+            <h2 className="px-3 pt-4 pb-2 text-lg font-bold text-gray-900 sm:px-4">
               Segment {seg} — Holes {holeRange[0]}-{holeRange[holeRange.length - 1]}
             </h2>
-            <div className="space-y-3">
+            <div className="divide-y divide-gray-100">
               {segMatches.map((mr, idx) => {
                 const team1Info = mr.player1 ? getTeamForPlayerIndex(round, mr.match.player1Index) : null;
                 const team2Info = mr.player2 ? getTeamForPlayerIndex(round, mr.match.player2Index) : null;
+                const player1Name = mr.player1?.player.name || "TBD";
+                const player2Name = mr.player2?.player.name || "TBD";
 
                 return (
-                  <div
-                    key={mr.match.id || idx}
-                    className="rounded-xl border border-gray-200 p-3"
-                  >
-                    <div className="mb-2 flex items-center justify-between">
+                  <div key={mr.match.id || idx} className="flex items-center justify-between px-3 py-2.5 sm:px-4">
+                    <div className="flex items-center gap-2 text-sm min-w-0">
+                      {team1Info && (
+                        <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: team1Info.teamColor }} />
+                      )}
+                      <span className="font-medium truncate">{player1Name}</span>
+                      <span className="text-gray-400 text-xs flex-shrink-0">vs</span>
+                      <span className="font-medium truncate">{player2Name}</span>
+                      {team2Info && (
+                        <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: team2Info.teamColor }} />
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                      <span className="text-sm font-semibold text-gray-900">{mr.statusText}</span>
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                           mr.match.type === "blind"
@@ -733,75 +806,7 @@ function MatchplayLeaderboardTab({
                       >
                         {mr.match.type === "blind" ? "Blind" : "Live"}
                       </span>
-                      <span
-                        className={`text-xs font-semibold ${
-                          mr.status === "complete"
-                            ? "text-green-600"
-                            : mr.status === "in-progress"
-                            ? "text-amber-600"
-                            : "text-gray-400"
-                        }`}
-                      >
-                        {mr.status === "complete"
-                          ? "Complete"
-                          : mr.status === "in-progress"
-                          ? "In progress"
-                          : "Not started"}
-                      </span>
                     </div>
-
-                    <div className="flex items-center justify-between">
-                      {/* Player 1 */}
-                      <div className="flex items-center space-x-2">
-                        {team1Info && (
-                          <div
-                            className="h-3 w-3 rounded-full"
-                            style={{ backgroundColor: team1Info.teamColor }}
-                          />
-                        )}
-                        <span className="text-sm font-semibold text-gray-900">
-                          {mr.player1?.player.name || "TBD"}
-                        </span>
-                        <span className="text-sm font-bold text-[#003d2e]">
-                          {formatNetScore(mr.player1Net)}
-                        </span>
-                      </div>
-
-                      <span className="px-2 text-xs font-medium text-gray-400">vs</span>
-
-                      {/* Player 2 */}
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-bold text-[#003d2e]">
-                          {formatNetScore(mr.player2Net)}
-                        </span>
-                        <span className="text-sm font-semibold text-gray-900">
-                          {mr.player2?.player.name || "TBD"}
-                        </span>
-                        {team2Info && (
-                          <div
-                            className="h-3 w-3 rounded-full"
-                            style={{ backgroundColor: team2Info.teamColor }}
-                          />
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Result */}
-                    {mr.result && (
-                      <div className="mt-2 text-center text-xs font-semibold">
-                        {mr.result.player1Points === 1 ? (
-                          <span className="text-green-600">
-                            {mr.player1?.player.name} wins (1 pt)
-                          </span>
-                        ) : mr.result.player2Points === 1 ? (
-                          <span className="text-green-600">
-                            {mr.player2?.player.name} wins (1 pt)
-                          </span>
-                        ) : (
-                          <span className="text-amber-600">Tie (0.5 pts each)</span>
-                        )}
-                      </div>
-                    )}
                   </div>
                 );
               })}
@@ -1749,35 +1754,33 @@ function Day3ScorecardTab({
     <div className="rounded-2xl bg-white shadow-lg overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-max border-collapse">
-          <thead>
+          <thead className="sticky top-0 z-20">
             {/* Hole number row */}
             <tr className="border-b border-gray-300 bg-gray-50">
               <th className={`${nameCellClass} bg-gray-50`}>Hole</th>
               {frontNine.map((h) => (
-                <th key={h} className={`${headerCellClass} text-gray-700`}>{h}</th>
+                <th key={h} className={`${headerCellClass} bg-gray-50 text-gray-700`}>{h}</th>
               ))}
               <th className={`${headerCellClass} bg-green-50 text-green-800`}>OUT</th>
               {backNine.map((h) => (
-                <th key={h} className={`${headerCellClass} text-gray-700`}>{h}</th>
+                <th key={h} className={`${headerCellClass} bg-gray-50 text-gray-700`}>{h}</th>
               ))}
               <th className={`${headerCellClass} bg-blue-50 text-blue-800`}>IN</th>
               <th className={`${headerCellClass} bg-gray-100 text-gray-900`}>TOT</th>
             </tr>
-          </thead>
-          <tbody>
             {/* Par row */}
             <tr className="border-b border-gray-200 bg-gray-50">
               <td className={`${nameCellClass} bg-gray-50 text-gray-600`}>Par</td>
               {frontNine.map((h) => {
                 const hd = getHoleData(h);
-                return <td key={h} className={`${cellClass} text-gray-600`}>{hd?.par ?? "-"}</td>;
+                return <td key={h} className={`${cellClass} bg-gray-50 text-gray-600`}>{hd?.par ?? "-"}</td>;
               })}
               <td className={`${sumCellClass} bg-green-50 text-green-800`}>
                 {holeDataArray.length > 0 ? frontNine.reduce((sum, h) => sum + (getHoleData(h)?.par ?? 0), 0) : "-"}
               </td>
               {backNine.map((h) => {
                 const hd = getHoleData(h);
-                return <td key={h} className={`${cellClass} text-gray-600`}>{hd?.par ?? "-"}</td>;
+                return <td key={h} className={`${cellClass} bg-gray-50 text-gray-600`}>{hd?.par ?? "-"}</td>;
               })}
               <td className={`${sumCellClass} bg-blue-50 text-blue-800`}>
                 {holeDataArray.length > 0 ? backNine.reduce((sum, h) => sum + (getHoleData(h)?.par ?? 0), 0) : "-"}
@@ -1792,30 +1795,31 @@ function Day3ScorecardTab({
               <td className={`${nameCellClass} bg-gray-50 text-gray-500`}>SI</td>
               {frontNine.map((h) => {
                 const hd = getHoleData(h);
-                return <td key={h} className={`${cellClass} text-gray-500`}>{hd?.strokeIndex ?? "-"}</td>;
+                return <td key={h} className={`${cellClass} bg-gray-50 text-gray-500`}>{hd?.strokeIndex ?? "-"}</td>;
               })}
               <td className={`${sumCellClass} bg-green-50`} />
               {backNine.map((h) => {
                 const hd = getHoleData(h);
-                return <td key={h} className={`${cellClass} text-gray-500`}>{hd?.strokeIndex ?? "-"}</td>;
+                return <td key={h} className={`${cellClass} bg-gray-50 text-gray-500`}>{hd?.strokeIndex ?? "-"}</td>;
               })}
               <td className={`${sumCellClass} bg-blue-50`} />
               <td className={`${sumCellClass} bg-gray-100`} />
             </tr>
-
+          </thead>
+          <tbody>
             {/* ── Team 1 Section ── */}
             {/* Team 1 header */}
             <tr style={{ backgroundColor: `${team1Color}10` }}>
               <td
-                colSpan={22}
-                className="px-2 py-1.5 text-xs font-bold"
-                style={{ color: team1Color }}
+                className="sticky left-0 z-10 px-2 py-1.5 text-xs font-bold whitespace-nowrap"
+                style={{ color: team1Color, backgroundColor: `${team1Color}10` }}
               >
                 <div className="flex items-center space-x-2">
                   <div className="h-3 w-3 rounded-full" style={{ backgroundColor: team1Color }} />
                   <span>{team1Name}</span>
                 </div>
               </td>
+              <td colSpan={21} style={{ backgroundColor: `${team1Color}10` }} />
             </tr>
 
             {/* Team 1 player rows */}
@@ -1866,15 +1870,15 @@ function Day3ScorecardTab({
             {/* Team 2 header */}
             <tr style={{ backgroundColor: `${team2Color}10` }}>
               <td
-                colSpan={22}
-                className="px-2 py-1.5 text-xs font-bold"
-                style={{ color: team2Color }}
+                className="sticky left-0 z-10 px-2 py-1.5 text-xs font-bold whitespace-nowrap"
+                style={{ color: team2Color, backgroundColor: `${team2Color}10` }}
               >
                 <div className="flex items-center space-x-2">
                   <div className="h-3 w-3 rounded-full" style={{ backgroundColor: team2Color }} />
                   <span>{team2Name}</span>
                 </div>
               </td>
+              <td colSpan={21} style={{ backgroundColor: `${team2Color}10` }} />
             </tr>
 
             {/* Team 2 player rows */}
