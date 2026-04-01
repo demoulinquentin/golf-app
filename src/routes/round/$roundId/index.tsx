@@ -783,8 +783,8 @@ function MatchplayLeaderboardTab({
                 const player2Name = mr.player2?.player.name || "TBD";
 
                 return (
-                  <div key={mr.match.id || idx} className="flex items-center justify-between px-3 py-2.5 sm:px-4">
-                    <div className="flex items-center gap-2 text-sm min-w-0">
+                  <div key={mr.match.id || idx} className="grid grid-cols-[1fr_auto_3rem] items-center gap-2 px-3 py-2.5 sm:px-4">
+                    <div className="flex items-center gap-1.5 text-sm min-w-0">
                       {team1Info && (
                         <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: team1Info.teamColor }} />
                       )}
@@ -795,18 +795,16 @@ function MatchplayLeaderboardTab({
                         <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: team2Info.teamColor }} />
                       )}
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                      <span className="text-sm font-semibold text-gray-900">{mr.statusText}</span>
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                          mr.match.type === "blind"
-                            ? "bg-amber-100 text-amber-700"
-                            : "bg-blue-100 text-blue-700"
-                        }`}
-                      >
-                        {mr.match.type === "blind" ? "Blind" : "Live"}
-                      </span>
-                    </div>
+                    <span className="text-xs font-semibold text-gray-900 text-right whitespace-nowrap">{mr.statusText}</span>
+                    <span
+                      className={`text-center rounded-full px-1 py-0.5 text-[10px] font-semibold ${
+                        mr.match.type === "blind"
+                          ? "bg-amber-100 text-amber-700"
+                          : "bg-blue-100 text-blue-700"
+                      }`}
+                    >
+                      {mr.match.type === "blind" ? "Blind" : "Live"}
+                    </span>
                   </div>
                 );
               })}
