@@ -61,15 +61,18 @@ function JoinTournamentByCodePage() {
       return;
     }
 
+    // Check if this player is the tournament admin
+    const isAdmin = tournamentData.tournament.adminPlayerName === player.name;
+
     // Store player identity locally
     setPlayerIdentity(
       tournamentData.tournament.id,
       selectedPlayerId,
       player.name,
-      false // Not admin
+      isAdmin
     );
 
-    toast.success(`Welcome, ${player.name}!`);
+    toast.success(isAdmin ? `Welcome, ${player.name}! You are the tournament admin.` : `Welcome, ${player.name}!`);
     void navigate({
       to: "/tournament/$tournamentId/leaderboard",
       params: { tournamentId: String(tournamentData.tournament.id) },

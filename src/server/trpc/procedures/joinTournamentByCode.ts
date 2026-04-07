@@ -80,6 +80,7 @@ export const joinTournamentByCode = baseProcedure
         description: tournament.description,
         status: tournament.status,
         creatorId: tournament.creatorId,
+        adminPlayerName: tournament.adminPlayerName,
       },
       players,
       selectedPlayerId: input.playerId,

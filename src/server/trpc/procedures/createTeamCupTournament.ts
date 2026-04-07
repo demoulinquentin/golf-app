@@ -44,6 +44,7 @@ const teamCupInputSchema = z.object({
       ]),
     }),
   ]),
+  adminPlayerIndex: z.number().int().min(0).max(5).optional(),
   day1: z.object({
     courseName: z.string(),
     courseJson: z.string().optional(),
@@ -121,6 +122,15 @@ export const createTeamCupTournament = baseProcedure
     // Generate join code
     const joinCode = await generateUniqueJoinCode(db);
 
+    // Resolve admin player name from index
+    const allPlayerNames = [
+      ...input.teams[0].players.map((p) => p.name),
+      ...input.teams[1].players.map((p) => p.name),
+    ];
+    const adminPlayerName = input.adminPlayerIndex !== undefined
+      ? allPlayerNames[input.adminPlayerIndex] || null
+      : null;
+
     // Create tournament
     const tournament = await db.tournament.create({
       data: {
@@ -131,6 +141,7 @@ export const createTeamCupTournament = baseProcedure
         creatorId: userId,
         status: "setup",
         joinCode: joinCode,
+        adminPlayerName: adminPlayerName,
       },
     });
 

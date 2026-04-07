@@ -32,7 +32,8 @@ model Tournament {
   endDate     DateTime?
   shareableLink String? @unique @default(uuid()) // For backward compatibility
   joinCode    String?  @unique // Short code for easy joining (e.g., "GOLF123")
-  
+  adminPlayerName String? // Name of the player designated as tournament admin
+
   creatorId   Int
   creator     User     @relation(fields: [creatorId], references: [id])
   

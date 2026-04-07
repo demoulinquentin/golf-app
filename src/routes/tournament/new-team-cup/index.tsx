@@ -37,6 +37,7 @@ type TeamCupFormData = {
       ];
     }
   ];
+  adminPlayerIndex: number;
   day1: {
     courseName: string;
     courseJson?: string;
@@ -102,6 +103,7 @@ function NewTeamCupPage() {
           ],
         },
       ],
+      adminPlayerIndex: 0,
       day1: {
         courseName: "",
         courseJson: undefined,
@@ -404,6 +406,27 @@ function NewTeamCupPage() {
                       </div>
                     </div>
                   ))}
+                </div>
+
+                {/* Tournament Admin */}
+                <div className="rounded-lg border-2 border-gray-200 p-6">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Shield className="h-5 w-5 text-[#003d2e]" />
+                    <h3 className="text-lg font-semibold text-gray-900">Tournament Admin</h3>
+                  </div>
+                  <p className="mb-3 text-sm text-gray-600">
+                    This player will have admin access to manage the tournament settings.
+                  </p>
+                  <select
+                    {...register("adminPlayerIndex", { valueAsNumber: true })}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#003d2e] focus:outline-none focus:ring-2 focus:ring-[#003d2e]/20"
+                  >
+                    {getAllPlayers().map((p) => (
+                      <option key={p.playerIndex} value={p.playerIndex}>
+                        {p.name || `Player ${p.playerIndex + 1}`}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="flex justify-between">

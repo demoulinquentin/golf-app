@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTRPC } from "~/trpc/react";
 import { useQuery } from "@tanstack/react-query";
-import { Trophy, Users, Target, Calendar, Info, Copy, Check, KeyRound } from "lucide-react";
+import { Trophy, Users, Target, Calendar, Info, Copy, Check, KeyRound, Settings } from "lucide-react";
 import { z } from "zod";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { useTournamentAccessStore } from "~/stores/tournamentAccessStore";
@@ -111,6 +111,18 @@ function TournamentLeaderboardPage() {
                   ? "In Progress"
                   : "Not Started"}
               </span>
+              {isAdmin && (
+                <>
+                  <span>•</span>
+                  <button
+                    className="flex items-center space-x-1 rounded-full bg-[#003d2e] px-3 py-1 text-xs font-semibold text-[#fff8e7] hover:bg-[#00261c]"
+                    onClick={() => {/* Settings — to be implemented */}}
+                  >
+                    <Settings className="h-3.5 w-3.5" />
+                    <span>Settings</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
