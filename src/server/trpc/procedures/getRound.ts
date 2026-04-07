@@ -12,6 +12,7 @@ export const getRound = baseProcedure
         players: {
           include: {
             player: true,
+            team: true,
           },
           orderBy: { position: "asc" },
         },

@@ -29,6 +29,17 @@ export const enterScore = baseProcedure
       });
     }
 
+    // Check if the round is completed — only admin can edit completed rounds
+    const roundCheck = await db.round.findUnique({
+      where: { id: input.roundId },
+    });
+    if (roundCheck?.status === "completed" && !input.isAdmin) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "This round is completed. Only the admin can edit scores.",
+      });
+    }
+
     // Check if this is the first score for the round
     const existingScores = await db.score.count({
       where: { roundId: input.roundId },

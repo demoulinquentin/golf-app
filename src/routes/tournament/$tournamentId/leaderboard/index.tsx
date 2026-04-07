@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTRPC } from "~/trpc/react";
 import { useQuery } from "@tanstack/react-query";
-import { Trophy, Users, Target, Calendar, Info, Copy, Check, KeyRound, Settings } from "lucide-react";
+import { Trophy, Users, Target, Calendar, Info, Copy, Check, KeyRound, Settings, ArrowLeft } from "lucide-react";
 import { z } from "zod";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { useTournamentAccessStore } from "~/stores/tournamentAccessStore";
@@ -85,6 +85,25 @@ function TournamentLeaderboardPage() {
       {/* Header */}
       <div className="border-b border-[#003d2e]/10 bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Top bar with home and settings */}
+          <div className="flex items-center justify-between pt-4">
+            <Link
+              to="/"
+              className="inline-flex items-center space-x-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span>Home</span>
+            </Link>
+            {isAdmin && (
+              <Link
+                to="/tournament/$tournamentId/settings"
+                params={{ tournamentId }}
+                className="inline-flex items-center space-x-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+              >
+                <Settings className="h-5 w-5" />
+              </Link>
+            )}
+          </div>
           <div className="py-8 text-center">
             <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#003d2e] text-[#ffd700]">
               <Trophy className="h-8 w-8" />
@@ -111,18 +130,6 @@ function TournamentLeaderboardPage() {
                   ? "In Progress"
                   : "Not Started"}
               </span>
-              {isAdmin && (
-                <>
-                  <span>•</span>
-                  <button
-                    className="flex items-center space-x-1 rounded-full bg-[#003d2e] px-3 py-1 text-xs font-semibold text-[#fff8e7] hover:bg-[#00261c]"
-                    onClick={() => {/* Settings — to be implemented */}}
-                  >
-                    <Settings className="h-3.5 w-3.5" />
-                    <span>Settings</span>
-                  </button>
-                </>
-              )}
             </div>
           </div>
         </div>

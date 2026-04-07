@@ -109,10 +109,11 @@ model RoundPlayer {
   playerId  Int
   player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
   position  Int      @default(0)
-  
+  handicapOverride Float? // Override player handicap for this round (null = use player default)
+
   teamId    Int?
   team      Team?    @relation(fields: [teamId], references: [id], onDelete: SetNull)
-  
+
   @@unique([roundId, playerId])
 }
 

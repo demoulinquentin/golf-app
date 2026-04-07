@@ -117,7 +117,7 @@ export const getTournamentLeaderboard = baseProcedure
           // Calculate par for holes played and strokes received
           let totalPar = 0;
           let totalStrokesReceived = 0;
-          const handicap = roundPlayer.player.handicap;
+          const handicap = roundPlayer.handicapOverride ?? roundPlayer.player.handicap;
 
           for (const s of playerRoundScores) {
             const hole = holeData?.find((h) => h.hole === s.holeNumber);
@@ -181,8 +181,8 @@ export const getTournamentLeaderboard = baseProcedure
 
           const p1Id = rp1.player.id;
           const p2Id = rp2.player.id;
-          const p1Hcp = rp1.player.handicap;
-          const p2Hcp = rp2.player.handicap;
+          const p1Hcp = rp1.handicapOverride ?? rp1.player.handicap;
+          const p2Hcp = rp2.handicapOverride ?? rp2.player.handicap;
 
           // Determine holes for this segment
           const segNum = match.segmentNumber as number;
@@ -288,7 +288,7 @@ export const getTournamentLeaderboard = baseProcedure
               );
               if (score) {
                 const sr = hole
-                  ? calculateStrokesReceived(rp.player.handicap, hole.strokeIndex)
+                  ? calculateStrokesReceived(rp.handicapOverride ?? rp.player.handicap, hole.strokeIndex)
                   : 0;
                 const net = score.strokes - sr;
                 if (team1BestNet === null || net < team1BestNet) {
@@ -310,7 +310,7 @@ export const getTournamentLeaderboard = baseProcedure
               );
               if (score) {
                 const sr = hole
-                  ? calculateStrokesReceived(rp.player.handicap, hole.strokeIndex)
+                  ? calculateStrokesReceived(rp.handicapOverride ?? rp.player.handicap, hole.strokeIndex)
                   : 0;
                 const net = score.strokes - sr;
                 if (team2BestNet === null || net < team2BestNet) {

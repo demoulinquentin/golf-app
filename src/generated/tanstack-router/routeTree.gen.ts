@@ -11,10 +11,14 @@ import { Route as IndexImport } from './../../routes/index'
 import { Route as TemplatesIndexImport } from './../../routes/templates/index'
 import { Route as RoundRoundIdRouteImport } from './../../routes/round/$roundId/route'
 import { Route as TournamentNewIndexImport } from './../../routes/tournament/new/index'
+import { Route as TournamentNewTeamCupIndexImport } from './../../routes/tournament/new-team-cup/index'
+import { Route as TournamentJoinIndexImport } from './../../routes/tournament/join/index'
 import { Route as RoundNewIndexImport } from './../../routes/round/new/index'
 import { Route as RoundRoundIdIndexImport } from './../../routes/round/$roundId/index'
 import { Route as AuthSignupIndexImport } from './../../routes/auth/signup/index'
 import { Route as AuthLoginIndexImport } from './../../routes/auth/login/index'
+import { Route as TournamentJoinShareableLinkIndexImport } from './../../routes/tournament/join/$shareableLink/index'
+import { Route as TournamentTournamentIdSettingsIndexImport } from './../../routes/tournament/$tournamentId/settings/index'
 import { Route as TournamentTournamentIdLeaderboardIndexImport } from './../../routes/tournament/$tournamentId/leaderboard/index'
 import { Route as RoundRoundIdLeaderboardIndexImport } from './../../routes/round/$roundId/leaderboard/index'
 import { Route as RoundRoundIdBetsIndexImport } from './../../routes/round/$roundId/bets/index'
@@ -45,6 +49,18 @@ const TournamentNewIndexRoute = TournamentNewIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const TournamentNewTeamCupIndexRoute = TournamentNewTeamCupIndexImport.update({
+  id: '/tournament/new-team-cup/',
+  path: '/tournament/new-team-cup/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TournamentJoinIndexRoute = TournamentJoinIndexImport.update({
+  id: '/tournament/join/',
+  path: '/tournament/join/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const RoundNewIndexRoute = RoundNewIndexImport.update({
   id: '/round/new/',
   path: '/round/new/',
@@ -68,6 +84,20 @@ const AuthLoginIndexRoute = AuthLoginIndexImport.update({
   path: '/auth/login/',
   getParentRoute: () => rootRoute,
 } as any)
+
+const TournamentJoinShareableLinkIndexRoute =
+  TournamentJoinShareableLinkIndexImport.update({
+    id: '/tournament/join/$shareableLink/',
+    path: '/tournament/join/$shareableLink/',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const TournamentTournamentIdSettingsIndexRoute =
+  TournamentTournamentIdSettingsIndexImport.update({
+    id: '/tournament/$tournamentId/settings/',
+    path: '/tournament/$tournamentId/settings/',
+    getParentRoute: () => rootRoute,
+  } as any)
 
 const TournamentTournamentIdLeaderboardIndexRoute =
   TournamentTournamentIdLeaderboardIndexImport.update({
@@ -142,6 +172,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RoundNewIndexImport
       parentRoute: typeof rootRoute
     }
+    '/tournament/join/': {
+      id: '/tournament/join/'
+      path: '/tournament/join'
+      fullPath: '/tournament/join'
+      preLoaderRoute: typeof TournamentJoinIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/tournament/new-team-cup/': {
+      id: '/tournament/new-team-cup/'
+      path: '/tournament/new-team-cup'
+      fullPath: '/tournament/new-team-cup'
+      preLoaderRoute: typeof TournamentNewTeamCupIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/tournament/new/': {
       id: '/tournament/new/'
       path: '/tournament/new'
@@ -168,6 +212,20 @@ declare module '@tanstack/react-router' {
       path: '/tournament/$tournamentId/leaderboard'
       fullPath: '/tournament/$tournamentId/leaderboard'
       preLoaderRoute: typeof TournamentTournamentIdLeaderboardIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/tournament/$tournamentId/settings/': {
+      id: '/tournament/$tournamentId/settings/'
+      path: '/tournament/$tournamentId/settings'
+      fullPath: '/tournament/$tournamentId/settings'
+      preLoaderRoute: typeof TournamentTournamentIdSettingsIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/tournament/join/$shareableLink/': {
+      id: '/tournament/join/$shareableLink/'
+      path: '/tournament/join/$shareableLink'
+      fullPath: '/tournament/join/$shareableLink'
+      preLoaderRoute: typeof TournamentJoinShareableLinkIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -198,10 +256,14 @@ export interface FileRoutesByFullPath {
   '/auth/signup': typeof AuthSignupIndexRoute
   '/round/$roundId/': typeof RoundRoundIdIndexRoute
   '/round/new': typeof RoundNewIndexRoute
+  '/tournament/join': typeof TournamentJoinIndexRoute
+  '/tournament/new-team-cup': typeof TournamentNewTeamCupIndexRoute
   '/tournament/new': typeof TournamentNewIndexRoute
   '/round/$roundId/bets': typeof RoundRoundIdBetsIndexRoute
   '/round/$roundId/leaderboard': typeof RoundRoundIdLeaderboardIndexRoute
   '/tournament/$tournamentId/leaderboard': typeof TournamentTournamentIdLeaderboardIndexRoute
+  '/tournament/$tournamentId/settings': typeof TournamentTournamentIdSettingsIndexRoute
+  '/tournament/join/$shareableLink': typeof TournamentJoinShareableLinkIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -211,10 +273,14 @@ export interface FileRoutesByTo {
   '/auth/signup': typeof AuthSignupIndexRoute
   '/round/$roundId': typeof RoundRoundIdIndexRoute
   '/round/new': typeof RoundNewIndexRoute
+  '/tournament/join': typeof TournamentJoinIndexRoute
+  '/tournament/new-team-cup': typeof TournamentNewTeamCupIndexRoute
   '/tournament/new': typeof TournamentNewIndexRoute
   '/round/$roundId/bets': typeof RoundRoundIdBetsIndexRoute
   '/round/$roundId/leaderboard': typeof RoundRoundIdLeaderboardIndexRoute
   '/tournament/$tournamentId/leaderboard': typeof TournamentTournamentIdLeaderboardIndexRoute
+  '/tournament/$tournamentId/settings': typeof TournamentTournamentIdSettingsIndexRoute
+  '/tournament/join/$shareableLink': typeof TournamentJoinShareableLinkIndexRoute
 }
 
 export interface FileRoutesById {
@@ -226,10 +292,14 @@ export interface FileRoutesById {
   '/auth/signup/': typeof AuthSignupIndexRoute
   '/round/$roundId/': typeof RoundRoundIdIndexRoute
   '/round/new/': typeof RoundNewIndexRoute
+  '/tournament/join/': typeof TournamentJoinIndexRoute
+  '/tournament/new-team-cup/': typeof TournamentNewTeamCupIndexRoute
   '/tournament/new/': typeof TournamentNewIndexRoute
   '/round/$roundId/bets/': typeof RoundRoundIdBetsIndexRoute
   '/round/$roundId/leaderboard/': typeof RoundRoundIdLeaderboardIndexRoute
   '/tournament/$tournamentId/leaderboard/': typeof TournamentTournamentIdLeaderboardIndexRoute
+  '/tournament/$tournamentId/settings/': typeof TournamentTournamentIdSettingsIndexRoute
+  '/tournament/join/$shareableLink/': typeof TournamentJoinShareableLinkIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -242,10 +312,14 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/round/$roundId/'
     | '/round/new'
+    | '/tournament/join'
+    | '/tournament/new-team-cup'
     | '/tournament/new'
     | '/round/$roundId/bets'
     | '/round/$roundId/leaderboard'
     | '/tournament/$tournamentId/leaderboard'
+    | '/tournament/$tournamentId/settings'
+    | '/tournament/join/$shareableLink'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -254,10 +328,14 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/round/$roundId'
     | '/round/new'
+    | '/tournament/join'
+    | '/tournament/new-team-cup'
     | '/tournament/new'
     | '/round/$roundId/bets'
     | '/round/$roundId/leaderboard'
     | '/tournament/$tournamentId/leaderboard'
+    | '/tournament/$tournamentId/settings'
+    | '/tournament/join/$shareableLink'
   id:
     | '__root__'
     | '/'
@@ -267,10 +345,14 @@ export interface FileRouteTypes {
     | '/auth/signup/'
     | '/round/$roundId/'
     | '/round/new/'
+    | '/tournament/join/'
+    | '/tournament/new-team-cup/'
     | '/tournament/new/'
     | '/round/$roundId/bets/'
     | '/round/$roundId/leaderboard/'
     | '/tournament/$tournamentId/leaderboard/'
+    | '/tournament/$tournamentId/settings/'
+    | '/tournament/join/$shareableLink/'
   fileRoutesById: FileRoutesById
 }
 
@@ -281,8 +363,12 @@ export interface RootRouteChildren {
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthSignupIndexRoute: typeof AuthSignupIndexRoute
   RoundNewIndexRoute: typeof RoundNewIndexRoute
+  TournamentJoinIndexRoute: typeof TournamentJoinIndexRoute
+  TournamentNewTeamCupIndexRoute: typeof TournamentNewTeamCupIndexRoute
   TournamentNewIndexRoute: typeof TournamentNewIndexRoute
   TournamentTournamentIdLeaderboardIndexRoute: typeof TournamentTournamentIdLeaderboardIndexRoute
+  TournamentTournamentIdSettingsIndexRoute: typeof TournamentTournamentIdSettingsIndexRoute
+  TournamentJoinShareableLinkIndexRoute: typeof TournamentJoinShareableLinkIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -292,9 +378,14 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthSignupIndexRoute: AuthSignupIndexRoute,
   RoundNewIndexRoute: RoundNewIndexRoute,
+  TournamentJoinIndexRoute: TournamentJoinIndexRoute,
+  TournamentNewTeamCupIndexRoute: TournamentNewTeamCupIndexRoute,
   TournamentNewIndexRoute: TournamentNewIndexRoute,
   TournamentTournamentIdLeaderboardIndexRoute:
     TournamentTournamentIdLeaderboardIndexRoute,
+  TournamentTournamentIdSettingsIndexRoute:
+    TournamentTournamentIdSettingsIndexRoute,
+  TournamentJoinShareableLinkIndexRoute: TournamentJoinShareableLinkIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -313,8 +404,12 @@ export const routeTree = rootRoute
         "/auth/login/",
         "/auth/signup/",
         "/round/new/",
+        "/tournament/join/",
+        "/tournament/new-team-cup/",
         "/tournament/new/",
-        "/tournament/$tournamentId/leaderboard/"
+        "/tournament/$tournamentId/leaderboard/",
+        "/tournament/$tournamentId/settings/",
+        "/tournament/join/$shareableLink/"
       ]
     },
     "/": {
@@ -344,6 +439,12 @@ export const routeTree = rootRoute
     "/round/new/": {
       "filePath": "round/new/index.tsx"
     },
+    "/tournament/join/": {
+      "filePath": "tournament/join/index.tsx"
+    },
+    "/tournament/new-team-cup/": {
+      "filePath": "tournament/new-team-cup/index.tsx"
+    },
     "/tournament/new/": {
       "filePath": "tournament/new/index.tsx"
     },
@@ -357,6 +458,12 @@ export const routeTree = rootRoute
     },
     "/tournament/$tournamentId/leaderboard/": {
       "filePath": "tournament/$tournamentId/leaderboard/index.tsx"
+    },
+    "/tournament/$tournamentId/settings/": {
+      "filePath": "tournament/$tournamentId/settings/index.tsx"
+    },
+    "/tournament/join/$shareableLink/": {
+      "filePath": "tournament/join/$shareableLink/index.tsx"
     }
   }
 }

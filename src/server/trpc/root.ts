@@ -20,6 +20,8 @@ import { completeRound } from "~/server/trpc/procedures/completeRound";
 import { subscribeToRoundScores } from "~/server/trpc/procedures/subscribeToRoundScores";
 import { joinTournament } from "~/server/trpc/procedures/joinTournament";
 import { joinTournamentByCode } from "~/server/trpc/procedures/joinTournamentByCode";
+import { updateHandicapOverride } from "~/server/trpc/procedures/updateHandicapOverride";
+import { updateRoundCourse } from "~/server/trpc/procedures/updateRoundCourse";
 
 export const appRouter = createTRPCRouter({
   // Authentication
@@ -51,6 +53,10 @@ export const appRouter = createTRPCRouter({
   getUserTournaments,
   joinTournament,
   joinTournamentByCode,
+
+  // Tournament settings
+  updateHandicapOverride,
+  updateRoundCourse,
 });
 
 export type AppRouter = typeof appRouter;

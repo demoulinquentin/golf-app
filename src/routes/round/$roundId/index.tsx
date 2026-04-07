@@ -18,6 +18,13 @@ export const Route = createFileRoute("/round/$roundId/")({
   validateSearch: zodValidator(searchSchema),
 });
 
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/** Get the effective handicap for a RoundPlayer (override or default) */
+function getEffectiveHandicap(rp: any): number {
+  return (rp?.handicapOverride ?? rp?.player?.handicap) || 0;
+}
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type HoleInfo = { hole: number; par: number; strokeIndex: number };
@@ -558,10 +565,10 @@ function MatchplayLeaderboardTab({
       const p2 = rp2.player;
 
       const p1Stats = calculateNetScoreForHoles(
-        p1.id, holes, getPlayerScore, getHoleData, getStrokesReceivedForHole, p1.handicap || 0
+        p1.id, holes, getPlayerScore, getHoleData, getStrokesReceivedForHole, getEffectiveHandicap(rp1)
       );
       const p2Stats = calculateNetScoreForHoles(
-        p2.id, holes, getPlayerScore, getHoleData, getStrokesReceivedForHole, p2.handicap || 0
+        p2.id, holes, getPlayerScore, getHoleData, getStrokesReceivedForHole, getEffectiveHandicap(rp2)
       );
 
       const isBlind = match.type === "blind";
@@ -595,8 +602,8 @@ function MatchplayLeaderboardTab({
         if (p1Score === undefined || p2Score === undefined) continue;
 
         const hd = getHoleData(h);
-        const p1Sr = getStrokesReceivedForHole(h, p1.handicap || 0);
-        const p2Sr = getStrokesReceivedForHole(h, p2.handicap || 0);
+        const p1Sr = getStrokesReceivedForHole(h, getEffectiveHandicap(rp1));
+        const p2Sr = getStrokesReceivedForHole(h, getEffectiveHandicap(rp2));
         const p1Net = p1Score - p1Sr;
         const p2Net = p2Score - p2Sr;
 
@@ -905,8 +912,8 @@ function MiniScorecard({
 
   const p1 = rp1.player;
   const p2 = rp2.player;
-  const p1Handicap = p1.handicap || 0;
-  const p2Handicap = p2.handicap || 0;
+  const p1Handicap = getEffectiveHandicap(rp1);
+  const p2Handicap = getEffectiveHandicap(rp2);
   const isBlind = match.type === "blind";
 
   const team1Info = getTeamForPlayerIndex(round, match.player1Index);
@@ -1348,7 +1355,7 @@ function Day3LeaderboardTab({
       for (const rp of team1) {
         const score = getPlayerScore(rp.player.id, h);
         if (score !== undefined) {
-          const sr = getStrokesReceivedForHole(h, rp.player.handicap || 0);
+          const sr = getStrokesReceivedForHole(h, getEffectiveHandicap(rp));
           const net = score - sr;
           if (team1BestNet === null || net < team1BestNet) {
             team1BestNet = net;
@@ -1361,7 +1368,7 @@ function Day3LeaderboardTab({
       for (const rp of team2) {
         const score = getPlayerScore(rp.player.id, h);
         if (score !== undefined) {
-          const sr = getStrokesReceivedForHole(h, rp.player.handicap || 0);
+          const sr = getStrokesReceivedForHole(h, getEffectiveHandicap(rp));
           const net = score - sr;
           if (team2BestNet === null || net < team2BestNet) {
             team2BestNet = net;
@@ -1720,7 +1727,7 @@ function Day3ScorecardTab({
       for (const rp of teamPlayers) {
         const score = getPlayerScore(rp.player.id, h);
         if (score !== undefined) {
-          const sr = getStrokesReceivedForHole(h, rp.player.handicap || 0);
+          const sr = getStrokesReceivedForHole(h, getEffectiveHandicap(rp));
           const net = score - sr;
           if (bestNet === null || net < bestNet) {
             bestNet = net;
@@ -1867,7 +1874,7 @@ function Day3ScorecardTab({
             {/* Team 1 player rows */}
             {team1.map((rp: any) => {
               const player = rp.player;
-              const handicap = player.handicap || 0;
+              const handicap = getEffectiveHandicap(rp);
               const outSum = computeSum(player.id, frontNine);
               const inSum = computeSum(player.id, backNine);
               const total = outSum !== null || inSum !== null ? (outSum ?? 0) + (inSum ?? 0) : null;
@@ -1926,7 +1933,7 @@ function Day3ScorecardTab({
             {/* Team 2 player rows */}
             {team2.map((rp: any) => {
               const player = rp.player;
-              const handicap = player.handicap || 0;
+              const handicap = getEffectiveHandicap(rp);
               const outSum = computeSum(player.id, frontNine);
               const inSum = computeSum(player.id, backNine);
               const total = outSum !== null || inSum !== null ? (outSum ?? 0) + (inSum ?? 0) : null;
@@ -2040,7 +2047,7 @@ function LeaderboardTab({
     return round.players
       .map((rp: any) => {
         const player = rp.player;
-        const handicap = player.handicap || 0;
+        const handicap = getEffectiveHandicap(rp);
 
         let totalStrokes = 0;
         let totalPar = 0;
@@ -2370,7 +2377,7 @@ function ScorecardTab({
             {/* Player rows */}
             {partyPlayers.map((rp: any) => {
               const player = rp.player;
-              const handicap = player.handicap || 0;
+              const handicap = getEffectiveHandicap(rp);
               const outSum = computeSum(player.id, frontNine);
               const inSum = computeSum(player.id, backNine);
               const total = outSum !== null || inSum !== null ? (outSum ?? 0) + (inSum ?? 0) : null;
