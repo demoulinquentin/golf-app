@@ -21,17 +21,11 @@ export const enterScore = baseProcedure
     })
   )
   .mutation(async ({ input }) => {
-    // Check permissions
-    const hasPermission = canEditScore(
-      input.isAdmin || false,
-      input.requestingPlayerId || null,
-      input.playerId
-    );
-
-    if (!hasPermission) {
+    // Check permissions — any tournament participant can edit any score
+    if (!input.isAdmin && !input.requestingPlayerId) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "You don't have permission to edit this player's score",
+        message: "You must be a tournament participant to edit scores",
       });
     }
 

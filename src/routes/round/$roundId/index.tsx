@@ -229,11 +229,11 @@ function ScoringPage() {
 
   const canEdit = useCallback(
     (playerId: number): boolean => {
-      if (isAdmin) return true;
       if (!round?.tournamentId) return true; // no tournament = open
-      return canEditPlayer(round.tournamentId, playerId);
+      // Any player who joined the tournament can edit any score
+      return !!tournamentAccess;
     },
-    [isAdmin, round?.tournamentId, canEditPlayer]
+    [round?.tournamentId, tournamentAccess]
   );
 
   // ── Loading state ──────────────────────────────────────────────────────────
